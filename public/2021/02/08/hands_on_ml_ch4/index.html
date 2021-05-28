@@ -1,0 +1,617 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="hands on ML 主要包括线性回归，多项式回归，逻辑回归，softmax回归，梯度下降和正则化方法">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+  <title>【hands on ML Ch4】-训练模型 - Hexo</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.6.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.10","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>wutao's blog</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="【hands on ML Ch4】-训练模型">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-author" aria-hidden="true"></i>
+      John Doe
+    </span>
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-02-08 10:00" pubdate>
+        2021年2月8日 上午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      4.6k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      60
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">【hands on ML Ch4】-训练模型</h1>
+            
+              <p class="note note-info">
+                
+                  本文最后更新于：4 个月前
+                
+              </p>
+            
+            <div class="markdown-body">
+              <p>hands on ML 主要包括线性回归，多项式回归，逻辑回归，softmax回归，梯度下降和正则化方法</p>
+<span id="more"></span>
+<p>本章主要包括：</p>
+<ul>
+<li>  线性回归模型</li>
+<li>  多项式回归模型</li>
+<li>  逻辑回归模型</li>
+<li>  Softmax回归模型</li>
+<li>  一些正则化的技术</li>
+<li>  梯度下降</li>
+</ul>
+<h2 id="线性回归"><a href="#线性回归" class="headerlink" title="线性回归"></a>线性回归</h2><p>一般线性回归的表示行形式为：输入特征的加权求和再加上截距项(或者叫做bias term)<em>ŷ</em> = <em>θ</em><sub>0</sub> + <em>θ</em><sub>1</sub><em>x</em><sub>1</sub> + <em>θ</em><sub>2</sub><em>x</em><sub>2</sub> + … + <em>θ</em><sub><em>n</em></sub><em>x</em><sub><em>n</em></sub>(<em>ŷ</em>是预测值，n是特征数量，<em>x</em><sub><em>i</em></sub>是特征值，<em>θ</em><sub><em>j</em></sub>是模型参数)，也可以写成向量形式：<em>ŷ</em> = <em>h</em><sub><em>θ</em></sub>(<em>x</em>) = <em>θ</em><sup><em>T</em></sup><em>X</em> (<em>θ</em>是参数向量，X是输入特征向量)</p>
+<p>在第二章中已经讲过衡量一个线性回归模型常用的指标是RMSE，因此我们可以通过最小化RMSE来找到参数<em>θ</em>,为了简化计算，在实际操作中我们是最小化MSE的(MSE最小化，平方根自然也就是最小的)：</p>
+<p>$$<br>MSE(X,h_{\theta})=\frac{1}{m}\sum_{i=1}^{m}(\theta^TX^{(i)}-y^{(i)})^2<br>$$</p>
+<p>求使损失函数最小的<em>θ</em>最直接的方法就是进行数学求解(解析解，也叫normal equation)，MSE的Normal Equation为：<em>θ̂</em> = (<em>X</em><sup><em>T</em></sup><em>X</em>)<sup> − 1</sup><em>X</em><sup><em>T</em></sup><em>y</em>，我们可以来验证一下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">##生成数据</span><br><span class="hljs-keyword">import</span> numpy <span class="hljs-keyword">as</span> np<br><span class="hljs-keyword">import</span> matplotlib <span class="hljs-keyword">as</span> mpl<br><span class="hljs-keyword">import</span> matplotlib.pyplot <span class="hljs-keyword">as</span> plt<br><br>x = <span class="hljs-number">2</span> * np.random.rand(<span class="hljs-number">100</span>,<span class="hljs-number">1</span>)<br>y = <span class="hljs-number">4</span> + <span class="hljs-number">3</span> * x + np.random.randn(<span class="hljs-number">100</span>,<span class="hljs-number">1</span>)<br>plt.plot(x, y, <span class="hljs-string">&quot;b.&quot;</span>)<br>&gt;&gt; [&lt;matplotlib.lines.Line2D <span class="hljs-built_in">object</span> at <span class="hljs-number">0x0000021801228460</span>&gt;]<br>plt.xlabel(<span class="hljs-string">&quot;$x_1$&quot;</span>, fontsize=<span class="hljs-number">18</span>)<br>&gt;&gt; Text(<span class="hljs-number">0.5</span>, <span class="hljs-number">0</span>, <span class="hljs-string">&#x27;$x_1$&#x27;</span>)<br>plt.ylabel(<span class="hljs-string">&quot;$y$&quot;</span>, rotation=<span class="hljs-number">0</span>, fontsize=<span class="hljs-number">18</span>)<br>&gt;&gt; Text(<span class="hljs-number">0</span>, <span class="hljs-number">0.5</span>, <span class="hljs-string">&#x27;$y$&#x27;</span>)<br>plt.axis([<span class="hljs-number">0</span>, <span class="hljs-number">2</span>, <span class="hljs-number">0</span>, <span class="hljs-number">15</span>])<br>&gt;&gt; (<span class="hljs-number">0.0</span>, <span class="hljs-number">2.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">15.0</span>)<br>plt.show()<br></code></pre></td></tr></table></figure>
+
+<img src="/img/hands_on_ml_ch4_files/figure-markdown_github/unnamed-chunk-1-1.png" srcset="/img/loading.gif" lazyload width="672" />
+
+<p>计算<em>θ</em>的Normal equation:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs python">x_b = np.c_[np.ones((<span class="hljs-number">100</span>,<span class="hljs-number">1</span>)),x]<span class="hljs-comment">##x_0 = 1</span><br>theta_best = np.linalg.inv(x_b.T.dot(x_b)).dot(x_b.T).dot(y)<br><br>theta_best<br>&gt;&gt; array([[<span class="hljs-number">4.12634538</span>],<br>&gt;&gt;        [<span class="hljs-number">2.81427971</span>]])<br></code></pre></td></tr></table></figure>
+
+<p><code>np.c_</code>进行的是增加列的操作(R里面的cbind);<code>np.ones((100,1))</code>产生100行1列的矩阵，元素都是1;<code>np.linalg</code>是numpy中线性代数模块;<code>inv</code>是矩阵求逆方法;<code>T</code>是矩阵转置方法;<code>dot</code>是矩阵乘法</p>
+<p>现在我们使用计算出的<em>θ̂</em>来预测：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs python">x_new = np.array([[<span class="hljs-number">0</span>],[<span class="hljs-number">2</span>]])<br>x_new_b = np.c_[np.ones((<span class="hljs-number">2</span>,<span class="hljs-number">1</span>)),x_new]<br>y_pre = x_new_b.dot(theta_best)<br>y_pre<br>&gt;&gt; array([[<span class="hljs-number">4.12634538</span>],<br>&gt;&gt;        [<span class="hljs-number">9.7549048</span> ]])<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python">plt.plot(x_new,y_pre,<span class="hljs-string">&quot;r-&quot;</span>)<br>&gt;&gt; [&lt;matplotlib.lines.Line2D <span class="hljs-built_in">object</span> at <span class="hljs-number">0x000002180339EFA0</span>&gt;]<br>plt.plot(x,y,<span class="hljs-string">&quot;b.&quot;</span>)<br>&gt;&gt; [&lt;matplotlib.lines.Line2D <span class="hljs-built_in">object</span> at <span class="hljs-number">0x00000218011C2EB0</span>&gt;]<br>plt.axis([<span class="hljs-number">0</span>,<span class="hljs-number">2</span>,<span class="hljs-number">0</span>,<span class="hljs-number">15</span>])<br>&gt;&gt; (<span class="hljs-number">0.0</span>, <span class="hljs-number">2.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">15.0</span>)<br>plt.show()<br></code></pre></td></tr></table></figure>
+
+<img src="/img/hands_on_ml_ch4_files/figure-markdown_github/unnamed-chunk-4-1.png" srcset="/img/loading.gif" lazyload width="672" />
+
+<p>在Scikit-Learn中可以使用<code>LinearRegression</code>来方便的进行线性回归的计算：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> sklearn.linear_model <span class="hljs-keyword">import</span> LinearRegression<br><br>lin_reg = LinearRegression()<br>lin_reg.fit(x,y)<br>&gt;&gt; LinearRegression()<br>lin_reg.intercept_, lin_reg.coef_<br>&gt;&gt; (array([<span class="hljs-number">4.12634538</span>]), array([[<span class="hljs-number">2.81427971</span>]]))<br>lin_reg.predict(x_new)<br>&gt;&gt; array([[<span class="hljs-number">4.12634538</span>],<br>&gt;&gt;        [<span class="hljs-number">9.7549048</span> ]])<br></code></pre></td></tr></table></figure>
+
+<p><code>LinearRegression</code>类是基于<code>scipy.linalg.lstsq</code>函数的，该函数是通过SVD进行计算pseudoinverse(<em>X</em><sup>+</sup>)然后再计算<em>θ̂</em> = <em>X</em><sup>+</sup><em>y</em>,这样计算有两个好处：pseudoinverse的计算比直接计算矩阵的逆效率更高(why?)；当<em>X</em><sup><em>T</em></sup><em>X</em>不可逆的时候NormalEquation是无法计算的，而pseudoinverse是可以计算的</p>
+<p>计算Normal Equation的计算复杂度是比较大的(求矩阵的逆的计算复杂度为<em>O</em>(<em>n</em><sup>2.4</sup>)~<em>O</em>(<em>n</em><sup>3</sup>),使用SVD方法的计算复杂度为<em>O</em>(<em>n</em><sup>2</sup>))</p>
+<h2 id="梯度下降"><a href="#梯度下降" class="headerlink" title="梯度下降"></a>梯度下降</h2><h3 id="数学理论"><a href="#数学理论" class="headerlink" title="数学理论"></a>数学理论</h3><p>这一部分参考李宏毅老师的机器学习课程</p>
+<p>现在的问题是：找到<em>θ</em><sup>*</sup>：<br>$$<br>\theta^* = argmin_{\theta}L(\theta)<br>$$<br><em>L</em>(<em>θ</em>)是损失函数</p>
+<p>现在假设<em>θ</em>由两个参数构成：{<em>θ</em><sub>1</sub>,<em>θ</em><sub>2</sub>},<em>L</em>(<em>θ</em>)的等高线如下图：<br><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210227170016311.png" srcset="/img/loading.gif" lazyload></p>
+<p>给定一个点，我们是否可以在其邻域内找到一个使<em>L</em>(<em>θ</em>)最小的点然后向这个点移动最终到达全局最小点(如上图)；那么怎样找到这个点呢？</p>
+<p>这里需要引入**<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1Gx411Y7cz?from=search&seid=4438787146009065334">泰勒级数</a><strong>的概念：</strong>泰勒级数利用函数在某个点的导数来近似在这个点附近的函数值**,数学表示为：<br>在<em>x</em> = <em>x</em><sub>0</sub>附近有：<br>$$<br>h(x) = h(x_0)+h^{‘}(x_0)(x-x_0)+\frac{h^{‘’}(x_0)}{2!}(x-x_0)^2+…<br>$$<br>当x接近<em>x</em><sub>0</sub>的时候可以将高次式忽略：<br><em>h</em>(<em>x</em>) ≈ <em>h</em>(<em>x</em><sub>0</sub>) + <em>h</em><sup>′</sup>(<em>x</em><sub>0</sub>)(<em>x</em> − <em>x</em><sub>0</sub>)<br>对于多个变量也是类似的：</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210227180156655.png" srcset="/img/loading.gif" lazyload></p>
+<p>回到上面的问题:</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210227180518842.png" srcset="/img/loading.gif" lazyload></p>
+<p><strong>如果红色的圆圈足够小</strong>，我们就可以使用泰勒级数来近似损失函数：<br>$$<br>L(\theta) \approx  L(a,b)+\frac{\partial L(a,b)}{\partial \theta_1}(\theta_1-a)+\frac{\partial L(a,b)}{\partial \theta_2}(\theta_2-b)<br>$$<br>令$s=L(a,b)$,$u=\frac{\partial L(a,b)}{\partial \theta_1}$,$v=\frac{\partial L(a,b)}{\partial \theta_2}$, 将上式简化:<br><em>L</em>(<em>θ</em>) ≈ <em>s</em> + <em>u</em>(<em>θ</em><sub>1</sub> − <em>a</em>) + <em>v</em>(<em>θ</em><sub>2</sub> − <em>b</em>)<br>我们现在的问题就是：在红色的圆圈内找到<em>θ</em><sub>1</sub>和<em>θ</em><sub>2</sub>使得<em>L</em>(<em>θ</em>)最小</p>
+<p>如果使$\theta_1-a=\Delta \theta_1$,$\theta_2-b=\Delta \theta_2$，那么<em>L</em>(<em>θ</em>)就可以表示为两个向量的乘积：</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210227182845081.png" srcset="/img/loading.gif" lazyload></p>
+<p>要使<em>L</em>(<em>θ</em>)最小，那么就要使这两个向量反向(并且$(\Delta \theta_1,\Delta \theta_2)$在圆上)：</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210227183501439.png" srcset="/img/loading.gif" lazyload></p>
+<p>这个就是梯度下降的形式！<br><em>θ</em><sup><em>i</em></sup> = <em>θ</em><sup><em>i</em> − 1</sup> − <em>η</em> ▽ <em>L</em>(<em>θ</em><sup><em>i</em> − 1</sup>)</p>
+<h3 id="梯度下降的注意事项"><a href="#梯度下降的注意事项" class="headerlink" title="梯度下降的注意事项"></a>梯度下降的注意事项</h3><h4 id="学习率的调整"><a href="#学习率的调整" class="headerlink" title="学习率的调整"></a>学习率的调整</h4><p>学习率(<em>η</em>)是一个重要的超参数，决定了梯度下降的步伐有多大;如果学习率比较小,那么收敛到最小值需要迭代的次数就比较多，如果学习率比较大,那么就可能跳过了最小值，甚至有可能比起始值还要大：</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210227185426216.png" srcset="/img/loading.gif" lazyload></p>
+<p>除了手动设定学习率之外，我们还可以使学习率随着训练的进行逐渐减少(在每次迭代时，决定学习率的函数叫做<em>learning schedule</em>)</p>
+<h4 id="随机梯度下降"><a href="#随机梯度下降" class="headerlink" title="随机梯度下降"></a>随机梯度下降</h4><p>上面提到的损失函数都是对所有的训练数据来计算的(所有预测值和真实值的误差和)，而随机梯度下降所使用的计算梯度的函数是随机选取的观测值的预测值和真实值的误差(只看一个点)，更有效率</p>
+<h4 id="特征的归一化"><a href="#特征的归一化" class="headerlink" title="特征的归一化"></a>特征的归一化</h4><p>下面的图比较形象的表示了归一化对学习的影响：</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210227210417449.png" srcset="/img/loading.gif" lazyload></p>
+<p>如果两个特征的范围不一样，那么在更新参数时对损失函数的下降的贡献就会不一样</p>
+<p>在Scikit learn中可以使用<code>SGDRegressor</code>来进行随机梯度下降求解线性回归模型：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> sklearn.linear_model <span class="hljs-keyword">import</span> SGDRegressor<br>sgd_reg = SGDRegressor(max_iter=<span class="hljs-number">1000</span>,tol=<span class="hljs-number">1e-3</span>,penalty=<span class="hljs-literal">None</span>,eta0=<span class="hljs-number">0.1</span>)<br>sgd_reg.fit(x,y.ravel())<span class="hljs-comment">##ravel将列向量转为一维向量</span><br>&gt;&gt; SGDRegressor(eta0=<span class="hljs-number">0.1</span>, penalty=<span class="hljs-literal">None</span>)<br></code></pre></td></tr></table></figure>
+
+<p><code>max_iter</code>表示epoch的数目(epoch指全部训练数据都被模型“看了”一遍)；<code>tol</code>表示如果在某一个epoch上损失函数下降小于tol的数值，则训练停止；<code>penalty</code>表示正则化(后面讲);<code>eta0</code>表示初始的学习率大小，默认的学习率是:$eta0/pow(t,power_t)$, power_t的默认值是0.25</p>
+<h2 id="多项式回归"><a href="#多项式回归" class="headerlink" title="多项式回归"></a>多项式回归</h2><p>可以使用线性模型来拟合非线性的数据，一个简单的做法就是将每个特征加上幂次作为新的特征，然后对这些拓展的特征进行训练线性模型，这个技术叫做<strong>多项式回归(polynomial regression)</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">##模拟数据</span><br>m = <span class="hljs-number">100</span><br>np.random.seed(<span class="hljs-number">123</span>)<br>x = <span class="hljs-number">6</span> * np.random.rand(m,<span class="hljs-number">1</span>) - <span class="hljs-number">3</span> <span class="hljs-comment">##均匀分布</span><br>y = <span class="hljs-number">0.5</span> * x**<span class="hljs-number">2</span> + x + <span class="hljs-number">2</span> + np.random.randn(m,<span class="hljs-number">1</span>)<span class="hljs-comment">##正态分布</span><br><br>plt.plot(x, y, <span class="hljs-string">&quot;b.&quot;</span>)<br>&gt;&gt; [&lt;matplotlib.lines.Line2D <span class="hljs-built_in">object</span> at <span class="hljs-number">0x000002180E9B1910</span>&gt;]<br>plt.xlabel(<span class="hljs-string">&quot;$x_1$&quot;</span>, fontsize=<span class="hljs-number">18</span>)<br>&gt;&gt; Text(<span class="hljs-number">0.5</span>, <span class="hljs-number">0</span>, <span class="hljs-string">&#x27;$x_1$&#x27;</span>)<br>plt.ylabel(<span class="hljs-string">&quot;$y$&quot;</span>, rotation=<span class="hljs-number">0</span>, fontsize=<span class="hljs-number">18</span>)<br>&gt;&gt; Text(<span class="hljs-number">0</span>, <span class="hljs-number">0.5</span>, <span class="hljs-string">&#x27;$y$&#x27;</span>)<br>plt.axis([-<span class="hljs-number">3</span>, <span class="hljs-number">3</span>, <span class="hljs-number">0</span>, <span class="hljs-number">10</span>])<br>&gt;&gt; (-<span class="hljs-number">3.0</span>, <span class="hljs-number">3.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">10.0</span>)<br>plt.show()<br></code></pre></td></tr></table></figure>
+
+<img src="/img/hands_on_ml_ch4_files/figure-markdown_github/unnamed-chunk-7-1.png" srcset="/img/loading.gif" lazyload width="672" />
+
+<p>使用<code>PolynomialFeatures</code>类将特征加上平方后作为新的特征：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> sklearn.preprocessing <span class="hljs-keyword">import</span> PolynomialFeatures<br>poly_features = PolynomialFeatures(degree=<span class="hljs-number">2</span>,include_bias=<span class="hljs-literal">False</span>)<br>x_poly = poly_features.fit_transform(x)<br><br>x[<span class="hljs-number">0</span>]<br>&gt;&gt; array([<span class="hljs-number">1.17881511</span>])<br>x_poly[<span class="hljs-number">0</span>]<br>&gt;&gt; array([<span class="hljs-number">1.17881511</span>, <span class="hljs-number">1.38960507</span>])<br></code></pre></td></tr></table></figure>
+
+<p>然后重新训练模型：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python">lin_reg = LinearRegression()<br>lin_reg.fit(x_poly,y)<br>&gt;&gt; LinearRegression()<br>lin_reg.intercept_, lin_reg.coef_<br>&gt;&gt; (array([<span class="hljs-number">2.03146145</span>]), array([[<span class="hljs-number">0.95505451</span>, <span class="hljs-number">0.50182851</span>]]))<br></code></pre></td></tr></table></figure>
+
+<p>预测：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs python">x_new=np.linspace(-<span class="hljs-number">3</span>, <span class="hljs-number">3</span>, <span class="hljs-number">100</span>).reshape(<span class="hljs-number">100</span>, <span class="hljs-number">1</span>)<br>x_new_poly = poly_features.transform(x_new)<br>y_new = lin_reg.predict(x_new_poly)<br>plt.plot(x, y, <span class="hljs-string">&quot;b.&quot;</span>)<br>&gt;&gt; [&lt;matplotlib.lines.Line2D <span class="hljs-built_in">object</span> at <span class="hljs-number">0x000002180ECF2C40</span>&gt;]<br>plt.plot(x_new, y_new, <span class="hljs-string">&quot;r-&quot;</span>, linewidth=<span class="hljs-number">2</span>, label=<span class="hljs-string">&quot;Predictions&quot;</span>)<br>&gt;&gt; [&lt;matplotlib.lines.Line2D <span class="hljs-built_in">object</span> at <span class="hljs-number">0x000002180ECF2E80</span>&gt;]<br>plt.xlabel(<span class="hljs-string">&quot;$x_1$&quot;</span>, fontsize=<span class="hljs-number">18</span>)<br>&gt;&gt; Text(<span class="hljs-number">0.5</span>, <span class="hljs-number">0</span>, <span class="hljs-string">&#x27;$x_1$&#x27;</span>)<br>plt.ylabel(<span class="hljs-string">&quot;$y$&quot;</span>, rotation=<span class="hljs-number">0</span>, fontsize=<span class="hljs-number">18</span>)<br>&gt;&gt; Text(<span class="hljs-number">0</span>, <span class="hljs-number">0.5</span>, <span class="hljs-string">&#x27;$y$&#x27;</span>)<br>plt.legend(loc=<span class="hljs-string">&quot;upper left&quot;</span>, fontsize=<span class="hljs-number">14</span>)<br>&gt;&gt; &lt;matplotlib.legend.Legend <span class="hljs-built_in">object</span> at <span class="hljs-number">0x000002180EB14490</span>&gt;<br>plt.axis([-<span class="hljs-number">3</span>, <span class="hljs-number">3</span>, <span class="hljs-number">0</span>, <span class="hljs-number">10</span>])<br>&gt;&gt; (-<span class="hljs-number">3.0</span>, <span class="hljs-number">3.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">10.0</span>)<br>plt.show()<br></code></pre></td></tr></table></figure>
+
+<img src="/img/hands_on_ml_ch4_files/figure-markdown_github/unnamed-chunk-10-1.png" srcset="/img/loading.gif" lazyload width="672" />
+
+<p>需要注意的是：<code>PolynomialFeatures(degree=d)</code>会将原来的n个特征变成$\frac{(n+d)!}{d!n!}$个特征；比如有两个特征a,b,经过自由度为3的PolynomialFeatures转化后就有10个特征(包括1),要注意特征爆炸的问题</p>
+<h2 id="学习曲线"><a href="#学习曲线" class="headerlink" title="学习曲线"></a>学习曲线</h2><p>使用高自由度的多项式回归模型可能会在训练集上过拟合，然而简单的线性模型可能是欠拟合的，那么我们该怎样决定模型的复杂程度或者说判断模型是过拟合还是欠拟合呢？</p>
+<p>在第二章中，使用了交叉验证的方法来估计模型的泛化能力；如果一个模型在训练集上表现的比较好但是依据交叉验证的指标，其泛化能力比较差(在验证集上表现不好)，那么这个模型就是过拟合；如果一个模型在训练集和验证集上表现都不好，那么这个模型是欠拟合的</p>
+<p>另外一个方法就是检查<strong>学习曲线</strong>(learning curves),<strong>学习曲线展示了模型在训练集和验证集上的表现和训练集大小或者训练的迭代次数之间的关系</strong>;要画这个图，需要在不同大小的训练集的子集上训练模型，得到模型的表现指标</p>
+<p>我们先来画一个简单线性回归的学习曲线：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> sklearn.metrics <span class="hljs-keyword">import</span> mean_squared_error<br><span class="hljs-keyword">from</span> sklearn.model_selection <span class="hljs-keyword">import</span> train_test_split<br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">plot_learning_curves</span>(<span class="hljs-params">model,x,y</span>):</span><br>  x_train,x_val,y_train,y_val = train_test_split(x,y,test_size=<span class="hljs-number">0.2</span>)<br>  train_errors,val_errors = [],[]<br>  <span class="hljs-keyword">for</span> m <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">1</span>,<span class="hljs-built_in">len</span>(x_train)):<br>    model.fit(x_train[:m],y_train[:m])<br>    y_train_predict = model.predict(x_train[:m])<br>    y_val_predict = model.predict(x_val)<br>    train_errors.append(mean_squared_error(y_train[:m],y_train_predict))<br>    val_errors.append(mean_squared_error(y_val,y_val_predict))<br>  <br>  plt.plot(np.sqrt(train_errors),<span class="hljs-string">&quot;r-+&quot;</span>,linewidth=<span class="hljs-number">2</span>,label=<span class="hljs-string">&quot;train&quot;</span>)<br>  plt.plot(np.sqrt(val_errors), <span class="hljs-string">&quot;b-&quot;</span>, linewidth=<span class="hljs-number">3</span>, label=<span class="hljs-string">&quot;val&quot;</span>)<br>  plt.legend(loc=<span class="hljs-string">&quot;upper right&quot;</span>, fontsize=<span class="hljs-number">14</span>)  <br>  plt.xlabel(<span class="hljs-string">&quot;Training set size&quot;</span>, fontsize=<span class="hljs-number">14</span>)<br>  plt.ylabel(<span class="hljs-string">&quot;RMSE&quot;</span>, fontsize=<span class="hljs-number">14</span>) <br>    <br>    <br>lin_reg = LinearRegression()<br>plot_learning_curves(lin_reg,x,y)<br>plt.axis([<span class="hljs-number">0</span>, <span class="hljs-number">80</span>, <span class="hljs-number">0</span>, <span class="hljs-number">3</span>]) <br>&gt;&gt; (<span class="hljs-number">0.0</span>, <span class="hljs-number">80.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">3.0</span>)<br>plt.show()        <br></code></pre></td></tr></table></figure>
+
+<img src="/img/hands_on_ml_ch4_files/figure-markdown_github/unnamed-chunk-11-1.png" srcset="/img/loading.gif" lazyload width="672" />
+
+<p>当只有一两个训练数据的时候，模型拟合的非常好，同时由于训练集较少，泛化能力较弱所以在验证集中表现不好；当训练集逐渐增大，一方面由于数据的噪音，另一方面因为模型是线性的，而数据不是线性的，所以模型在训练集上的误差上升，但是由于训练集增多，泛化能力会一定程度的上升，所以在验证集上的误差降低，最终两者都到达一个平台</p>
+<p>这个学习曲线是一个典型的欠拟合的模型的特征：<strong>两个曲线都到达一个平台；并且两者比较接近，都比较高</strong></p>
+<p>接下来看一下有10个自由度的多项式回归模型的学习曲线：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> sklearn.pipeline <span class="hljs-keyword">import</span> Pipeline<br><br>polynomial_regression = Pipeline([<br>        (<span class="hljs-string">&quot;poly_features&quot;</span>, PolynomialFeatures(degree=<span class="hljs-number">20</span>, include_bias=<span class="hljs-literal">False</span>)),<br>        (<span class="hljs-string">&quot;lin_reg&quot;</span>, LinearRegression()),<br>    ])<br><br>plot_learning_curves(polynomial_regression, x, y)<br>plt.axis([<span class="hljs-number">0</span>, <span class="hljs-number">80</span>, <span class="hljs-number">0</span>, <span class="hljs-number">3</span>])<br>&gt;&gt; (<span class="hljs-number">0.0</span>, <span class="hljs-number">80.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">3.0</span>)<br>plt.show()           <br></code></pre></td></tr></table></figure>
+
+<img src="/img/hands_on_ml_ch4_files/figure-markdown_github/unnamed-chunk-12-1.png" srcset="/img/loading.gif" lazyload width="672" />
+
+<p>这个学习曲线也有两个特征：</p>
+<ul>
+<li>  在训练集上的误差比上面的线性回归模型要低</li>
+<li>  在两个曲线间有一个gap，这意味着模型在训练集上比在验证集上的表现要好得多，而这是<strong>过拟合</strong>的特征(可能需要收集更多的数据)</li>
+</ul>
+<h2 id="BIAS-VARIANCE-TRADE-OFF"><a href="#BIAS-VARIANCE-TRADE-OFF" class="headerlink" title="BIAS/VARIANCE TRADE-OFF"></a>BIAS/VARIANCE TRADE-OFF</h2><h2 id="正则化线性模型"><a href="#正则化线性模型" class="headerlink" title="正则化线性模型"></a>正则化线性模型</h2><p>在第一章和第二章已经讲过了减少过拟合风险的方法之一就是正则化模型(也就是约束模型)；对于多项式模型最简单的正则化方法就是减少模型的自由度；对于线性模型，正则化一般是通过约束模型的权重来实现，常用的有3种方法：岭回归(Ridge Regression),Lasso回归,弹性网络(Elastic Net)</p>
+<h3 id="岭回归"><a href="#岭回归" class="headerlink" title="岭回归"></a>岭回归</h3><p>岭回归就是在线性回归的损失函数后面加上了一个正则化的项:</p>
+<p>$$<br>J(\theta) = MSE(\theta) + \alpha \frac{1}{2}\sum_{i=1}^{n}\theta_i^2<br>$$<br>加上这一项之后就会使得模型在训练的过程中尽量保持特征权重(<em>θ</em>)比较小<br>注意：在岭回归等正则化的模型中，训练时使用的损失函数与计算模型性能时用的指标不一定相同(在分类模型中更是如此)；另外在训练正则化的模型时，对特征一定要归一化</p>
+<p>下图，左边是线性回归使用岭正则化，右图是多项式回归使用岭正则化，展示了不同<em>α</em>值时的情况：</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210301230247251.png" srcset="/img/loading.gif" lazyload></p>
+<p>可以看到增加<em>α</em>会是曲线更加平缓(减少了variance但是增加了bias)</p>
+<p>对于岭回归，和线性回归一样，可以使用normal equation的方法或者梯度下降的方法求解：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">##Normal equation</span><br><span class="hljs-keyword">from</span> sklearn.linear_model <span class="hljs-keyword">import</span> Ridge<br><br>ridge_reg = Ridge(alpha=<span class="hljs-number">1</span>,solver=<span class="hljs-string">&quot;cholesky&quot;</span>)<br>ridge_reg.fit(x,y)<br>&gt;&gt; Ridge(alpha=<span class="hljs-number">1</span>, solver=<span class="hljs-string">&#x27;cholesky&#x27;</span>)<br>ridge_reg.predict([[<span class="hljs-number">1.5</span>]])<br>&gt;&gt; array([[<span class="hljs-number">4.58785445</span>]])<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">##梯度下降</span><br>sgd_reg = SGDRegressor(penalty=<span class="hljs-string">&quot;l2&quot;</span>)<br>sgd_reg.fit(x,y.ravel())<br>&gt;&gt; SGDRegressor()<br>sgd_reg.predict([[<span class="hljs-number">1.5</span>]])<br>&gt;&gt; array([<span class="hljs-number">4.56218836</span>])<br></code></pre></td></tr></table></figure>
+
+<p>“l2”指的是L2范数(norm);<em>L</em><sub><em>p</em></sub>范数的定义为：<br>$$<br>||x||_p = \sqrt[p]{\sum_i |x_i|^p}<br>$$<br>因此L2范数为：<br>$$<br>||x||_2 = \sqrt[2]{\sum_i |x_i|^2}<br>$$</p>
+<p>所以岭回归的正则化项就是<em>α</em>1/2(||<em>w</em>||<sub>2</sub>)<sup>2</sup>,w是<em>θ</em><sub>1</sub>到<em>θ</em><sub><em>n</em></sub>的参数向量(特征权重)</p>
+<h3 id="Lasso回归"><a href="#Lasso回归" class="headerlink" title="Lasso回归"></a>Lasso回归</h3><p>Lasso的全称为Least Absolute Shrinkage and Selection Operator<br>,和岭回归类似也是在损失函数后面加上一个正则化项，只不过Lasso加的是L1范数：<br>$$<br>J(\theta) = MSE(\theta) + \alpha\sum_{i=1}^n|\theta_i|<br>$$<br>lasso回归可以用来进行特征选择(why)</p>
+<p>上面那个损失函数在<em>θ</em><sub><em>i</em></sub> = 0的地方是不可微分的，但是可以通过将梯度向量替换成次梯度向量(subgradient<br>vector)来解决这个问题：<br>$$<br>g(\theta,J)=\triangledown MSE(\theta)+ \alpha     \left(<br>\begin{array}{cccc}<br> sign(\theta_1)\<br> sign(\theta_2)\<br> \vdots  \<br> sign(\theta_n)<br>\end{array}<br>\right ) where \ sign(\theta_n)= \begin{cases}<br>-1\ if\ \theta_i &lt;0 \<br>0\ \ if\ \theta_i =0 \<br>+1 \ if\ \theta_i &gt;0<br>\end{cases}<br>$$</p>
+<p>在Scikit-Learn中可以使用<code>Lasso</code>或者<code>SGDRegressor</code>(指定l1范数的惩罚项)：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> sklearn.linear_model <span class="hljs-keyword">import</span> Lasso<br><br>lasso_reg = Lasso(alpha=<span class="hljs-number">0.1</span>)<br>lasso_reg.fit(x,y)<br>&gt;&gt; Lasso(alpha=<span class="hljs-number">0.1</span>)<br>lasso_reg.predict([[<span class="hljs-number">1.5</span>]])<br>&gt;&gt; array([<span class="hljs-number">4.52578706</span>])<br>sgd_lasso = SGDRegressor(penalty=<span class="hljs-string">&quot;l1&quot;</span>)<br>sgd_lasso.fit(x,y.ravel())<br>&gt;&gt; SGDRegressor(penalty=<span class="hljs-string">&#x27;l1&#x27;</span>)<br>sgd_lasso.predict([[<span class="hljs-number">1.5</span>]])<br>&gt;&gt; array([<span class="hljs-number">4.57060493</span>])<br></code></pre></td></tr></table></figure>
+
+<h3 id="弹性网络"><a href="#弹性网络" class="headerlink" title="弹性网络"></a>弹性网络</h3><p>弹性网络(Elastic Net)是岭回归和lasso回归中间的“调和”，其正则化项是岭回归和lasso回归的正则化项的混合，可以通过<em>r</em>来控制混合的比例:<br>$$<br>J(\theta)=MSE(\theta)+r\alpha\sum_{i=1}^n|\theta_i|+\frac{1-r}{2}\alpha\sum_{i=1}^n\theta_i^2<br>$$</p>
+<p>什么时候使用单独的线性回归，什么时候使用正则化的模型，这些正则化方法应该选哪个；一般来说要避免使用单独的线性回归，所以更多的情况下是使用正则化的模型，当我们知道特征中只有一部分是有用的，可以使用lasso或者弹性网络来选择变量；另外尽可能的使用弹性网络，因为<strong>当特征的数量比训练样本的数量要多或者几个特征间相关性比较强时，lasso表现不稳定</strong></p>
+<p>sklearn中的<code>ElasticNet</code>可以用来建立弹性网络模型：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> sklearn.linear_model <span class="hljs-keyword">import</span> ElasticNet<br>elastic_net = ElasticNet(alpha=<span class="hljs-number">0.1</span>,l1_ratio=<span class="hljs-number">0.5</span>)<span class="hljs-comment">##l1_ratio指的是r</span><br>elastic_net.fit(x,y)<br>&gt;&gt; ElasticNet(alpha=<span class="hljs-number">0.1</span>)<br>elastic_net.predict([[<span class="hljs-number">1.5</span>]])<br><br><span class="hljs-comment">##也可以使用SGDRgressor</span><br>&gt;&gt; array([<span class="hljs-number">4.52788619</span>])<br>sgd_elastic = SGDRegressor(penalty=<span class="hljs-string">&quot;elasticnet&quot;</span>,alpha=<span class="hljs-number">0.1</span>,l1_ratio=<span class="hljs-number">0.5</span>)<br>sgd_elastic.fit(x,y.ravel())<br>&gt;&gt; SGDRegressor(alpha=<span class="hljs-number">0.1</span>, l1_ratio=<span class="hljs-number">0.5</span>, penalty=<span class="hljs-string">&#x27;elasticnet&#x27;</span>)<br>sgd_elastic.predict([[<span class="hljs-number">1.5</span>]])<br>&gt;&gt; array([<span class="hljs-number">4.51766322</span>])<br></code></pre></td></tr></table></figure>
+
+<h3 id="Early-Stopping"><a href="#Early-Stopping" class="headerlink" title="Early Stopping"></a>Early Stopping</h3><p>另一个方法去正则化迭代的学习算法(如梯度下降)是：当验证集误差达到最小值的时候就停止训练；这种方法叫做<strong>early<br>stopping</strong>,如下图所示：</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210304083008485.png" srcset="/img/loading.gif" lazyload></p>
+<p>当学习算法学习的时候，在训练集和验证集上的误差都会降低，但是一段时间之后会出现在验证集上的误差上升的情况，这意味着模型开始过拟合，因此最好在未过拟合之前就停止训练模型(验证集误差最低)</p>
+<p>注意：在随机梯度下降或者小批次梯度下降中，曲线不会像上图那样平滑，因此很难判定是否达到最小值；一个解决方法就是：当训练一段时间之后，验证集的误差一直比最小值要高(每一个epoch之后就把验证集误差和之前所有的误差比较，看看是不是最小值，进行迭代更新)，就停止训练，记录下验证集误差最小时的模型参数</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">##data</span><br>np.random.seed(<span class="hljs-number">42</span>)<br>m = <span class="hljs-number">100</span><br>X = <span class="hljs-number">6</span> * np.random.rand(m, <span class="hljs-number">1</span>) - <span class="hljs-number">3</span><br>y = <span class="hljs-number">2</span> + X + <span class="hljs-number">0.5</span> * X**<span class="hljs-number">2</span> + np.random.randn(m, <span class="hljs-number">1</span>)<br><br>X_train, X_val, y_train, y_val = train_test_split(X[:<span class="hljs-number">50</span>], y[:<span class="hljs-number">50</span>].ravel(), test_size=<span class="hljs-number">0.5</span>, random_state=<span class="hljs-number">10</span>)<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> copy <span class="hljs-keyword">import</span> deepcopy<br><span class="hljs-keyword">from</span> sklearn.preprocessing <span class="hljs-keyword">import</span> StandardScaler<br><br><span class="hljs-comment">##数据预处理</span><br>poly_scaler = Pipeline([<br>        (<span class="hljs-string">&quot;poly_features&quot;</span>, PolynomialFeatures(degree=<span class="hljs-number">90</span>, include_bias=<span class="hljs-literal">False</span>)),<br>        (<span class="hljs-string">&quot;std_scaler&quot;</span>, StandardScaler())<br>    ])<br><br>X_train_poly_scaled = poly_scaler.fit_transform(X_train)<br>X_val_poly_scaled = poly_scaler.transform(X_val)<br><br>sgd_reg = SGDRegressor(max_iter=<span class="hljs-number">1</span>, tol=-np.infty, warm_start=<span class="hljs-literal">True</span>,<br>                       penalty=<span class="hljs-literal">None</span>, learning_rate=<span class="hljs-string">&quot;constant&quot;</span>, eta0=<span class="hljs-number">0.0005</span>, random_state=<span class="hljs-number">42</span>)<br><br>minimum_val_error = <span class="hljs-built_in">float</span>(<span class="hljs-string">&quot;inf&quot;</span>)<br>best_epoch = <span class="hljs-literal">None</span><br>best_model = <span class="hljs-literal">None</span><br><span class="hljs-keyword">for</span> epoch <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">1000</span>):<br>    sgd_reg.fit(X_train_poly_scaled, y_train)  <span class="hljs-comment"># continues where it left off</span><br>    y_val_predict = sgd_reg.predict(X_val_poly_scaled)<br>    val_error = mean_squared_error(y_val, y_val_predict)<br>    <span class="hljs-keyword">if</span> val_error &lt; minimum_val_error:<br>        minimum_val_error = val_error<br>        best_epoch = epoch<br>        best_model = deepcopy(sgd_reg)<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python">best_epoch<br>&gt;&gt; <span class="hljs-number">239</span><br>minimum_val_error<br>&gt;&gt; <span class="hljs-number">1.3513110512453865</span><br></code></pre></td></tr></table></figure>
+
+<p>首先预处理步骤对数据进行多项式转化，然后进行归一化；SGDRegressor参数中设置max_iter=1意思是每次训练只进行一个epoch(因为后面显式地进行epoch的迭代),tol前面讲过(如果在某一个epoch上损失函数下降小于tol的数值，则训练停止),warm_start=T表示调用fit时会使用上次训练得到的模型参数作为初始值继续进行训练(热启动),random_state表示当对每个新的epoch都会进行shuffle(默认)时取的随机种子数，来保证结果可重复</p>
+<h2 id="逻辑回归"><a href="#逻辑回归" class="headerlink" title="逻辑回归"></a>逻辑回归</h2><p>逻辑回归可以用来估计某个实例属于某一类别的概率，如果概率大于50%，则认为该实例属于该类(1),否则不属于该类(0),因此是二分类的分类器</p>
+<h3 id="估计概率"><a href="#估计概率" class="headerlink" title="估计概率"></a>估计概率</h3>
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/02/13/python-task1/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">python 基础01</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/02/04/hands_on_ML_ch3/">
+                        <span class="hidden-mobile">【hands on ML Ch3】-分类</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.2/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      $('#local-search-input').on('click', function() {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      });
+      $('#modalSearch').on('shown.bs.modal', function() {
+        $('#local-search-input').focus();
+      });
+    })()
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

@@ -1,0 +1,522 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="dplyr 按列操作，主要是 across 函数的用法">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+  <title>dplyr列式操作 - Hexo</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.6.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.10","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>wutao's blog</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="dplyr列式操作">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-author" aria-hidden="true"></i>
+      John Doe
+    </span>
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-01-23 10:00" pubdate>
+        2021年1月23日 上午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.4k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      23
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">dplyr列式操作</h1>
+            
+              <p class="note note-info">
+                
+                  本文最后更新于：4 个月前
+                
+              </p>
+            
+            <div class="markdown-body">
+              <p>dplyr 按列操作，主要是 across 函数的用法</p>
+<span id="more"></span>
+
+<p>我们在数据分析过程中经常要做的一件事就是对数据框的多列进行同样的操作，但是如果采用粘贴复制的方法比较繁琐也容易出错，比如：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs r">df %&gt;% <br>  group_by(g1, g2) %&gt;% <br>  summarise(a = mean(a), b = mean(b), <span class="hljs-built_in">c</span> = mean(<span class="hljs-built_in">c</span>), d = mean(d))<br></code></pre></td></tr></table></figure>
+
+<p>使用across函数就可以较简洁的重写上面的代码：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs r">df %&gt;% <br>  group_by(g1, g2) %&gt;% <br>  summarise(across(a:d, mean))<br></code></pre></td></tr></table></figure>
+
+<h2 id="基础用法"><a href="#基础用法" class="headerlink" title="基础用法"></a>基础用法</h2><p><code>across</code>有两个基本的参数：</p>
+<ul>
+<li><p>第一个参数是<code>.cols</code> 选择想要操作的列，使用的方法是<em>tidy selection</em><br>  (也就是和select一样，可以根据位置/名称/类型来选择)</p>
+</li>
+<li><p>第二个参数是<code>.fns</code><br>  是对每列进行操作的函数，可以是purrr风格的公式(比如~.x<br>  /2，具体见<a href="sss">迭代—purrr</a>)</p>
+</li>
+</ul>
+<p>across最常见的是与summarise一起使用(别的动词也可以)：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><code class="hljs r">starwars %&gt;% <br>  summarise(across(where(<span class="hljs-built_in">is.character</span>), ~ <span class="hljs-built_in">length</span>(unique(.x))))<br>&gt;&gt; <span class="hljs-comment"># A tibble: 1 x 8</span><br>&gt;&gt;    name hair_color skin_color eye_color   sex gender homeworld species<br>&gt;&gt;   &lt;int&gt;      &lt;int&gt;      &lt;int&gt;     &lt;int&gt; &lt;int&gt;  &lt;int&gt;     &lt;int&gt;   &lt;int&gt;<br>&gt;&gt; <span class="hljs-number">1</span>    <span class="hljs-number">87</span>         <span class="hljs-number">13</span>         <span class="hljs-number">31</span>        <span class="hljs-number">15</span>     <span class="hljs-number">5</span>      <span class="hljs-number">3</span>        <span class="hljs-number">49</span>      <span class="hljs-number">38</span><br><br>starwars %&gt;% <br>  group_by(species) %&gt;% <br>  filter(n() &gt; <span class="hljs-number">1</span>) %&gt;% <br>  summarise(across(<span class="hljs-built_in">c</span>(sex, gender, homeworld), ~ <span class="hljs-built_in">length</span>(unique(.x))))<br>&gt;&gt; `summarise()` ungrouping output (override with `.groups` argument)<br>&gt;&gt; <span class="hljs-comment"># A tibble: 9 x 4</span><br>&gt;&gt;   species    sex gender homeworld<br>&gt;&gt;   &lt;chr&gt;    &lt;int&gt;  &lt;int&gt;     &lt;int&gt;<br>&gt;&gt; <span class="hljs-number">1</span> Droid        <span class="hljs-number">1</span>      <span class="hljs-number">2</span>         <span class="hljs-number">3</span><br>&gt;&gt; <span class="hljs-number">2</span> Gungan       <span class="hljs-number">1</span>      <span class="hljs-number">1</span>         <span class="hljs-number">1</span><br>&gt;&gt; <span class="hljs-number">3</span> Human        <span class="hljs-number">2</span>      <span class="hljs-number">2</span>        <span class="hljs-number">16</span><br>&gt;&gt; <span class="hljs-number">4</span> Kaminoan     <span class="hljs-number">2</span>      <span class="hljs-number">2</span>         <span class="hljs-number">1</span><br>&gt;&gt; <span class="hljs-number">5</span> Mirialan     <span class="hljs-number">1</span>      <span class="hljs-number">1</span>         <span class="hljs-number">1</span><br>&gt;&gt; <span class="hljs-number">6</span> Twi<span class="hljs-string">&#x27;lek      2      2         1</span><br><span class="hljs-string">&gt;&gt; 7 Wookiee      1      1         1</span><br><span class="hljs-string">&gt;&gt; 8 Zabrak       1      1         2</span><br><span class="hljs-string">&gt;&gt; 9 &lt;NA&gt;         1      1         3</span><br><span class="hljs-string"></span><br><span class="hljs-string">starwars %&gt;% </span><br><span class="hljs-string">  group_by(homeworld) %&gt;% </span><br><span class="hljs-string">  filter(n() &gt; 1) %&gt;% </span><br><span class="hljs-string">  summarise(across(where(is.numeric), ~ mean(.x, na.rm = TRUE)))</span><br><span class="hljs-string">&gt;&gt; `summarise()` ungrouping output (override with `.groups` argument)</span><br><span class="hljs-string">&gt;&gt; # A tibble: 10 x 4</span><br><span class="hljs-string">&gt;&gt;    homeworld height  mass birth_year</span><br><span class="hljs-string">&gt;&gt;    &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt;      &lt;dbl&gt;</span><br><span class="hljs-string">&gt;&gt;  1 Alderaan    176.  64         43  </span><br><span class="hljs-string">&gt;&gt;  2 Corellia    175   78.5       25  </span><br><span class="hljs-string">&gt;&gt;  3 Coruscant   174.  50         91  </span><br><span class="hljs-string">&gt;&gt;  4 Kamino      208.  83.1       31.5</span><br><span class="hljs-string">&gt;&gt;  5 Kashyyyk    231  124        200  </span><br><span class="hljs-string">&gt;&gt;  6 Mirial      168   53.1       49  </span><br><span class="hljs-string">&gt;&gt;  7 Naboo       175.  64.2       55  </span><br><span class="hljs-string">&gt;&gt;  8 Ryloth      179   55         48  </span><br><span class="hljs-string">&gt;&gt;  9 Tatooine    170.  85.4       54.6</span><br><span class="hljs-string">&gt;&gt; 10 &lt;NA&gt;        139.  82        334.</span><br></code></pre></td></tr></table></figure>
+
+<p>需要注意的是：across在进行操作的时候不会选择分组变量：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs r">df &lt;- data.frame(g = <span class="hljs-built_in">c</span>(<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>), x = <span class="hljs-built_in">c</span>(-<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">3</span>), y = <span class="hljs-built_in">c</span>(-<span class="hljs-number">1</span>, -<span class="hljs-number">4</span>, -<span class="hljs-number">9</span>))<br>df %&gt;% <br>  group_by(g) %&gt;% <br>  summarise(across(where(<span class="hljs-built_in">is.numeric</span>), <span class="hljs-built_in">sum</span>))<br>&gt;&gt; `summarise()` ungrouping output (override with `.groups` argument)<br>&gt;&gt; <span class="hljs-comment"># A tibble: 2 x 3</span><br>&gt;&gt;       g     x     y<br>&gt;&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;<br>&gt;&gt; <span class="hljs-number">1</span>     <span class="hljs-number">1</span>     <span class="hljs-number">0</span>    -<span class="hljs-number">5</span><br>&gt;&gt; <span class="hljs-number">2</span>     <span class="hljs-number">2</span>     <span class="hljs-number">3</span>    -<span class="hljs-number">9</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="多个函数"><a href="#多个函数" class="headerlink" title="多个函数"></a>多个函数</h3><p>也可以使用多个函数对列进行操作，只需要在第二个参数中提供具名函数的列表：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs r">min_max &lt;- <span class="hljs-built_in">list</span>(<br>  <span class="hljs-built_in">min</span> = ~<span class="hljs-built_in">min</span>(.x, na.rm = <span class="hljs-literal">TRUE</span>), <br>  <span class="hljs-built_in">max</span> = ~<span class="hljs-built_in">max</span>(.x, na.rm = <span class="hljs-literal">TRUE</span>)<br>)<br>starwars %&gt;% summarise(across(where(<span class="hljs-built_in">is.numeric</span>), min_max))<br>&gt;&gt; <span class="hljs-comment"># A tibble: 1 x 6</span><br>&gt;&gt;   height_min height_max mass_min mass_max birth_year_min birth_year_max<br>&gt;&gt;        &lt;int&gt;      &lt;int&gt;    &lt;dbl&gt;    &lt;dbl&gt;          &lt;dbl&gt;          &lt;dbl&gt;<br>&gt;&gt; <span class="hljs-number">1</span>         <span class="hljs-number">66</span>        <span class="hljs-number">264</span>       <span class="hljs-number">15</span>     <span class="hljs-number">1358</span>              <span class="hljs-number">8</span>            <span class="hljs-number">896</span><br><br>starwars %&gt;% summarise(across(<span class="hljs-built_in">c</span>(height, mass, birth_year), min_max))<br>&gt;&gt; <span class="hljs-comment"># A tibble: 1 x 6</span><br>&gt;&gt;   height_min height_max mass_min mass_max birth_year_min birth_year_max<br>&gt;&gt;        &lt;int&gt;      &lt;int&gt;    &lt;dbl&gt;    &lt;dbl&gt;          &lt;dbl&gt;          &lt;dbl&gt;<br>&gt;&gt; <span class="hljs-number">1</span>         <span class="hljs-number">66</span>        <span class="hljs-number">264</span>       <span class="hljs-number">15</span>     <span class="hljs-number">1358</span>              <span class="hljs-number">8</span>            <span class="hljs-number">896</span><br></code></pre></td></tr></table></figure>
+
+<p>我们可以看到默认的输出结果的列名是原来的列名加上函数的名称中间用下划线分割，也可以通过<code>.name</code>参数来指定输出的名称(以<code>glue</code>包中的格式)：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs r">starwars %&gt;% summarise(across(where(<span class="hljs-built_in">is.numeric</span>), min_max, .names = <span class="hljs-string">&quot;&#123;.fn&#125;.&#123;.col&#125;&quot;</span>))<span class="hljs-comment">##调换位置，并以点号分割</span><br>&gt;&gt; <span class="hljs-comment"># A tibble: 1 x 6</span><br>&gt;&gt;   min.height max.height min.mass max.mass min.birth_year max.birth_year<br>&gt;&gt;        &lt;int&gt;      &lt;int&gt;    &lt;dbl&gt;    &lt;dbl&gt;          &lt;dbl&gt;          &lt;dbl&gt;<br>&gt;&gt; <span class="hljs-number">1</span>         <span class="hljs-number">66</span>        <span class="hljs-number">264</span>       <span class="hljs-number">15</span>     <span class="hljs-number">1358</span>              <span class="hljs-number">8</span>            <span class="hljs-number">896</span><br><br>starwars %&gt;% summarise(across(<span class="hljs-built_in">c</span>(height, mass, birth_year), min_max, .names = <span class="hljs-string">&quot;&#123;.fn&#125;.&#123;.col&#125;&quot;</span>))<br>&gt;&gt; <span class="hljs-comment"># A tibble: 1 x 6</span><br>&gt;&gt;   min.height max.height min.mass max.mass min.birth_year max.birth_year<br>&gt;&gt;        &lt;int&gt;      &lt;int&gt;    &lt;dbl&gt;    &lt;dbl&gt;          &lt;dbl&gt;          &lt;dbl&gt;<br>&gt;&gt; <span class="hljs-number">1</span>         <span class="hljs-number">66</span>        <span class="hljs-number">264</span>       <span class="hljs-number">15</span>     <span class="hljs-number">1358</span>              <span class="hljs-number">8</span>            <span class="hljs-number">896</span><br></code></pre></td></tr></table></figure>
+
+<p>如果想要同一个函数操作得到的结果放在一起，我们可以把上面两个函数拆开执行：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs r">starwars %&gt;% summarise(<br>  across(<span class="hljs-built_in">c</span>(height, mass, birth_year), ~<span class="hljs-built_in">min</span>(.x, na.rm = <span class="hljs-literal">TRUE</span>), .names = <span class="hljs-string">&quot;min_&#123;.col&#125;&quot;</span>),<br>  across(<span class="hljs-built_in">c</span>(height, mass, birth_year), ~<span class="hljs-built_in">max</span>(.x, na.rm = <span class="hljs-literal">TRUE</span>), .names = <span class="hljs-string">&quot;max_&#123;.col&#125;&quot;</span>)<br>)<br>&gt;&gt; <span class="hljs-comment"># A tibble: 1 x 6</span><br>&gt;&gt;   min_height min_mass min_birth_year max_height max_mass max_birth_year<br>&gt;&gt;        &lt;int&gt;    &lt;dbl&gt;          &lt;dbl&gt;      &lt;int&gt;    &lt;dbl&gt;          &lt;dbl&gt;<br>&gt;&gt; <span class="hljs-number">1</span>         <span class="hljs-number">66</span>       <span class="hljs-number">15</span>              <span class="hljs-number">8</span>        <span class="hljs-number">264</span>     <span class="hljs-number">1358</span>            <span class="hljs-number">896</span><br></code></pre></td></tr></table></figure>
+
+<p>注意：在上面的代码中不能直接使用<code>where(is.numeric)</code><br>因为第二个across会对新生成的数值变量(“min_height”, “min_mass” and<br>“min_birth_year”)进行操作:</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs r">starwars %&gt;% summarise(<br>  across(where(<span class="hljs-built_in">is.numeric</span>), ~<span class="hljs-built_in">min</span>(.x, na.rm = <span class="hljs-literal">TRUE</span>), .names = <span class="hljs-string">&quot;min_&#123;.col&#125;&quot;</span>),<br>    across(where(<span class="hljs-built_in">is.numeric</span>), ~<span class="hljs-built_in">max</span>(.x, na.rm = <span class="hljs-literal">TRUE</span>), .names = <span class="hljs-string">&quot;max_&#123;.col&#125;&quot;</span>)  <br>)<br>&gt;&gt; <span class="hljs-comment"># A tibble: 1 x 9</span><br>&gt;&gt;   min_height min_mass min_birth_year max_height max_mass max_birth_year max_min_height max_min_mass<br>&gt;&gt;        &lt;int&gt;    &lt;dbl&gt;          &lt;dbl&gt;      &lt;int&gt;    &lt;dbl&gt;          &lt;dbl&gt;          &lt;int&gt;        &lt;dbl&gt;<br>&gt;&gt; <span class="hljs-number">1</span>         <span class="hljs-number">66</span>       <span class="hljs-number">15</span>              <span class="hljs-number">8</span>        <span class="hljs-number">264</span>     <span class="hljs-number">1358</span>            <span class="hljs-number">896</span>             <span class="hljs-number">66</span>           <span class="hljs-number">15</span><br>&gt;&gt; <span class="hljs-comment"># ... with 1 more variable: max_min_birth_year &lt;dbl&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>可以看到生成了额外的三列：max_min_height &lt;int&gt;, max_min_mass &lt;dbl&gt;,<br>max_min_birth_year &lt;dbl&gt;</p>
+<p>另外，我们也可以使用<code>relocate</code>函数来调整列的顺序：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs r">starwars %&gt;% <br>  summarise(across(where(<span class="hljs-built_in">is.numeric</span>), min_max, .names = <span class="hljs-string">&quot;&#123;.fn&#125;.&#123;.col&#125;&quot;</span>)) %&gt;% <br>  relocate(starts_with(<span class="hljs-string">&quot;min&quot;</span>))<br>&gt;&gt; <span class="hljs-comment"># A tibble: 1 x 6</span><br>&gt;&gt;   min.height min.mass min.birth_year max.height max.mass max.birth_year<br>&gt;&gt;        &lt;int&gt;    &lt;dbl&gt;          &lt;dbl&gt;      &lt;int&gt;    &lt;dbl&gt;          &lt;dbl&gt;<br>&gt;&gt; <span class="hljs-number">1</span>         <span class="hljs-number">66</span>       <span class="hljs-number">15</span>              <span class="hljs-number">8</span>        <span class="hljs-number">264</span>     <span class="hljs-number">1358</span>            <span class="hljs-number">896</span><br></code></pre></td></tr></table></figure>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/01/28/granges/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">GenomicRanges基因组区间操作</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/01/23/hands_on_ML_ch2/">
+                        <span class="hidden-mobile">【hands on ML Ch2】-端到端机器学习</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.2/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      $('#local-search-input').on('click', function() {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      });
+      $('#modalSearch').on('shown.bs.modal', function() {
+        $('#local-search-input').focus();
+      });
+    })()
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

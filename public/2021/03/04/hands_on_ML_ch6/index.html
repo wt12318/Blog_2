@@ -1,0 +1,612 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="hands on ML 第六章，决策树模型">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+  <title>【hands on ML Ch6】-决策树模型 - Hexo</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.6.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.10","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>wutao's blog</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="【hands on ML Ch6】-决策树模型">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-author" aria-hidden="true"></i>
+      John Doe
+    </span>
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-03-04 10:00" pubdate>
+        2021年3月4日 上午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      3.9k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      46
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">【hands on ML Ch6】-决策树模型</h1>
+            
+              <p class="note note-info">
+                
+                  本文最后更新于：3 个月前
+                
+              </p>
+            
+            <div class="markdown-body">
+              <p>hands on ML 第六章，决策树模型</p>
+<span id="more"></span>
+
+<p>决策树是一种多能的机器学习算法，可以处理分类，回归，甚至多输出问题(见第二章)</p>
+<h2 id="训练和可视化决策树"><a href="#训练和可视化决策树" class="headerlink" title="训练和可视化决策树"></a>训练和可视化决策树</h2><p>首先在iris数据集上训练一个决策树模型并可视化：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> sklearn.datasets <span class="hljs-keyword">import</span> load_iris<br><span class="hljs-keyword">from</span> sklearn.tree <span class="hljs-keyword">import</span> DecisionTreeClassifier<br><span class="hljs-keyword">from</span> sklearn <span class="hljs-keyword">import</span> tree<br><span class="hljs-keyword">from</span> matplotlib <span class="hljs-keyword">import</span> pyplot <span class="hljs-keyword">as</span> plt<br><br>iris = load_iris()<br>x = iris.data[:,<span class="hljs-number">2</span>:]<span class="hljs-comment">##取petal length和width变量</span><br>y = iris.target<br><br>tree_clf = DecisionTreeClassifier(max_depth=<span class="hljs-number">2</span>)<br>tree_clf.fit(x,y)<br>&gt;&gt; DecisionTreeClassifier(max_depth=<span class="hljs-number">2</span>)<br></code></pre></td></tr></table></figure>
+
+<p>Graphviz是一个开源的图（Graph）可视化软件，采用抽象的图和网络来表示结构化的信息。在数据科学领域，Graphviz的一个用途就是实现决策树可视化,因此我们需要使用<code>export_graphviz()</code>将树结构导出为一个<code>.dot</code>文件</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> sklearn.tree <span class="hljs-keyword">import</span> export_graphviz<br><span class="hljs-keyword">from</span> graphviz <span class="hljs-keyword">import</span> Source<br><br>export_graphviz(<br>  tree_clf,<br>  out_file=<span class="hljs-string">&quot;../test/iris_tree.dot&quot;</span>,<br>  feature_names=iris.feature_names[<span class="hljs-number">2</span>:],<br>  class_names=iris.target_names,<br>  rounded=<span class="hljs-literal">True</span>,<br>  filled=<span class="hljs-literal">True</span>,<br>  special_characters=<span class="hljs-literal">True</span><br>)<br></code></pre></td></tr></table></figure>
+
+<p>然后需要下载<a target="_blank" rel="noopener" href="https://www.graphviz.org/download/">Graphviz</a>,打开powershell：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs r">dot -Tpng iris_tree.dot -o iris_tree.png<br></code></pre></td></tr></table></figure>
+
+<center>
+
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/iris_tree.png" srcset="/img/loading.gif" lazyload></p>
+</center>
+
+<h2 id="理论"><a href="#理论" class="headerlink" title="理论"></a>理论</h2><p>决策树可以用来处理分类和回归任务，主要思想就是：根据特征对数据集进行划分，决策树的学习分成3个步骤：</p>
+<ul>
+<li>  特征选择</li>
+<li>  生成决策树</li>
+<li>  决策树的修剪(正则化)</li>
+</ul>
+<h3 id="特征选择"><a href="#特征选择" class="headerlink" title="特征选择"></a>特征选择</h3><p>特征选择的就是选择对训练数据有较好分类能力的特征，也就是说通过某个特征将数据集分成若干子集，这些子集中数据的一致性(纯度)应该比原来的数据集要高；在决策树中使用熵来表示这个纯度</p>
+<p>对离散型随机变量X，其概率分布为：</p>
+<p><em>P</em>(<em>X</em> = <em>x</em><sub><em>i</em></sub>) = <em>p</em><sub><em>i</em></sub>, <em>i</em> = 1, 2, …, <em>n</em><br>则X的熵定义为：</p>
+<p>$$<br>H(X) = - \sum_{i=1}^np_ilog_2p_i<br>$$<br>设有随机变量X,Y,其联合概率分布为：</p>
+<p><em>P</em>(<em>X</em> = <em>x</em><sub><em>i</em></sub>, <em>Y</em> = <em>y</em><sub><em>j</em></sub>) = <em>p</em><sub><em>i**j</em></sub>, <em>i</em> = 1, 2, …, <em>n</em>; <em>j</em> = 1, 2, …, <em>m</em></p>
+<p>条件熵为在X给定的条件下Y的条件概率分布的熵对X的数学期望:</p>
+<p>$$<br>H(Y|X) = \sum_{i=1}^np_iH(Y|X=x_i)\\<br>p_i=P(X=x_i),i=1,2,…,n<br>$$<br>由实际数据计算得到的熵和条件熵叫做经验熵和经验条件熵；设数据集为D,根据特征A将数据集分成若干个子集<em>D</em><sub><em>i</em></sub>,那么D的经验熵(<em>H</em>(<em>D</em>))和给定A的条件下D的经验条件熵(<em>H</em>(<em>D</em>|<em>A</em>))为:</p>
+<p>$$<br>H(D)=-\sum_{k=1}^K\frac{|D_k|}{|D|}log_2\frac{|D_k|}{|D|},\\<br>H(D|A)=\sum_{i=1}^n\frac{|D_i|}{|D|}H(D_i)=\sum_{i=1}^n\frac{|D_i|}{|D|}\sum_{k=1}^K\frac{|D_{ik}|}{|D_i|}log_2\frac{|D_{ik}|}{|D_i|}\\<br>$$<br>|<em>D</em><sub><em>k</em></sub>|表示k类样本的数目,|<em>D</em>|是总的样本数,|<em>D</em><sub><em>i**k</em></sub>|表示在第i个子集中k类样本的数目,|<em>D</em><sub><em>i</em></sub>|表示第i个子集的样本数</p>
+<p>一个好的分类特征应该是：根据这个特征划分的数据集后的熵应该比原来数据集的熵要低,因此定义信息增益<em>g</em>(<em>D</em>, <em>A</em>)为：</p>
+<p><em>g</em>(<em>D</em>, <em>A</em>) = <em>H</em>(<em>D</em>) − <em>H</em>(<em>D</em>|<em>A</em>)</p>
+<p>所以根据信息增益来选择特征：<strong>对训练集(或子集)计算每个特征的信息增益，选择信息增益最大的特征来划分数据集</strong></p>
+<p>信息增益计算的是绝对值，因此对取值较多的特征有倾向性(取值越多,加和也越大),所以将信息增益除以该特征的经验熵来标准化信息增益，得到信息增益比:</p>
+<p>$$<br>g_k(D,A)=\frac{g(D,A)}{H_A(D)},H_A(D)=-\sum_{i=1}^n\frac{|D_i|}{|D|}log_2\frac{|D_i|}{|D|}<br>$$<br>n表示特征A可以取值的个数(A的水平)</p>
+<h3 id="生成决策树"><a href="#生成决策树" class="headerlink" title="生成决策树"></a>生成决策树</h3><p>生成决策树的算法有3种：ID3,C4.5和CRAT，CART算法比较特殊，后面单独讲；前两种算法都只可以用来分类，CART既可以分类也可以回归</p>
+<p>ID3算法在决策树的各个节点上应用信息增益法则选择特征，递归构建决策树：从根节点开始，对节点计算所有可能的特征的信息增益，选择信息增益最大的特征作为节点的特征，由该特征的不同取值建立子节点，再对子节点递归地调用以上方法构建决策树，直到所有特征的信息增益都很小或者没有特征可以选择为止</p>
+<p>C4.5算法和ID3的区别在于使用信息增益比来选择特征</p>
+<h3 id="决策树的剪枝"><a href="#决策树的剪枝" class="headerlink" title="决策树的剪枝"></a>决策树的剪枝</h3><p>在生成决策树的过程中是以尽可能的准确分类为标准，但是这样往往会出现过拟合的情况，为了避免过拟合，需要限制模型的自由度，即对模型进行正则化约束，在决策树模型里面就是剪枝</p>
+<p>决策树的剪枝是通过最小化损失函数来实现；决策树学习的损失函数为：</p>
+<p>$$<br>C_{\alpha}(T)=\sum_{t=1}^{|T|}N_tH_t(T)+\alpha|T|\\<br>H_t(T)=-\sum_k^K\frac{N_{tk}}{N_t}log2\frac{N_{tk}}{N_t}<br>$$<br>其中t表示叶节点,|T|是叶节点个数,<em>N</em><sub><em>t</em></sub>是t叶节点的样本数,<em>N</em><sub><em>t**k</em></sub>是t叶节点中k类样本的个数</p>
+<p>将损失函数的第一项记作<em>C</em>(<em>T</em>),</p>
+<p>$$<br>C(T)=\sum_{t=1}^{|T|}N_tH_t(T)=-\sum_{t=1}^{|T|}N_t\sum_k^K\frac{N_{tk}}{N_t}log2\frac{N_{tk}}{N_t}=-\sum_{t=1}^{|T|}\sum_k^KN_{tk}log2\frac{N_{tk}}{N_t}<br>$$</p>
+<p>损失函数可以写成：</p>
+<p><em>C</em><sub><em>α</em></sub>(<em>T</em>) = <em>C</em>(<em>T</em>) + <em>α</em>|<em>T</em>|</p>
+<p><em>C</em>(<em>T</em>)表示模型对数据的拟合程度(如果完全拟合，那么经验熵就为为0)，|T|表示模型的复杂度(叶子节点的多少)，<em>α</em>的作用就是在两者间平衡(对模型复杂度有个惩罚)</p>
+<p>决策树剪枝的过程为：从下往上进行回缩，如果回缩前的模型为<em>T</em><sub><em>A</em></sub>,回缩后的模型为<em>T</em><sub><em>B</em></sub>:</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210307192547332.png" srcset="/img/loading.gif" lazyload></p>
+<p>如果有：</p>
+<p><em>C</em><sub><em>α</em></sub>(<em>T</em><sub><em>B</em></sub>) ≤ <em>C</em><sub><em>α</em></sub>(<em>T</em><sub><em>A</em></sub>)</p>
+<p>那么就进行回缩剪枝，将父节点变为叶节点</p>
+<h3 id="CART算法"><a href="#CART算法" class="headerlink" title="CART算法"></a>CART算法</h3><p>CART的全称为classification and regression<br>tree,可以用来处理<strong>分类和回归</strong>任务，得到的决策树是二叉树，内部节点的取值只有是和否,左分支为“是”的分支,右分支为“否”的分支</p>
+<h4 id="分类"><a href="#分类" class="headerlink" title="分类"></a>分类</h4><p>CART算法使用<strong>基尼指数</strong>作为最优特征的选择依据，而不是信息增益</p>
+<p>在分类问题中，假设有K个类，样本点属于第k类的概率为<em>p</em><sub><em>k</em></sub>,那么概率分布的基尼指数为：</p>
+<p>$$<br>Gini(p)=\sum_{k=1}^Kp_k(1-p_k)=1-\sum_{k=1}^Kp_k^2<br>$$<br>对于给定的样本集合D，基尼指数为：<br>$$<br>Gini(D)=1-\sum_{k=1}^K(\frac{|C_k|}{|D|})^2<br>$$</p>
+<p>如果数据集D可以根据特征A的某个值分割成D1和D2两个部分，则在特征A的条件下，集合D的基尼指数为：</p>
+<p>$$<br>Gini(D,A)=\frac{|C_1|}{|D|}Gini(D_1)+\frac{|C_2|}{|D|}Gini(D_2)<br>$$<br>因此CART算法构建决策树的过程为：在所有可能的特征A和其切分点a的组合中选择使上式最小的A和a将数据分成两个子集，生成两个子节点，再在子节点上重复这个过程，直到满足停止条件</p>
+<p>以最开始的鸢尾花决策树为例：决策树做预测比较简单：就是从根节点(最上面)往下进行判断；如果现在有一个iris花,从根节点开始(深度为0)，花瓣长度是否小于2.45,如果小于2.45就是往左走，此时左边的节点没有子节点，这样的节点叫做叶子节点，然后就可以判断该花是setosa类</p>
+<p>从上图可以看到每个节点都有一些属性(gini,samples,value,class)：</p>
+<ul>
+<li>  samples属性：该节点所应用的样本数量，比如在深度为1的右侧节点中有100个训练实例的花瓣长度大于2.45，在这100个里面又有54个实例的花瓣宽度小于1.75(深度为2的左节点)</li>
+<li>value属性：该节点中每个类型有多少训练实例；比如最底部的右侧节点的value表示46个实例中有0个Iris<br>  setosa,1个 Iris versicolor,和45个Iris virginica</li>
+<li>  gini属性：该节点的不纯度，如果该节点所有的实例都是一个类，那么gini就是0，表示纯的；比如深度为1的左节点，全部是setosa</li>
+</ul>
+<p>该决策树的决策边界可以用下图来表示：</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210306162213679.png" srcset="/img/loading.gif" lazyload></p>
+<h5 id="估计类的概率"><a href="#估计类的概率" class="headerlink" title="估计类的概率"></a>估计类的概率</h5><p>决策树也可以估计一个实例属于特定类的概率<br>首先找到这个实例所属的叶子节点，然后返回该节点中各类的训练实例所占的比例作为这个实例属于各个类的概率；比如现在有一个鸢尾花花瓣长5cm宽1.5cm，那么它所属的叶子节点为深度为2的左节点，所以决策树输出概率为:0%是setosa,90.7%(49/54)是versicolor,9.3%(5/54)是virginica，如果让决策树来预测这个花的类别，会输出class<br>1 (versicolor):</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python">tree_clf.predict_proba([[<span class="hljs-number">5</span>,<span class="hljs-number">1.5</span>]])<br>&gt;&gt; array([[<span class="hljs-number">0.</span>        , <span class="hljs-number">0.90740741</span>, <span class="hljs-number">0.09259259</span>]])<br>tree_clf.predict([[<span class="hljs-number">5</span>,<span class="hljs-number">1.5</span>]])<br>&gt;&gt; array([<span class="hljs-number">1</span>])<br></code></pre></td></tr></table></figure>
+
+<p>需要注意的是：落在某个叶子节点中的所有实例的输出概率都是一样的(上面决策边界图里面同一个长方形里面的点)</p>
+<h4 id="回归"><a href="#回归" class="headerlink" title="回归"></a>回归</h4><p>决策树的回归也是根据某个特征来划分数据集，但是和分类不同，在划分的子集上并不是对应着一个类，而是对应着一个输出，可以用下图来理解：</p>
+<center>
+
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210307202506758.png" srcset="/img/loading.gif" lazyload></p>
+</center>
+
+<p>图中黑色的竖线代表划分(上图只有一个特征)，有颜色的横线表示每次划分后在相应的子集中的输出</p>
+<p>假设已将输入空间(数据集)划分成M个单元(子集)：<em>R</em><sub>1</sub>, <em>R</em><sub>2</sub>, …, <em>R</em><sub><em>M</em></sub>,在<em>R</em><sub><em>m</em></sub>单元上有一个固定的输出值<em>C</em><sub><em>m</em></sub>,所以回归树模型可以表示为：<br>$$<br>f(x)=\sum_{m=1}^MC_mI(x\in R_m)<br>$$<br>I函数表示x在<em>R</em><sub><em>m</em></sub>里面的时候为1，否则为0<br>在每个单元上可以使用平方误差来表示回归树的预测误差，通过最小化平方误差，我们就可以求解出每个单元上的最优输出值<em>Ĉ</em><sub><em>m</em></sub>:</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/2021-03-07_20-40-32.jpg" srcset="/img/loading.gif" lazyload></p>
+<p><em>Ĉ</em><sub><em>m</em></sub> = <em>a<strong>v</strong>e</em>(<em>y</em><sub><em>i</em></sub>|<em>x</em><sub><em>i</em></sub> ∈ <em>R</em><sub><em>m</em></sub>)<br>每个子集上的最优输出有了，那么现在的问题就是怎样进行划分？<br>对于特征j和其分割点s，(j,s)对输入空间进行划分得到两个子空间<em>R</em><sub>1</sub>, <em>R</em><sub>2</sub>：</p>
+<p><em>R</em><sub>1</sub>(<em>j</em>, <em>s</em>) = {<em>x</em>|<em>x</em><sup><em>j</em></sup> ≤ <em>s</em>}; <em>R</em><sub>2</sub>(<em>j</em>, <em>s</em>) = {<em>x</em>|<em>x</em><sup><em>j</em></sup> &gt; <em>s</em>}<br>目的就是找到最优的(j,s)使得：</p>
+<p><em>m<strong>i</strong>n</em><sub><em>j</em>, <em>s</em></sub>[<em>m<strong>i</strong>n</em><sub><em>c</em><sub>1</sub></sub>∑<sub><em>x</em><sub><em>i</em></sub> ∈ <em>R</em><sub>1</sub>(<em>j</em>, <em>s</em>)</sub>(<em>y</em><sub><em>i</em></sub> − <em>c</em><sub>1</sub>)<sup>2</sup> + <em>m<strong>i</strong>n</em><sub><em>c</em><sub>2</sub></sub>∑<sub><em>x</em><sub><em>i</em></sub> ∈ <em>R</em><sub>2</sub>(<em>j</em>, <em>s</em>)</sub>(<em>y</em><sub><em>i</em></sub> − <em>c</em><sub>2</sub>)<sup>2</sup>]<br>通常的做法为：遍历特征j，对固定的切分特征j扫描切分点s(如果是连续的需要离散化)，然后选择使上式最小的(j,s)组合，按照(j,s)组合对数据集进行划分，接着继续对子集重复该步骤，直到满足停止条件</p>
+<p>在Scikit-Learn里面可以使用<code>DecisionTreeRegressor</code>类进行回归树的构建：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> numpy <span class="hljs-keyword">as</span> np<br><span class="hljs-comment"># Quadratic training set + noise</span><br>np.random.seed(<span class="hljs-number">42</span>)<br>m = <span class="hljs-number">200</span><br>X = np.random.rand(m, <span class="hljs-number">1</span>)<br>y = <span class="hljs-number">4</span> * (X - <span class="hljs-number">0.5</span>) ** <span class="hljs-number">2</span><br>y = y + np.random.randn(m, <span class="hljs-number">1</span>) / <span class="hljs-number">10</span><br><br><span class="hljs-keyword">from</span> sklearn.tree <span class="hljs-keyword">import</span> DecisionTreeRegressor<br><br>tree_reg = DecisionTreeRegressor(max_depth=<span class="hljs-number">2</span>, random_state=<span class="hljs-number">42</span>)<br>tree_reg.fit(X, y)<br>&gt;&gt; DecisionTreeRegressor(max_depth=<span class="hljs-number">2</span>, random_state=<span class="hljs-number">42</span>)<br>export_graphviz(<br>        tree_reg,<br>        out_file=<span class="hljs-string">&quot;../test/iris_tree1.dot&quot;</span>,<br>        feature_names=[<span class="hljs-string">&quot;x1&quot;</span>],<br>        rounded=<span class="hljs-literal">True</span>,<br>        filled=<span class="hljs-literal">True</span><br>    )<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs r">dot -Tpng iris_tree1.dot -o iris_tree2.png<br></code></pre></td></tr></table></figure>
+
+<center>
+
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/iris_tree2.png" srcset="/img/loading.gif" lazyload></p>
+</center>
+
+<h4 id="剪枝"><a href="#剪枝" class="headerlink" title="剪枝"></a>剪枝</h4><p>CART算法的剪枝和一般的决策树剪枝不同</p>
+<p>CART算法对决策树的每一个内部节点都进行剪枝，生成一个子决策树的序列；假设树的结构如下：</p>
+<center>
+
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210308223511075.png" srcset="/img/loading.gif" lazyload></p>
+</center>
+
+<p>设整体树为<em>T</em><sub>0</sub>,对<em>T</em><sub>0</sub>的任意内部节点t,可以计算以t为单节点的树的损失函数<em>C</em><sub><em>α</em></sub>(<em>t</em>)和以t为根节点的子树的损失函数<em>C</em><sub><em>α</em></sub>(<em>T</em><sub><em>t</em></sub>);当<em>α</em>充分小的时候<em>C</em><sub><em>α</em></sub>(<em>T</em><sub><em>t</em></sub>) &lt; <em>C</em><sub><em>α</em></sub>(<em>t</em>)(对树的复杂度惩罚较小,较复杂的树能够较好的拟合数据，因此损失函数较低)，当<em>α</em>增大到某一个值的时候,两者相等，也就是单节点的树和子树的损失函数值相等,但是单节点的树比较简单,因此取单节点树,即对树进行剪枝</p>
+<p>因此对<em>T</em><sub>0</sub>中的每个内部节点都可以计算一个两者相等时的<em>α</em>值：</p>
+<p>$$<br>g(t) = \frac{C(t)-C_\alpha(T_t)}{|T_t|-1}<br>$$<br>表示剪枝后整体损失函数减少的程度</p>
+<p>剪枝过程就为：对<em>T</em><sub>0</sub>的每个内部节点计算<em>g</em>(<em>t</em><sub><em>i</em></sub>),剪去有最小<em>g</em>(<em>t</em><sub><em>i</em></sub>)的内部节点的子节点，得到子树<em>T</em><sub><em>i</em></sub>,然后继续对<em>T</em><sub><em>i</em></sub>进行剪枝,直到根节点；对于得到的子树序列<em>T</em><sub>1</sub>, <em>T</em><sub>2</sub>, …, <em>T</em><sub><em>n</em></sub>通过交叉验证的方法选择最优的子树<em>T</em><sub><em>α</em></sub>,此时也可以确定相应的<em>α</em>了</p>
+<h4 id="Sci-kit-learn中的剪枝参数"><a href="#Sci-kit-learn中的剪枝参数" class="headerlink" title="Sci-kit learn中的剪枝参数"></a>Sci-kit learn中的剪枝参数</h4><p>上面所讲的剪枝方法称为后剪枝(post<br>pruning),即在树构建好了之后再去进行修剪;与之对应的是预剪枝,也就是在构建树的过程中限制树的生长来减少过拟合</p>
+<p>Sci-kit learn提供了一些<strong>预剪枝</strong>的参数：</p>
+<ul>
+<li>  <code>max_depth</code> int, default=None;树的最大深度</li>
+<li><code>min_samples_split</code>和<code>min_samples_leaf</code> int/float<br>  如果是整数,则表示绝对数量;如果是浮点数,则表示占样本总数的比例;<code>min_samples_split</code>为内部节点进行切割所需的最小样本数,<code>min_samples_leaf</code>为切割后形成的叶节点内所含的最小样本数</li>
+<li><code>min_weight_fraction_leaf</code>：该参数一般和<code>class_weight</code>参数一起使用,主要解决不平衡的样本问题(某一类或几类比其他的类占比要大得多);对于不平衡的样本可以使用<code>class_weight</code>指定权重(使用字典指定类的权重{class_label:<br>  weight}或者直接用<code>balance</code>表示自动平衡各类),然后使用<code>min_weight_fraction_leaf</code>来指定在每个叶节点所必须的最小权重比例(占总权重)</li>
+<li>  <code>max_feature</code>:随机选择max_feature数量的特征进行最优化,有多种选择，具体可以参考官网</li>
+<li><code>min_impurity_decrease</code>:<br>  设定不纯度下降的最小值，只有大于设定阈值的分割才会发生</li>
+</ul>
+<p>Sci-kit<br>learn使用的<strong>后剪枝策略</strong>就是上面讲的CART的剪枝算法,提供的参数为<code>ccp_alpha</code>;上面提到剪枝过程是逐次选择最小<em>g</em>(<em>t</em><sub><em>i</em></sub>)的内部节点进行剪枝,因此我们所选择的<em>g</em>(<em>t</em><sub><em>i</em></sub>)是逐渐增大的，<strong>当<em>g</em>(<em>t</em><sub><em>i</em></sub>)大于<code>ccp_alpha</code>的时候就停止剪枝</strong></p>
+<h2 id="其他参数"><a href="#其他参数" class="headerlink" title="其他参数"></a>其他参数</h2><p>上面已经用过了<code>DecisionTreeRegressor</code>和<code>DecisionTreeClassifier</code>类的中的一些参数,现在来看一下其他的参数</p>
+<ul>
+<li>  <code>criterion</code>:可选gini或者entropy；表示不纯度的衡量指标</li>
+<li><code>random_state</code>:随机种子数，Sci-kit<br>  learn在选择最优的split的时候，并不是选择所有的特征，而是随机选择一部分特征(数量由<code>max_features</code>来控制)，从中选择不纯度指标最优的特征进行分割，因此具有“随机化”</li>
+<li><code>splitter</code>:<br>  有两个选项：<code>best</code>和<code>random</code>;两者在对每个feature选择阈值来分割时有区别：<code>best</code>是使用不纯度指标来评估每个可能的阈值，从而找到最优的切分点，而<code>random</code>是利用一个均匀随机抽样的函数(函数输入是特征的最小值,最大值和上面提到的random_state，也就是说依据均匀分布在相应特征的取值范围内随机选一个值作为分割点)；因此<strong>使用<code>random</code>参数带来的随机化可以在一定程度上减少过拟合</strong></li>
+</ul>
+<h2 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h2><h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1ut41197F6?from=search&amp;seid=9344266940719140153">https://www.bilibili.com/video/BV1ut41197F6?from=search&amp;seid=9344266940719140153</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1ZK4y1b7Xt">https://www.bilibili.com/video/BV1ZK4y1b7Xt</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1MA411J7wm">https://www.bilibili.com/video/BV1MA411J7wm</a></p>
+<p><a target="_blank" rel="noopener" href="https://towardsdatascience.com/how-to-tune-a-decision-tree-f03721801680">https://towardsdatascience.com/how-to-tune-a-decision-tree-f03721801680</a></p>
+<p>李航统计学习</p>
+<p>Sci-Kit learn 官网教程</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/03/14/perceptron/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">感知机模型</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/03/01/python-task3/">
+                        <span class="hidden-mobile">Python 基础03</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.2/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      $('#local-search-input').on('click', function() {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      });
+      $('#modalSearch').on('shown.bs.modal', function() {
+        $('#local-search-input').focus();
+      });
+    })()
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>
