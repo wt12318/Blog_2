@@ -1,0 +1,727 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/DNA.png">
+  <link rel="icon" href="/img/DNA.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="Hands on ML 第三章笔记，主要是分类相关的知识">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+  <title>【hands on ML Ch3】-分类 - Hexo</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.6.0/styles/atelier-sulphurpool-dark.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.10","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"A5lchRnum84Yumu5pVOSoVN8-MdYXbMMI","app_key":"runF3Mxw7648v64CISxiqMs8","server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>wutao's blog</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="【hands on ML Ch3】-分类">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-02-04 10:00" pubdate>
+        2021年2月4日 上午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      4.3k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      58
+       分钟
+    </span>
+  
+
+  
+  
+    
+      <!-- LeanCloud 统计文章PV -->
+      <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="leancloud-page-views"></span> 次
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">【hands on ML Ch3】-分类</h1>
+            
+              <p class="note note-info">
+                
+                  本文最后更新于：4 个月前
+                
+              </p>
+            
+            <div class="markdown-body">
+              <p>Hands on ML 第三章笔记，主要是分类相关的知识</p>
+<span id="more"></span>
+<p>本章使用的数据集是MNIST数据集，有70000张手写的数字图像(这个数据集也被称为是机器学习的“hello<br>world”)</p>
+<p>Scikit-Learn提供了一些函数来下载常用的数据集，下面的代码可以下载MNIST数据集：</p>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-keyword">from</span> sklearn.datasets <span class="hljs-keyword">import</span> fetch_openml<br><br>mnist = fetch_openml(<span class="hljs-string">&#x27;mnist_784&#x27;</span>, version=<span class="hljs-number">1</span>)<br>mnist.keys()<br></code></pre></div></td></tr></table></figure>
+
+<p>通过Scikit-Learn下载的数据是字典的结构，包含key和value，比如<code>DESCR</code>key表示数据集的描述，<code>data</code><br>key表示数据集，<code>target</code> key表示数据集的标签</p>
+<p>使用Scikit-Learn下载太慢，所以在openml官网下载了csv格式的<a target="_blank" rel="noopener" href="https://www.openml.org/d/554">数据</a>，再使用numpy读入</p>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-keyword">import</span> os<br><span class="hljs-keyword">import</span> numpy <span class="hljs-keyword">as</span> np<br>data = np.loadtxt(<span class="hljs-string">&quot;../test/mnist_784.csv&quot;</span>,delimiter=<span class="hljs-string">&quot;,&quot;</span>,skiprows=<span class="hljs-number">1</span>)<br><br>data.shape<br><br>&gt;&gt; (<span class="hljs-number">70000</span>, <span class="hljs-number">785</span>)<br>X = data[:,<span class="hljs-number">0</span>:<span class="hljs-number">784</span>]<span class="hljs-comment">###data without lable</span><br><br>y = data[:,<span class="hljs-number">784</span>]<span class="hljs-comment">###lable</span><br><br>X.shape<br>&gt;&gt; (<span class="hljs-number">70000</span>, <span class="hljs-number">784</span>)<br>y.shape<br>&gt;&gt; (<span class="hljs-number">70000</span>,)<br></code></pre></div></td></tr></table></figure>
+
+<p>每个图片都有784个特征，因为每张图片都由28*28个像素构成，每个特征就代表一个像素的密度(0-255):</p>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-keyword">import</span> matplotlib <span class="hljs-keyword">as</span> mpl <br><span class="hljs-keyword">import</span> matplotlib.pyplot <span class="hljs-keyword">as</span> plt<br><br>some_digit = X[<span class="hljs-number">0</span>] <br>some_digit_image = some_digit.reshape(<span class="hljs-number">28</span>, <span class="hljs-number">28</span>) <br>plt.imshow(some_digit_image,cmap=<span class="hljs-string">&quot;binary&quot;</span>) <br>&gt;&gt; &lt;matplotlib.image.AxesImage <span class="hljs-built_in">object</span> at <span class="hljs-number">0x0000015BA034A700</span>&gt;<br>plt.axis(<span class="hljs-string">&quot;off&quot;</span>) <br>&gt;&gt; (-<span class="hljs-number">0.5</span>, <span class="hljs-number">27.5</span>, <span class="hljs-number">27.5</span>, -<span class="hljs-number">0.5</span>)<br>plt.show()<br></code></pre></div></td></tr></table></figure>
+
+<p><img src="/img/hands_on_ML_ch3_files/figure-markdown_github/unnamed-chunk-3-1.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python">y[<span class="hljs-number">0</span>]<br>&gt;&gt; <span class="hljs-number">5.0</span><br></code></pre></div></td></tr></table></figure>
+
+<p>首先要做的就是划分训练集和测试集(MNIST数据集已经打乱过了，所以每个交叉验证的fold都是类似的)</p>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python">X_train, X_test, y_train, y_test = X[:<span class="hljs-number">60000</span>], X[<span class="hljs-number">60000</span>:], y[:<span class="hljs-number">60000</span>], y[<span class="hljs-number">60000</span>:]<br></code></pre></div></td></tr></table></figure>
+
+<h2 id="训练二分类器"><a href="#训练二分类器" class="headerlink" title="训练二分类器"></a>训练二分类器</h2><p>二分类器的目的是在数据中辨别出两种类别，比如这里我们想要鉴别某个手写的数字是5还是不是5；首先将数据的lable进行重塑：</p>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python">y_train_5 = (y_train == <span class="hljs-number">5</span>)<br>y_test_5 = (y_test == <span class="hljs-number">5</span>)<br></code></pre></div></td></tr></table></figure>
+
+<p>我们首先尝试SGD(Stochastic Gradient<br>Descent)分类器【随机梯度下降是一种算法，<br>Scikit-Learn里面的SGDClassifier类指的是一系列模型，这些模型的优化算法都是SGD，SGDClassifier类默认的是线性SVM模型，参照官网上的<a target="_blank" rel="noopener" href="https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.SGDClassifier.html">说明</a>】:</p>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-keyword">from</span> sklearn.linear_model <span class="hljs-keyword">import</span> SGDClassifier<br><br>sgd_clf = SGDClassifier(random_state=<span class="hljs-number">42</span>)<span class="hljs-comment">##随机梯度下降需要设定种子数 </span><br>sgd_clf.fit(X_train, y_train_5)<br>&gt;&gt; SGDClassifier(random_state=<span class="hljs-number">42</span>)<br>sgd_clf.predict([some_digit])<br>&gt;&gt; array([ <span class="hljs-literal">True</span>])<br></code></pre></div></td></tr></table></figure>
+
+<h2 id="模型性能评估"><a href="#模型性能评估" class="headerlink" title="模型性能评估"></a>模型性能评估</h2><p>这一部分是重点</p>
+<h3 id="使用交叉验证来评估准确性"><a href="#使用交叉验证来评估准确性" class="headerlink" title="使用交叉验证来评估准确性"></a>使用交叉验证来评估准确性</h3><p>和第二章一样，使用cross_val_score函数来进行交叉验证，注意这里使用的评价方法不是第二章里面的RSME了，而是使用精确度(正确预测的比例)：</p>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-keyword">from</span> sklearn.model_selection <span class="hljs-keyword">import</span> cross_val_score<br><br>cross_val_score(sgd_clf, X_train, y_train_5, cv=<span class="hljs-number">3</span>, scoring=<span class="hljs-string">&quot;accuracy&quot;</span>)<br>&gt;&gt; array([<span class="hljs-number">0.95035</span>, <span class="hljs-number">0.96035</span>, <span class="hljs-number">0.9604</span> ])<br></code></pre></div></td></tr></table></figure>
+
+<p>看起来结果不错，但是如果我们构建一个非常简单的模型：将所有的图片都分到不是5的类中，这个模型的精确度是多少呢？</p>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-keyword">from</span> sklearn.base <span class="hljs-keyword">import</span> BaseEstimator<br><br><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Never5Classifier</span>(<span class="hljs-params">BaseEstimator</span>):</span><br>    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">fit</span>(<span class="hljs-params">self, X, y=<span class="hljs-literal">None</span></span>):</span> <br>      <span class="hljs-keyword">pass</span> <br>    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">predict</span>(<span class="hljs-params">self, X</span>):</span> <br>      <span class="hljs-keyword">return</span> np.zeros((<span class="hljs-built_in">len</span>(X), <span class="hljs-number">1</span>), dtype=<span class="hljs-built_in">bool</span>)<span class="hljs-comment">##返回False</span><br>    <br>never_5_clf = Never5Classifier()<br>cross_val_score(never_5_clf, X_train, y_train_5, cv=<span class="hljs-number">3</span>, scoring=<span class="hljs-string">&quot;accuracy&quot;</span>)<br>&gt;&gt; array([<span class="hljs-number">0.91125</span>, <span class="hljs-number">0.90855</span>, <span class="hljs-number">0.90915</span>])<br></code></pre></div></td></tr></table></figure>
+
+<p>这个模型都有0.9以上的准确度，因为只有10%的图片是5，所以总是猜不是5，90%是对的</p>
+<p>上面的例子说明：仅仅使用准确度来衡量模型是不太好的，特别是对于有偏向性的数据(skewed<br>datasets)</p>
+<h3 id="混淆矩阵"><a href="#混淆矩阵" class="headerlink" title="混淆矩阵"></a>混淆矩阵</h3><p>评估一个分类器的更好的方法是混淆矩阵(confusion matrix)</p>
+<p>混淆矩阵的每一行是真实的类，每一列是预测的类</p>
+<p>要计算混淆矩阵，首先要获取预测值，可以使用cross_val_predict函数，这个函数也进行交叉验证，不过返回的不是评估分数而是在每一个验证集上的预测值(因此是“clean”的预测，所谓clean指的是预测使用的是在训练过程中没有看过的数据)：</p>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-keyword">from</span> sklearn.model_selection <span class="hljs-keyword">import</span> cross_val_predict<br><br>y_train_pred = cross_val_predict(sgd_clf, X_train, y_train_5, cv=<span class="hljs-number">3</span>)<br></code></pre></div></td></tr></table></figure>
+
+<p>然后就可以使用confusion_matrix函数来获得混淆矩阵：</p>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-keyword">from</span> sklearn.metrics <span class="hljs-keyword">import</span> confusion_matrix<br><br>confusion_matrix(y_train_5, y_train_pred)<br>&gt;&gt; array([[<span class="hljs-number">53892</span>,   <span class="hljs-number">687</span>],<br>&gt;&gt;        [ <span class="hljs-number">1891</span>,  <span class="hljs-number">3530</span>]], dtype=int64)<br></code></pre></div></td></tr></table></figure>
+
+<p>这个混淆矩阵可以使用下图来表示：<br><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF1_01.png" srcset="/img/loading.gif" lazyload></p>
+<p>一个完美的分类器的混淆矩阵应该只有主对角线上是非零值</p>
+<p>关于混淆矩阵，有一些重要的指标：</p>
+<ul>
+<li><p>精度(precision)表示 在预测的positive里面真实的也是positive的比例：</p>
+<p>  $$<br>  precision = \frac{TP}{TP+FP}<br>  $$</p>
+</li>
+<li><p>召回率(recall)(或者叫灵敏度sensitivity; 真阳性率FPR)表示<br>  在真实的positive里面预测是positive的比例：</p>
+<p>  $$<br>  recall = \frac{TP}{TP+FN}<br>  $$</p>
+</li>
+</ul>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210204170319913.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="精度和召回率"><a href="#精度和召回率" class="headerlink" title="精度和召回率"></a>精度和召回率</h3><p>Scikit-Learn也提供了函数来计算精度和召回率：</p>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-keyword">from</span> sklearn.metrics <span class="hljs-keyword">import</span> precision_score, recall_score<br><br>precision_score(y_train_5,y_train_pred)<br>&gt;&gt; <span class="hljs-number">0.8370879772350012</span><br>recall_score(y_train_5, y_train_pred)<br>&gt;&gt; <span class="hljs-number">0.6511713705958311</span><br></code></pre></div></td></tr></table></figure>
+
+<p>这些值的意思是：当这个分类器认为某个图片是5，那么有83.7%的机率是对的；并且这个分类器只检测到65%的是5的图片</p>
+<p>也可以将精度和召回率结合成一个值：F_1 score<br>(两者的几何平均，几何平均给予小的值更大的权重)：</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210204171113298.png" srcset="/img/loading.gif" lazyload></p>
+<p>可以使用 f1_score()函数来计算：</p>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-keyword">from</span> sklearn.metrics <span class="hljs-keyword">import</span> f1_score<br><br>f1_score(y_train_5, y_train_pred)<br>&gt;&gt; <span class="hljs-number">0.7325171197343846</span><br></code></pre></div></td></tr></table></figure>
+
+<p>需要注意的是：<strong>在不同情况下，我们对于precision和recall的关注度是不一样的</strong></p>
+<p>比如，如果训练的分类器的任务是检测对儿童安全的视频，那么这个分类器的precision就更重要(尽可能保证预测是安全的视频实际上也是安全的，而不是说将所有的安全的视频都给检出)；而如果分类器的任务是根据商场的监控图像来检测小偷，这个时候分类器的recall就更重要(将所有的小偷尽可能全部检测出，虽然有可能发出假的的警报)</p>
+<h3 id="Precision-Recall-平衡"><a href="#Precision-Recall-平衡" class="headerlink" title="Precision/Recall 平衡"></a>Precision/Recall 平衡</h3><p>对于每个观测值，SGDClassifier都会依据决策函数(decision<br>function)来计算一个值，再根据特定的阈值，如果计算的值高于阈值则为positive类，低于阈值则为negative类，所以改变这个阈值就是使得precision和recall有所变化，这个过程可以用下图来表示：</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210204173205578.png" srcset="/img/loading.gif" lazyload></p>
+<p>在Scikit-Learn中，我们可以通过decision_function()方法来获取每个观测值的决策函数值：</p>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python">y_scores = sgd_clf.decision_function([some_digit])<br>y_scores<br>&gt;&gt; array([<span class="hljs-number">2164.22030239</span>])<br>threshold = <span class="hljs-number">0</span><span class="hljs-comment">##设置阈值为0</span><br>y_some_digit_pred = (y_scores &gt; threshold)<br>y_some_digit_pred<br>&gt;&gt; array([ <span class="hljs-literal">True</span>])<br>threshold = <span class="hljs-number">8000</span><span class="hljs-comment">##改变阈值</span><br>y_some_digit_pred = (y_scores &gt; threshold)<br>y_some_digit_pred<br>&gt;&gt; array([<span class="hljs-literal">False</span>])<br></code></pre></div></td></tr></table></figure>
+
+<p>那么我们怎么选择一个合适的阈值呢？<br>首先可以使用cross_val_predict()得到每个实例的决策函数值(同样是“clean”的)，然后使用<br>precision_recall_curve()函数来计算所有阈值的precision和recall值：</p>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python">y_scores = cross_val_predict(sgd_clf, X_train, y_train_5, cv=<span class="hljs-number">3</span>, method=<span class="hljs-string">&quot;decision_function&quot;</span>)<br><br><span class="hljs-keyword">from</span> sklearn.metrics <span class="hljs-keyword">import</span> precision_recall_curve<br><br>precisions, recalls, thresholds = precision_recall_curve(y_train_5, y_scores)<br><br><span class="hljs-comment">###可视化</span><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">plot_precision_recall_vs_threshold</span>(<span class="hljs-params">precisions, recalls, thresholds</span>):</span><br>    plt.plot(thresholds, precisions[:-<span class="hljs-number">1</span>], <span class="hljs-string">&quot;b--&quot;</span>, label=<span class="hljs-string">&quot;Precision&quot;</span>, linewidth=<span class="hljs-number">2</span>)<br>    plt.plot(thresholds, recalls[:-<span class="hljs-number">1</span>], <span class="hljs-string">&quot;g-&quot;</span>, label=<span class="hljs-string">&quot;Recall&quot;</span>, linewidth=<span class="hljs-number">2</span>)<br>    plt.legend(loc=<span class="hljs-string">&quot;center right&quot;</span>, fontsize=<span class="hljs-number">16</span>)<br>    plt.xlabel(<span class="hljs-string">&quot;Threshold&quot;</span>,fontsize=<span class="hljs-number">16</span>)<br>    plt.grid(<span class="hljs-literal">True</span>)                    <br>    plt.axis([-<span class="hljs-number">50000</span>, <span class="hljs-number">50000</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>])<br>    <br>recall_90_precision = recalls[np.argmax(precisions &gt;= <span class="hljs-number">0.90</span>)]<br>threshold_90_precision = thresholds[np.argmax(precisions &gt;= <span class="hljs-number">0.90</span>)]<br><br><br>plt.figure(figsize=(<span class="hljs-number">8</span>, <span class="hljs-number">4</span>))            <br>&gt;&gt; &lt;Figure size 800x400 <span class="hljs-keyword">with</span> <span class="hljs-number">0</span> Axes&gt;<br></code></pre></div></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python">plot_precision_recall_vs_threshold(precisions, recalls, thresholds)<br>plt.plot([threshold_90_precision, threshold_90_precision], [<span class="hljs-number">0.</span>, <span class="hljs-number">0.9</span>], <span class="hljs-string">&quot;r:&quot;</span>)      <br>&gt;&gt; [&lt;matplotlib.lines.Line2D <span class="hljs-built_in">object</span> at <span class="hljs-number">0x0000015B4B54FD90</span>&gt;]<br>plt.plot([-<span class="hljs-number">50000</span>, threshold_90_precision], [<span class="hljs-number">0.9</span>, <span class="hljs-number">0.9</span>], <span class="hljs-string">&quot;r:&quot;</span>)          <br>&gt;&gt; [&lt;matplotlib.lines.Line2D <span class="hljs-built_in">object</span> at <span class="hljs-number">0x0000015B9C2D3EB0</span>&gt;]<br>plt.plot([-<span class="hljs-number">50000</span>, threshold_90_precision], [recall_90_precision, recall_90_precision], <span class="hljs-string">&quot;r:&quot;</span>)<br>&gt;&gt; [&lt;matplotlib.lines.Line2D <span class="hljs-built_in">object</span> at <span class="hljs-number">0x0000015B9C2E0820</span>&gt;]<br>plt.plot([threshold_90_precision], [<span class="hljs-number">0.9</span>], <span class="hljs-string">&quot;ro&quot;</span>)                           <br>&gt;&gt; [&lt;matplotlib.lines.Line2D <span class="hljs-built_in">object</span> at <span class="hljs-number">0x0000015B9C2E0400</span>&gt;]<br>plt.plot([threshold_90_precision], [recall_90_precision], <span class="hljs-string">&quot;ro&quot;</span>)           <br>&gt;&gt; [&lt;matplotlib.lines.Line2D <span class="hljs-built_in">object</span> at <span class="hljs-number">0x0000015B9C2E0B50</span>&gt;]<br></code></pre></div></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python">plt.show()<br></code></pre></div></td></tr></table></figure>
+
+<p><img src="/img/hands_on_ML_ch3_files/figure-markdown_github/unnamed-chunk-17-1.png" srcset="/img/loading.gif" lazyload></p>
+<p>注意：当提高阈值时，precision不一定总是上升的(以上面那个轴为例，当阈值从中间向右移动一位precision就会下降：4/5→3/4);但是Recall总是下降的</p>
+<p>另外，我们也可以直接展示precision和recall的关系：</p>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">plot_precision_vs_recall</span>(<span class="hljs-params">precisions, recalls</span>):</span><br>    plt.plot(recalls, precisions, <span class="hljs-string">&quot;b-&quot;</span>, linewidth=<span class="hljs-number">2</span>)<br>    plt.xlabel(<span class="hljs-string">&quot;Recall&quot;</span>, fontsize=<span class="hljs-number">16</span>)<br>    plt.ylabel(<span class="hljs-string">&quot;Precision&quot;</span>, fontsize=<span class="hljs-number">16</span>)<br>    plt.axis([<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>])<br>    plt.grid(<span class="hljs-literal">True</span>)<br><br>plt.figure(figsize=(<span class="hljs-number">8</span>, <span class="hljs-number">6</span>))<br>&gt;&gt; &lt;Figure size 800x600 <span class="hljs-keyword">with</span> <span class="hljs-number">0</span> Axes&gt;<br></code></pre></div></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python">plot_precision_vs_recall(precisions, recalls)<br>plt.plot([recall_90_precision, recall_90_precision], [<span class="hljs-number">0.</span>, <span class="hljs-number">0.9</span>], <span class="hljs-string">&quot;r:&quot;</span>)<br>&gt;&gt; [&lt;matplotlib.lines.Line2D <span class="hljs-built_in">object</span> at <span class="hljs-number">0x0000015B9C4F4880</span>&gt;]<br>plt.plot([<span class="hljs-number">0.0</span>, recall_90_precision], [<span class="hljs-number">0.9</span>, <span class="hljs-number">0.9</span>], <span class="hljs-string">&quot;r:&quot;</span>)<br>&gt;&gt; [&lt;matplotlib.lines.Line2D <span class="hljs-built_in">object</span> at <span class="hljs-number">0x0000015B9C4F4C10</span>&gt;]<br>plt.plot([recall_90_precision], [<span class="hljs-number">0.9</span>], <span class="hljs-string">&quot;ro&quot;</span>)<br>&gt;&gt; [&lt;matplotlib.lines.Line2D <span class="hljs-built_in">object</span> at <span class="hljs-number">0x0000015B9C4F44F0</span>&gt;]<br></code></pre></div></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python">plt.show()<br></code></pre></div></td></tr></table></figure>
+
+<img src="/img/hands_on_ML_ch3_files/figure-markdown_github/unnamed-chunk-20-1.png" srcset="/img/loading.gif" lazyload width="672" />
+
+<p>假如我们现在想要分类器达到90%的precision，可以使用numpy的np.argmax函数(返回第一个最大值的index)：</p>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python">threshold_90_precision = thresholds[np.argmax(precisions &gt;= <span class="hljs-number">0.90</span>)]<span class="hljs-comment">##true是1，false是0，因此返回第一个1，也就是第一个true的位置</span><br><br>y_train_pred_90 = (y_scores &gt;= threshold_90_precision)<span class="hljs-comment">##预测</span><br><br>precision_score(y_train_5, y_train_pred_90)<br>&gt;&gt; <span class="hljs-number">0.9000345901072293</span><br>recall_score(y_train_5, y_train_pred_90)<br>&gt;&gt; <span class="hljs-number">0.4799852425751706</span><br></code></pre></div></td></tr></table></figure>
+
+<h3 id="ROC曲线"><a href="#ROC曲线" class="headerlink" title="ROC曲线"></a>ROC曲线</h3><p>ROC曲线全称为：receiver operating characteristic<br>curve；ROC曲线展示了真阳性率(true positive rate,<br>recall的另一个叫法)和假阳性率(false positive rate, FPR)的关系</p>
+<p>$$<br>FPR = \frac{FP}{FP+TN}=1-TNR=1-\frac{TN}{FP+TN}<br>$$</p>
+<p>这里面的TNR又叫做特异性(specificity)，所以<strong>ROC曲线画的是recall/sensitivity(两个是一样的)和1-specificity的关系</strong></p>
+<p>可以使用roc_curve函数来计算FPR和TPR：</p>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-keyword">from</span> sklearn.metrics <span class="hljs-keyword">import</span> roc_curve<br><br>fpr, tpr, thresholds = roc_curve(y_train_5, y_scores)<br><br><span class="hljs-comment">##plot</span><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">plot_roc_curve</span>(<span class="hljs-params">fpr, tpr, label=<span class="hljs-literal">None</span></span>):</span><br>    plt.plot(fpr, tpr, linewidth=<span class="hljs-number">2</span>, label=label)<br>    plt.plot([<span class="hljs-number">0</span>, <span class="hljs-number">1</span>], [<span class="hljs-number">0</span>, <span class="hljs-number">1</span>], <span class="hljs-string">&#x27;k--&#x27;</span>) <span class="hljs-comment"># dashed diagonal</span><br>    plt.axis([<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>])            <br>    plt.xlabel(<span class="hljs-string">&#x27;False Positive Rate&#x27;</span>, fontsize=<span class="hljs-number">16</span>)<br>    plt.ylabel(<span class="hljs-string">&#x27;True Positive Rate (Recall)&#x27;</span>, fontsize=<span class="hljs-number">16</span>)  <br>    plt.grid(<span class="hljs-literal">True</span>)<br><br>plt.figure(figsize=(<span class="hljs-number">8</span>, <span class="hljs-number">6</span>))                  <br>&gt;&gt; &lt;Figure size 800x600 <span class="hljs-keyword">with</span> <span class="hljs-number">0</span> Axes&gt;<br></code></pre></div></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python">plot_roc_curve(fpr, tpr)<br>fpr_90 = fpr[np.argmax(tpr &gt;= recall_90_precision)]          <br>plt.plot([fpr_90, fpr_90], [<span class="hljs-number">0.</span>, recall_90_precision], <span class="hljs-string">&quot;r:&quot;</span>) <br>&gt;&gt; [&lt;matplotlib.lines.Line2D <span class="hljs-built_in">object</span> at <span class="hljs-number">0x0000015B9C708A60</span>&gt;]<br>plt.plot([<span class="hljs-number">0.0</span>, fpr_90], [recall_90_precision, recall_90_precision], <span class="hljs-string">&quot;r:&quot;</span>) <br>&gt;&gt; [&lt;matplotlib.lines.Line2D <span class="hljs-built_in">object</span> at <span class="hljs-number">0x0000015B9C708D60</span>&gt;]<br>plt.plot([fpr_90], [recall_90_precision], <span class="hljs-string">&quot;ro&quot;</span>)               <br>&gt;&gt; [&lt;matplotlib.lines.Line2D <span class="hljs-built_in">object</span> at <span class="hljs-number">0x0000015B9C708580</span>&gt;]<br></code></pre></div></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python">plt.show()<br></code></pre></div></td></tr></table></figure>
+
+<img src="/img/hands_on_ML_ch3_files/figure-markdown_github/unnamed-chunk-24-1.png" srcset="/img/loading.gif" lazyload width="672" />
+
+<p>图中的虚线表示完全随机的分类器的ROC曲线，一个好的分类器要尽可能离这条线远，并且向左上角靠拢(高的recall并且比较低的假阳性)</p>
+<p>一种比较不同的分类器的方法就是计算ROC曲线下面积(AUC)，越接近1说明这个模型越好(图中虚线的AUC是0.5)：</p>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-keyword">from</span> sklearn.metrics <span class="hljs-keyword">import</span> roc_auc_score<br><br>roc_auc_score(y_train_5, y_scores)<br>&gt;&gt; <span class="hljs-number">0.9604938554008616</span><br></code></pre></div></td></tr></table></figure>
+
+<p>现在我们可以来比较一下<br>随机森林分类器(RandomForestClassifier)和SVM分类器(SGDClassifier,默认参数)了</p>
+<p>要注意的是RandomForestClassifier没有decision_function方法而是predict_proba方法，该方法返回的是一个array数组，每一行是一个观测，每一列是该观测属于各类的概率：</p>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-keyword">from</span> sklearn.ensemble <span class="hljs-keyword">import</span> RandomForestClassifier<br><br>forest_clf = RandomForestClassifier(random_state=<span class="hljs-number">42</span>)<br>y_probas_forest = cross_val_predict(forest_clf, X_train, y_train_5, cv=<span class="hljs-number">3</span>, method=<span class="hljs-string">&quot;predict_proba&quot;</span>)<br><br>y_probas_forest<br>&gt;&gt; array([[<span class="hljs-number">0.11</span>, <span class="hljs-number">0.89</span>],<br>&gt;&gt;        [<span class="hljs-number">0.99</span>, <span class="hljs-number">0.01</span>],<br>&gt;&gt;        [<span class="hljs-number">0.96</span>, <span class="hljs-number">0.04</span>],<br>&gt;&gt;        ...,<br>&gt;&gt;        [<span class="hljs-number">0.02</span>, <span class="hljs-number">0.98</span>],<br>&gt;&gt;        [<span class="hljs-number">0.92</span>, <span class="hljs-number">0.08</span>],<br>&gt;&gt;        [<span class="hljs-number">0.94</span>, <span class="hljs-number">0.06</span>]])<br></code></pre></div></td></tr></table></figure>
+
+<p>roc_curve()函数需要的输入是label和score(用来选取不同的阈值)，所以在这里使用是5类(positive类)的概率作为score：</p>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python">y_scores_forest = y_probas_forest[:, <span class="hljs-number">1</span>]<br><br>fpr_forest, tpr_forest, thresholds_forest = roc_curve(y_train_5,y_scores_forest)<br><br><span class="hljs-comment">##plot</span><br>plt.plot(fpr, tpr, <span class="hljs-string">&quot;b:&quot;</span>, label=<span class="hljs-string">&quot;SGD&quot;</span>)<br>&gt;&gt; [&lt;matplotlib.lines.Line2D <span class="hljs-built_in">object</span> at <span class="hljs-number">0x0000015B9CD23580</span>&gt;]<br>plot_roc_curve(fpr_forest, tpr_forest, <span class="hljs-string">&quot;Random Forest&quot;</span>) <br>plt.legend(loc=<span class="hljs-string">&quot;lower right&quot;</span>) <br>&gt;&gt; &lt;matplotlib.legend.Legend <span class="hljs-built_in">object</span> at <span class="hljs-number">0x0000015B9CD23EB0</span>&gt;<br>plt.show()<br></code></pre></div></td></tr></table></figure>
+
+<img src="/img/hands_on_ML_ch3_files/figure-markdown_github/unnamed-chunk-27-1.png" srcset="/img/loading.gif" lazyload width="672" />
+
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python">roc_auc_score(y_train_5, y_scores_forest)<br>&gt;&gt; <span class="hljs-number">0.9983436731328145</span><br></code></pre></div></td></tr></table></figure>
+
+<h2 id="多类别分类"><a href="#多类别分类" class="headerlink" title="多类别分类"></a>多类别分类</h2><p>有一些算法能够处理多分类问题(比如SGD<br>分类器，随随机森林分类器和朴素贝叶斯分类器)而一些算法只能处理二分类问题(比如逻辑斯蒂回归，支持向量机等)，但是我们可以使用一些方法来使这些算法可以用来处理多分类问题</p>
+<p>主要有两种方法：</p>
+<ul>
+<li><p>一对多策略(one-versus-the-rest (OvR)):<br>  比如要将手写图片分为0-9一共10个类别，那么我们就可以训练10个分类器，每个分类器处理的是一个二分类问题(属于这一类还是不属于这一类)，都可以得到一个score，对于每个图片就选择10个分类器中score最高的分类器所对应的类作为该图片的预测类</p>
+</li>
+<li><p>一对一策略(one-versus-one<br>  (OvO)):对所有的类两两组合训练二分类的分类器，如果有N类，那么就需要训练N*(N-1)/2个分类器，对于一个图片就需要运行所有的分类器(10类别是45个)，在这些结果中预测次数最多的类就是该图片的预测类，这个方法的好处是在训练时只需要对一部分训练数据进行训练(只涉及要识别的类的数据，比如0-1分类器只需要对所有的0/1图片进行训练)</p>
+</li>
+</ul>
+<p>对于一些算法(比如支持向量机)对大的训练集处理比较困难(scale poorly with<br>the size of the training<br>set),对于这些算法OvO策略比较适合，因为训练的时候不需要全部的训练集；对于大部分的二分类算法，OvR比较适合</p>
+<p>Scikit-Learn会依据算法的不同来选择OvO或者OvR：</p>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-comment">##支持向量机SVM算法，默认是使用OvO</span><br><span class="hljs-keyword">from</span> sklearn.svm <span class="hljs-keyword">import</span> SVC<br>svm_clf = SVC()<br>svm_clf.fit(X_train, y_train)<span class="hljs-comment">##多分类</span><br>&gt;&gt; SVC()<br>svm_clf.predict([some_digit])<br>&gt;&gt; array([<span class="hljs-number">5.</span>])<br></code></pre></div></td></tr></table></figure>
+
+<p>如果想要指定OvO或者OvR，可以使用OneVsOneClassifier或者OneVsRestClassifier类：</p>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-keyword">from</span> sklearn.multiclass <span class="hljs-keyword">import</span> OneVsRestClassifier<br><br>ovr_clf = OneVsRestClassifier(SVC())<span class="hljs-comment">##SVC的OVR策略</span><br>ovr_clf.fit(X_train, y_train)<br>&gt;&gt; OneVsRestClassifier(estimator=SVC())<br>ovr_clf.predict([some_digit])<br>&gt;&gt; array([<span class="hljs-number">5.</span>])<br></code></pre></div></td></tr></table></figure>
+
+<p>对SGD分类器进行多分类任务的训练也是类似的，不过SGD分类器本身就可以进行多分类任务，所以不会运行OVO或者OVR：</p>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python">sgd_clf.fit(X_train, y_train)<br>&gt;&gt; SGDClassifier(random_state=<span class="hljs-number">42</span>)<br>sgd_clf.predict([some_digit])<br>&gt;&gt; array([<span class="hljs-number">3.</span>])<br>cross_val_score(sgd_clf, X_train, y_train, cv=<span class="hljs-number">3</span>, scoring=<span class="hljs-string">&quot;accuracy&quot;</span>)<span class="hljs-comment">##检测预测精度</span><br>&gt;&gt; array([<span class="hljs-number">0.87365</span>, <span class="hljs-number">0.85835</span>, <span class="hljs-number">0.8689</span> ])<br><span class="hljs-keyword">from</span> sklearn.preprocessing <span class="hljs-keyword">import</span> StandardScaler<br><br>scaler = StandardScaler()<br>X_train_scaled = scaler.fit_transform(X_train.astype(np.float64))<span class="hljs-comment">##将变量进行缩放</span><br>cross_val_score(sgd_clf, X_train_scaled, y_train, cv=<span class="hljs-number">3</span>, scoring=<span class="hljs-string">&quot;accuracy&quot;</span>)<span class="hljs-comment">##精度有所提升</span><br>&gt;&gt; array([<span class="hljs-number">0.8983</span>, <span class="hljs-number">0.891</span> , <span class="hljs-number">0.9018</span>])<br></code></pre></div></td></tr></table></figure>
+
+<h2 id="错误分析"><a href="#错误分析" class="headerlink" title="错误分析"></a>错误分析</h2><p>当我们通过一系列的步骤找到了一个不错的模型并想要进一步提升其性能，一种方法就是分析这个模型犯的错误</p>
+<p>首先需要查看混淆矩阵：</p>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python">y_train_pred = cross_val_predict(sgd_clf, X_train_scaled, y_train, cv=<span class="hljs-number">3</span>)<br><br>conf_mx = confusion_matrix(y_train, y_train_pred)<br>conf_mx<br>&gt;&gt; array([[<span class="hljs-number">5577</span>,    <span class="hljs-number">0</span>,   <span class="hljs-number">22</span>,    <span class="hljs-number">5</span>,    <span class="hljs-number">8</span>,   <span class="hljs-number">43</span>,   <span class="hljs-number">36</span>,    <span class="hljs-number">6</span>,  <span class="hljs-number">225</span>,    <span class="hljs-number">1</span>],<br>&gt;&gt;        [   <span class="hljs-number">0</span>, <span class="hljs-number">6400</span>,   <span class="hljs-number">37</span>,   <span class="hljs-number">24</span>,    <span class="hljs-number">4</span>,   <span class="hljs-number">44</span>,    <span class="hljs-number">4</span>,    <span class="hljs-number">7</span>,  <span class="hljs-number">212</span>,   <span class="hljs-number">10</span>],<br>&gt;&gt;        [  <span class="hljs-number">27</span>,   <span class="hljs-number">27</span>, <span class="hljs-number">5220</span>,   <span class="hljs-number">92</span>,   <span class="hljs-number">73</span>,   <span class="hljs-number">27</span>,   <span class="hljs-number">67</span>,   <span class="hljs-number">36</span>,  <span class="hljs-number">378</span>,   <span class="hljs-number">11</span>],<br>&gt;&gt;        [  <span class="hljs-number">22</span>,   <span class="hljs-number">17</span>,  <span class="hljs-number">117</span>, <span class="hljs-number">5227</span>,    <span class="hljs-number">2</span>,  <span class="hljs-number">203</span>,   <span class="hljs-number">27</span>,   <span class="hljs-number">40</span>,  <span class="hljs-number">403</span>,   <span class="hljs-number">73</span>],<br>&gt;&gt;        [  <span class="hljs-number">12</span>,   <span class="hljs-number">14</span>,   <span class="hljs-number">41</span>,    <span class="hljs-number">9</span>, <span class="hljs-number">5182</span>,   <span class="hljs-number">12</span>,   <span class="hljs-number">34</span>,   <span class="hljs-number">27</span>,  <span class="hljs-number">347</span>,  <span class="hljs-number">164</span>],<br>&gt;&gt;        [  <span class="hljs-number">27</span>,   <span class="hljs-number">15</span>,   <span class="hljs-number">30</span>,  <span class="hljs-number">168</span>,   <span class="hljs-number">53</span>, <span class="hljs-number">4444</span>,   <span class="hljs-number">75</span>,   <span class="hljs-number">14</span>,  <span class="hljs-number">535</span>,   <span class="hljs-number">60</span>],<br>&gt;&gt;        [  <span class="hljs-number">30</span>,   <span class="hljs-number">15</span>,   <span class="hljs-number">42</span>,    <span class="hljs-number">3</span>,   <span class="hljs-number">44</span>,   <span class="hljs-number">97</span>, <span class="hljs-number">5552</span>,    <span class="hljs-number">3</span>,  <span class="hljs-number">131</span>,    <span class="hljs-number">1</span>],<br>&gt;&gt;        [  <span class="hljs-number">21</span>,   <span class="hljs-number">10</span>,   <span class="hljs-number">51</span>,   <span class="hljs-number">30</span>,   <span class="hljs-number">49</span>,   <span class="hljs-number">12</span>,    <span class="hljs-number">3</span>, <span class="hljs-number">5684</span>,  <span class="hljs-number">195</span>,  <span class="hljs-number">210</span>],<br>&gt;&gt;        [  <span class="hljs-number">17</span>,   <span class="hljs-number">63</span>,   <span class="hljs-number">48</span>,   <span class="hljs-number">86</span>,    <span class="hljs-number">3</span>,  <span class="hljs-number">126</span>,   <span class="hljs-number">25</span>,   <span class="hljs-number">10</span>, <span class="hljs-number">5429</span>,   <span class="hljs-number">44</span>],<br>&gt;&gt;        [  <span class="hljs-number">25</span>,   <span class="hljs-number">18</span>,   <span class="hljs-number">30</span>,   <span class="hljs-number">64</span>,  <span class="hljs-number">118</span>,   <span class="hljs-number">36</span>,    <span class="hljs-number">1</span>,  <span class="hljs-number">179</span>,  <span class="hljs-number">371</span>, <span class="hljs-number">5107</span>]],<br>&gt;&gt;       dtype=int64)<br></code></pre></div></td></tr></table></figure>
+
+<p>可以用热图的形式将混淆矩阵可视化：</p>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python">plt.matshow(conf_mx, cmap=plt.cm.gray)<br>&gt;&gt; &lt;matplotlib.image.AxesImage <span class="hljs-built_in">object</span> at <span class="hljs-number">0x0000015B9C0DC1C0</span>&gt;<br>plt.show()<br></code></pre></div></td></tr></table></figure>
+
+<img src="/img/hands_on_ML_ch3_files/figure-markdown_github/unnamed-chunk-33-1.png" srcset="/img/loading.gif" lazyload width="480" />
+
+<p>从这个图来看，结果是比较好的，因为大部分都集中在对角线上，但是这里面查看的是绝对数值，可能某个类的总数就比较小，比如5类，因此我们将混淆矩阵中的每个值除以相应类的图片总数(行和)得到相对值：</p>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python">row_sums = conf_mx.<span class="hljs-built_in">sum</span>(axis=<span class="hljs-number">1</span>, keepdims=<span class="hljs-literal">True</span>)<br>norm_conf_mx = conf_mx / row_sums<br></code></pre></div></td></tr></table></figure>
+
+<p>再将对角线上的值归为0，因此处理后的混淆矩阵中的值就是错误率：</p>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python">np.fill_diagonal(norm_conf_mx, <span class="hljs-number">0</span>)<span class="hljs-comment">##对角线归0</span><br><br>plt.matshow(norm_conf_mx, cmap=plt.cm.gray)<br>&gt;&gt; &lt;matplotlib.image.AxesImage <span class="hljs-built_in">object</span> at <span class="hljs-number">0x0000015B9C508E50</span>&gt;<br>plt.show()<br></code></pre></div></td></tr></table></figure>
+
+<img src="/img/hands_on_ML_ch3_files/figure-markdown_github/unnamed-chunk-35-1.png" srcset="/img/loading.gif" lazyload width="480" />
+
+<p>可以看到8类的列最亮，也就是说很多图片都被错误地分成8了；另外3和5也是经常被相互错分的</p>
+<p>我们可以针对这种错误来想办法提升模型，例如：可以收集更多的图片，这些图片长得像8但又不是8，用这些数据作为训练集；还可以编码一些新的特征，比如图像中闭环的数目(8有2个，6有1个，5没有)；也可以对图像进行预处理(使图像居中，突出某些特征等)</p>
+<h2 id="多标签分类"><a href="#多标签分类" class="headerlink" title="多标签分类"></a>多标签分类</h2><p>多标签分类指的是：对于一个观测值可以输出多个类别；比如一个人像识别系统被训练可以识别3张脸A,B,C，当来了一张A和C的照片，这个分类器就会输出[1,0,1],也就是对这一张照片可以有3个类别</p>
+<p>这里，我们可以将每个图片都赋予两个类的属性，图片上的数值是否大于7和数字是否为偶数(这里使用的是K近邻分类算法)：</p>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-keyword">from</span> sklearn.neighbors <span class="hljs-keyword">import</span> KNeighborsClassifier<br><br>y_train_large = (y_train &gt;= <span class="hljs-number">7</span>) <br>y_train_odd = (y_train % <span class="hljs-number">2</span> == <span class="hljs-number">1</span>) <br>y_multilabel = np.c_[y_train_large, y_train_odd] <br>knn_clf = KNeighborsClassifier() <br>knn_clf.fit(X_train,y_multilabel)<br>&gt;&gt; KNeighborsClassifier()<br>knn_clf.predict([some_digit])<br>&gt;&gt; array([[<span class="hljs-literal">False</span>,  <span class="hljs-literal">True</span>]])<br></code></pre></div></td></tr></table></figure>
+
+<p>评估多标签分类器的方法有很多，取决于不同的项目;比如可以使用每个标签的F1<br>score的均值：</p>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python">y_train_knn_pred = cross_val_predict(knn_clf, X_train, y_multilabel, cv=<span class="hljs-number">3</span>)<br><br>f1_score(y_multilabel, y_train_knn_pred, average=<span class="hljs-string">&quot;macro&quot;</span>)<span class="hljs-comment">##有不同的平均方法，具体可以看文档</span><br>&gt;&gt; <span class="hljs-number">0.976410265560605</span><br></code></pre></div></td></tr></table></figure>
+
+<h2 id="多输出分类"><a href="#多输出分类" class="headerlink" title="多输出分类"></a>多输出分类</h2><p>全称为多输出-多标签分类，意思是：对于每个观测值有多个标签(像上面的多标签分类一样)，并且对于每个标签有多个值(上面只有T/F两个值)</p>
+<p>举个例子：我们现在有一个系统，输入是有噪声的图片，输出是降噪后的图片；那么对于每个图片，输出有多个标签(每个像素都是一个标签)并且每个标签有多个值(像素密度从0-255)</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/02/08/hands_on_ml_ch4/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【hands on ML Ch4】-训练模型</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/01/28/granges/">
+                        <span class="hidden-mobile">GenomicRanges基因组区间操作</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <div id="waline"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#waline', function() {
+      Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/@waline/client@0.14.8/dist/Waline.min.js', function () {
+        new Waline({
+          el: "#waline",
+          placeholder: "说点什么",
+          path: window.location.pathname,
+          avatar: "retro",
+          meta: ["nick","mail","link"],
+          pageSize: "5",
+          lang: "zh-CN",
+          highlight: true,
+          serverURL: "https://comments-flax.vercel.app",
+          avatarCDN: "",
+          avatarForce: false,
+          requiredFields: [],
+          emojiCDN: "https://cdn.jsdelivr.net/gh/walinejs/emojis@1.0.0/bilibili",
+          emojiMaps: {},
+          anonymous: null,
+        });
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- LeanCloud 统计PV -->
+        <span id="leancloud-site-pv-container" style="display: none">
+            总访问量 
+            <span id="leancloud-site-pv"></span>
+             次
+          </span>
+      
+      
+        <!-- LeanCloud 统计UV -->
+        <span id="leancloud-site-uv-container" style="display: none">
+            总访客数 
+            <span id="leancloud-site-uv"></span>
+             人
+          </span>
+      
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.2/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js" ></script>
+
+
+
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      $('#local-search-input').on('click', function() {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      });
+      $('#modalSearch').on('shown.bs.modal', function() {
+        $('#local-search-input').focus();
+      });
+    })()
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

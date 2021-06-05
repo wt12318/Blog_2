@@ -1,0 +1,637 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/DNA.png">
+  <link rel="icon" href="/img/DNA.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="感知机模型">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+  <title>感知机模型 - Hexo</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.6.0/styles/atelier-sulphurpool-dark.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.10","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"A5lchRnum84Yumu5pVOSoVN8-MdYXbMMI","app_key":"runF3Mxw7648v64CISxiqMs8","server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>wutao's blog</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="感知机模型">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-03-14 16:47" pubdate>
+        2021年3月14日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.4k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      18
+       分钟
+    </span>
+  
+
+  
+  
+    
+      <!-- LeanCloud 统计文章PV -->
+      <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="leancloud-page-views"></span> 次
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">感知机模型</h1>
+            
+              <p class="note note-info">
+                
+                  本文最后更新于：2 个月前
+                
+              </p>
+            
+            <div class="markdown-body">
+              <p>感知机模型</p>
+<span id="more"></span>
+
+<p>机器学习方法都是由3个要素构成的：</p>
+<ul>
+<li>  模型：包含输入空间,输出空间和假设空间(包含所有可能的决策函数)</li>
+<li>  策略：按照什么样的准则选择最优的模型(损失函数)</li>
+<li>  算法：如何找到最优模型(最优化问题)</li>
+</ul>
+<h2 id="感知机模型"><a href="#感知机模型" class="headerlink" title="感知机模型"></a>感知机模型</h2><p>输入空间：$X \in R^n$ (n维实数)<br>输出空间：$Y = {+1,-1}$<br>假设空间：</p>
+<p>$$<br>f(x)=sign(w\cdot x+b)=\left{<br>\begin{matrix}<br>+1, w\cdot x+b\ge0\<br>-1, w\cdot x+b&lt;0 \<br>\end{matrix}<br>\right.<br>$$<br>注意：$w,x,b$都是向量,$w\cdot b$也就是向量的内积,比如在二维空间中：</p>
+<center>
+
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF1_01.png" srcset="/img/loading.gif" lazyload></p>
+</center>
+
+<p>就是要找一个直线$w_1x_1+w_2x_2+b=0$将点分成两类(这条直线更一般的名称叫做超平面)；另外感知机模型对数据的假设是:数据是线性可分的;比如下图所示的数据所对应的就不是一个线性可分的输入空间</p>
+<center>
+
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/Rd9f79181b6f2972e0795a5815e8dc3a0.png" srcset="/img/loading.gif" lazyload></p>
+</center>
+
+<h2 id="学习策略"><a href="#学习策略" class="headerlink" title="学习策略"></a>学习策略</h2><p>感知机的损失函数为：<strong>误分类点到超平面S的总距离</strong>,通过最小化这个距离得到最优的超平面(超平面的参数就是w和b)</p>
+<p>首先我们需要一些基础知识：</p>
+<h3 id="超平面的法向量"><a href="#超平面的法向量" class="headerlink" title="超平面的法向量"></a>超平面的法向量</h3><p>对于一个超平面S ($w\cdot x+b$),其法向量为$w$:</p>
+<p>设超平面S上有两个点：A点$(x_A)$和B点$(x_B)$有：</p>
+<p>$$<br>\left{ \begin{matrix}<br>wx_A+b=0\<br>wx_B+b=0 \<br>\end{matrix}\right. \<br>\Rightarrow w(x_A-x_B)=0<br>$$<br>因为$x_A-x_B$是超平面S上的一个向量,两个向量的乘积为0,所以$w$垂直于S,即$w$为超平面S的法向量</p>
+<h3 id="点到超平面的距离"><a href="#点到超平面的距离" class="headerlink" title="点到超平面的距离"></a>点到超平面的距离</h3><p>输入空间中任一点$x_0$到超平面S ($w\cdot x+b$)的距离d为：</p>
+<p>$$<br>d = \frac{1}{||w||}|w\cdot x_0+b|<br>$$</p>
+<center>
+
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210314141051985.png" srcset="/img/loading.gif" lazyload></p>
+</center>
+
+<p>设点$x_0$在S上投影为$x_1$,则$w\cdot x_1+b=0$;由于向量$\vec {x_1x_0}$与S的法向量$w$平行,所以：</p>
+<p>$$<br>|\vec w\cdot \vec{x_1x_0}|=||\vec w||×||\vec{x_1x_0}||cos&lt;\vec w,\vec{x_1x_0}&gt;=||\vec w||×||\vec{x_1x_0}||=||\vec w||d<br>$$<br>对于$\vec w\cdot \vec{x_1x_0}$又有(假设$w$和$x$都是N维的向量,上面的图只是一个3维的例子)：</p>
+<p>$$<br>\vec w\cdot \vec{x_1x_0}=w^1 (x_1^1-x_0^1)+w^2(x_1^2-x_0^2)+…+w^N(x_1^N-x_0^N) \ =w^1x_1^1+w^2x_1^2+…+w^Nx_1^N-(w^1x_0^1+w^2x_0^2+…+w^Nx_0^N) \ =-b-(w^1x_0^1+w^2x_0^2+…+w^Nx_0^N)<br>$$<br>因此由上面两个式子,可以得出：</p>
+<p>$$<br>||w||d=|-b-(w^1x_0^1+w^2x_0^2+…+w^Nx_0^N)|=|w\cdot x_0 +b|\<br>\Rightarrow d=\frac{|w\cdot x_0 +b|}{||w||}<br>$$</p>
+<p>回到感知机模型中,因为误分类点$w\cdot x+b$和类标签的符号是相反的(当$w\cdot x+b$大于0时,误分类的类标签是-1;当$w\cdot x+b$小于0时,误分类的类标签是+1),所以误分类点到超平面S的距离也可以表示为:</p>
+<p>$$<br>d_i = \frac{-y_i(w\cdot x_i+b)}{||w||}<br>$$<br>误分类点的总距离为：</p>
+<p>$$<br>-\frac{1}{||w||}\sum_{x_i\in M}y_i(w\cdot x_i+b),M为误分类点的集合<br>$$<br>所以感知机的损失函数为：</p>
+<p>$$<br>L(w,b)=-\sum_{x_i\in M}y_i(w\cdot x_i+b)<br>$$</p>
+<h2 id="学习算法"><a href="#学习算法" class="headerlink" title="学习算法"></a>学习算法</h2><p>可以使用梯度下降或者随机梯度下降的方法来求解使损失函数最小化时的参数$w,b$</p>
+<p>损失函数$L(w,b)$的梯度为：</p>
+<p>$$<br>\nabla_{w}L(w,b)=\frac{\partial L(w,b)}{\partial w}=-\sum_{x_i\in M}y_ix_i \<br>\nabla_{b}L(w,b)=\frac{\partial L(w,b)}{\partial b}=-\sum_{x_i\in M}y_i<br>$$</p>
+<p>所以按照梯度下降法,对每个误分类点更新w,b:</p>
+<p>$$<br>\left{ \begin{matrix}<br>w := w+\eta\sum_iy_ix_i\<br>b := b+\eta\sum_iy_i\<br>\end{matrix}\right. \<br>$$<br>$\eta$是学习率;在实际应用中一般选择使用随机梯度下降:</p>
+<p>$$<br>\left{ \begin{matrix}<br>w := w+\eta y_ix_i\<br>b := b+\eta y_i\<br>\end{matrix}\right. \<br>$$<br>感知机的学习算法(随机梯度下降法)的步骤为:</p>
+<ul>
+<li>选取初值$w_0,b_0$</li>
+<li>在训练集中选取数据$(x_i,y_i)$</li>
+<li>如果选取的点是误分类点,也就是说$y_i(w\cdot x_i+b)\le0$,按照上式对参数进行更新</li>
+<li>转至第二步,直到训练集中没有误分类点</li>
+</ul>
+<h2 id="算法收敛性"><a href="#算法收敛性" class="headerlink" title="算法收敛性"></a>算法收敛性</h2><p>证明如下的定理：</p>
+<p>设训练数据集$T={(x_1,y_1),(x_2,y_2),…,(x_N,y_N)}$是线性可分的：</p>
+<ol>
+<li>存在满足条件$||\hat w_{opt}||$=1的超平面$\hat w_{opt} \cdot \hat x=w_{opt}\cdot x+b_{opt}=0$将数据集完全正确分开,且存在$r&gt;0$,对所有的$i=1,2,..,N$有：<br>$$<br>y_i(\hat w_{opt} \cdot \hat x)=y_i(w_{opt}\cdot x+b_{opt})\ge r<br>$$</li>
+<li>令$R=\max||\hat x_i||$,则感知机在训练集上的误分类次数k满足不等式:<br>$$<br>k \le (\frac{R}{r})^2<br>$$</li>
+</ol>
+<p>首先为了方便,将b放进了w和x中,也就是:<br>$$<br>\hat w=(w^T,b)^T \ ,\hat x = (x^T,1)^T<br>$$<br>先证明1：<br>由于数据集是线性可分的,肯定存在一个超平面将数据集完全分开,即对$i=1,2,…,N$,都有：<br>$$<br>y_i(\hat w_{opt} \cdot \hat x)&gt;0<br>$$</p>
+<p>因此只需要r为$y_i(\hat w_{opt} \cdot \hat x)$的最小值,就会有：<br>$$<br>y_i(\hat w_{opt} \cdot \hat x) \ge r<br>$$</p>
+<p>再来看2：      </p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/2021-03-14_16-08-55_00.png" srcset="/img/loading.gif" lazyload></p>
+<p>也就是说误分类的次数是有上界的,经过有限次搜索肯定是可以找到将训练集完全分开的超平面</p>
+<h2 id="Sci-kit-learn"><a href="#Sci-kit-learn" class="headerlink" title="Sci-kit learn"></a>Sci-kit learn</h2><p>scikit learn 中的Perceptron类和SGDClassifier类都可以进行感知机模型的计算：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs &#123;python&#125;">from sklearn.datasets import load_digits<br>from sklearn.linear_model import Perceptron<br><br>X, y = load_digits(return_X_y=True)<br>clf = Perceptron(random_state=0)<br>##也可以使用SGDClassifier(loss=&quot;perceptron&quot;, eta0=1, learning_rate=&quot;constant&quot;, penalty=None)<br>clf.fit(X, y)<br>clf.score(X, y)<br></code></pre></div></td></tr></table></figure>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/03/19/snakemake/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">使用Snakemake搭建流程</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/03/04/hands_on_ML_ch6/">
+                        <span class="hidden-mobile">【hands on ML Ch6】-决策树模型</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <div id="waline"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#waline', function() {
+      Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/@waline/client@0.14.8/dist/Waline.min.js', function () {
+        new Waline({
+          el: "#waline",
+          placeholder: "说点什么",
+          path: window.location.pathname,
+          avatar: "retro",
+          meta: ["nick","mail","link"],
+          pageSize: "5",
+          lang: "zh-CN",
+          highlight: true,
+          serverURL: "https://comments-flax.vercel.app",
+          avatarCDN: "",
+          avatarForce: false,
+          requiredFields: [],
+          emojiCDN: "https://cdn.jsdelivr.net/gh/walinejs/emojis@1.0.0/bilibili",
+          emojiMaps: {},
+          anonymous: null,
+        });
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- LeanCloud 统计PV -->
+        <span id="leancloud-site-pv-container" style="display: none">
+            总访问量 
+            <span id="leancloud-site-pv"></span>
+             次
+          </span>
+      
+      
+        <!-- LeanCloud 统计UV -->
+        <span id="leancloud-site-uv-container" style="display: none">
+            总访客数 
+            <span id="leancloud-site-uv"></span>
+             人
+          </span>
+      
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.2/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js" ></script>
+
+
+
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      $('#local-search-input').on('click', function() {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      });
+      $('#modalSearch').on('shown.bs.modal', function() {
+        $('#local-search-input').focus();
+      });
+    })()
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

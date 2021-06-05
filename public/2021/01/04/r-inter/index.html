@@ -1,0 +1,657 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/DNA.png">
+  <link rel="icon" href="/img/DNA.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="本章主要是学习四个方面：
+
+  惰性求值
+  复制修改机制
+  词法作用域
+  环境
+">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+  <title>【R语言编程指南】R内部机制 - Hexo</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.6.0/styles/atelier-sulphurpool-dark.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.10","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"A5lchRnum84Yumu5pVOSoVN8-MdYXbMMI","app_key":"runF3Mxw7648v64CISxiqMs8","server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>wutao's blog</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="【R语言编程指南】R内部机制">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-01-04 17:03" pubdate>
+        2021年1月4日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.7k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      37
+       分钟
+    </span>
+  
+
+  
+  
+    
+      <!-- LeanCloud 统计文章PV -->
+      <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="leancloud-page-views"></span> 次
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">【R语言编程指南】R内部机制</h1>
+            
+              <p class="note note-info">
+                
+                  本文最后更新于：5 个月前
+                
+              </p>
+            
+            <div class="markdown-body">
+              <p>本章主要是学习四个方面：</p>
+<ul>
+<li>  惰性求值</li>
+<li>  复制修改机制</li>
+<li>  词法作用域</li>
+<li>  环境</li>
+</ul>
+<span id="more"></span>
+
+<h2 id="惰性求值"><a href="#惰性求值" class="headerlink" title="惰性求值"></a>惰性求值</h2><p>惰性求值指的是：在函数调用时，参数的值只在用到的时侯才会被调用/执行</p>
+<p>比如下面这个函数：</p>
+<figure class="highlight r"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs r">test0 &lt;- <span class="hljs-keyword">function</span>(x,y)&#123;<br>  <span class="hljs-keyword">if</span>(x &gt; <span class="hljs-number">0</span>)&#123;<br>    x<br>  &#125;<span class="hljs-keyword">else</span>&#123;<br>    y<br>  &#125;<br>&#125;<br><br>test0(<span class="hljs-number">1</span>,stop(<span class="hljs-string">&quot;Stop nrow&quot;</span>))<br>&gt;&gt; [<span class="hljs-number">1</span>] <span class="hljs-number">1</span><br>test0(-<span class="hljs-number">1</span>,stop(<span class="hljs-string">&quot;Stop nrow&quot;</span>))<br>&gt;&gt; Error <span class="hljs-keyword">in</span> test0(-<span class="hljs-number">1</span>, stop(<span class="hljs-string">&quot;Stop nrow&quot;</span>)): Stop nrow<br></code></pre></div></td></tr></table></figure>
+
+<p>可以看到当调用<code>test0(1,stop(&quot;Stop nrow&quot;))</code>并不会报错，因为这种情况下函数不会运行y(因为不需要y的值)；而在调用<code>test0(-1,stop(&quot;Stop nrow&quot;))</code>的时候会发生报错是因为输入x是负数，因此会进入<code>else</code>运行y，而y的值是表达式<code>stop(&quot;Stop nrow&quot;)</code>所以会报错</p>
+<p>在这一节中还有一个巧妙的用法:使用<code>stop</code>和<code>switch</code>来控制函数的输入:</p>
+<figure class="highlight r"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs r">check_input &lt;- <span class="hljs-keyword">function</span>(x)&#123;<br>  <span class="hljs-built_in">switch</span>(x,<br>         y = message(<span class="hljs-string">&quot;yes&quot;</span>),<br>         n = message(<span class="hljs-string">&quot;no&quot;</span>),<br>         stop(<span class="hljs-string">&quot;Invalid input&quot;</span>)<br>  )<br>&#125;<br><br>check_input(<span class="hljs-string">&quot;y&quot;</span>)<br>&gt;&gt; yes<br>check_input(<span class="hljs-string">&quot;n&quot;</span>)<br>&gt;&gt; no<br>check_input(<span class="hljs-string">&quot;a&quot;</span>)<br>&gt;&gt; Error <span class="hljs-keyword">in</span> check_input(<span class="hljs-string">&quot;a&quot;</span>): Invalid input<br></code></pre></div></td></tr></table></figure>
+
+<h2 id="复制——修改机制"><a href="#复制——修改机制" class="headerlink" title="复制——修改机制"></a>复制——修改机制</h2><p>复制修改机制指的是：当有多个变量指向同一个对象，那么修改一个变量(包括值和属性)就会生成该对象的一个副本</p>
+<p>我们可以看一个例子：</p>
+<figure class="highlight r"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs r">x1 &lt;- <span class="hljs-built_in">c</span>(<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>)<br>x2 &lt;- x1<br><br><span class="hljs-comment">##使用tracemem可以追踪变量的内存地址</span><br><span class="hljs-built_in">tracemem</span>(x1)<br>&gt;&gt; [<span class="hljs-number">1</span>] <span class="hljs-string">&quot;&lt;00000209EAA600E0&gt;&quot;</span><br><span class="hljs-built_in">tracemem</span>(x2)<br>&gt;&gt; [<span class="hljs-number">1</span>] <span class="hljs-string">&quot;&lt;00000209EAA600E0&gt;&quot;</span><br><br>x1[<span class="hljs-number">1</span>] &lt;- <span class="hljs-number">0</span><br>&gt;&gt; <span class="hljs-built_in">tracemem</span>[<span class="hljs-number">0x00000209eaa600e0</span> -&gt; <span class="hljs-number">0x00000209ea315e78</span>]: eval eval withVisible withCallingHandlers handle timing_fn evaluate_call &lt;Anonymous&gt; evaluate in_dir block_exec call_block process_group.block process_group withCallingHandlers process_file &lt;Anonymous&gt; render<br></code></pre></div></td></tr></table></figure>
+
+<p>可以看到在赋值操作中变量所指向的内存地址是一样的，但是在改变其中一个变量的值的时候，该变量的内存地址发生了变化，也就是说修改操作会生成一个副本，然后在该副本上进行修改</p>
+<p>对于函数的参数也是这样，当我们传一个变量给函数的参数时，就相当于该变量和函数参数所表示的变量都指向我们传入的数据，所以在函数内部进行修改时并不会修改传入的变量，而是将该变量的值复制后再进行修改:</p>
+<figure class="highlight r"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs r">modify &lt;- <span class="hljs-keyword">function</span>(x)&#123;<br>  x[<span class="hljs-number">1</span>] &lt;- <span class="hljs-number">2</span><br>  x<br>&#125;<br><br>v1 &lt;- <span class="hljs-built_in">c</span>(<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>)<br>modify(v1)<br>&gt;&gt; [<span class="hljs-number">1</span>] <span class="hljs-number">2</span> <span class="hljs-number">2</span> <span class="hljs-number">3</span><br>v1<br>&gt;&gt; [<span class="hljs-number">1</span>] <span class="hljs-number">1</span> <span class="hljs-number">2</span> <span class="hljs-number">3</span><br></code></pre></div></td></tr></table></figure>
+
+<h2 id="词法作用域"><a href="#词法作用域" class="headerlink" title="词法作用域"></a>词法作用域</h2><p>本节中有几个知识点：</p>
+<ol>
+<li> 函数只有在被调用的时候才寻找变量：</li>
+</ol>
+<figure class="highlight r"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs r"><span class="hljs-comment">##定义函数</span><br>fun1 &lt;- <span class="hljs-keyword">function</span>(x)&#123;<br>  <span class="hljs-built_in">c</span>(a,x,b)<br>&#125;<br><span class="hljs-comment">#现在并没有定义a和b,但是创建函数时不会报错</span><br><br>fun1(<span class="hljs-number">1</span>)<br>&gt;&gt; Error <span class="hljs-keyword">in</span> fun1(<span class="hljs-number">1</span>): 找不到对象<span class="hljs-string">&#x27;a&#x27;</span><br><span class="hljs-comment">##由于调用函数时找不到相应的变量所以报错</span><br><br>a &lt;- b &lt;- 1<br>fun1(<span class="hljs-number">1</span>)<br>&gt;&gt; [<span class="hljs-number">1</span>] <span class="hljs-number">1</span> <span class="hljs-number">1</span> <span class="hljs-number">1</span><br></code></pre></div></td></tr></table></figure>
+
+<ol>
+<li> 当函数被调用时，先会在函数内部搜索变量，如果在内部找不到相应的变量，就会在自己被定义的地方(所在的域或者环境)而不是被调用的地方搜索相应的变量—-<strong>词法作用域</strong></li>
+</ol>
+<figure class="highlight r"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs r">f1 &lt;- <span class="hljs-keyword">function</span>(x)&#123;<br>  x + p <br>&#125;<br><br>g1 &lt;- <span class="hljs-keyword">function</span>(x)&#123;<br>  p &lt;- 1 <br>  f1(x)<br>&#125;<br><br>g1(<span class="hljs-number">0</span>)<br>&gt;&gt; Error <span class="hljs-keyword">in</span> f1(x): 找不到对象<span class="hljs-string">&#x27;p&#x27;</span><br><span class="hljs-comment">##在g1内部调用f1，f1先在其内部找p，找不到；接着f1到其被定义的域/环境中找p，也找不到(因为p是在g1内部被定义的)，所以会报错</span><br><br>p &lt;- 1<br>g1(<span class="hljs-number">0</span>)<br>&gt;&gt; [<span class="hljs-number">1</span>] <span class="hljs-number">1</span><br><span class="hljs-comment">##在g1内部调用f1，f1先在其内部找p，找不到；接着f1到其被定义的域/环境中找p,这时就可以找到了</span><br></code></pre></div></td></tr></table></figure>
+
+<p>接下来看一个有意思的例子：</p>
+<figure class="highlight r"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs r">f1 &lt;- <span class="hljs-keyword">function</span>(x)&#123;<br>  p &lt;- 1<br>  q &lt;- 2<br>  cat(sprintf(<span class="hljs-string">&quot;1. [f1] p: %d, q: %d\n&quot;</span>,p,q))<br>  f2 &lt;- <span class="hljs-keyword">function</span>(x)&#123;<br>    p &lt;- 3<br>    cat(sprintf(<span class="hljs-string">&quot;2. [f2] p: %d, q: %d\n&quot;</span>,p,q))<br>    <span class="hljs-built_in">c</span>(x=x, p=p, q=q)<br>  &#125;<br>  cat(sprintf(<span class="hljs-string">&quot;3. [f1] p: %d, q: %d&quot;</span>,p,q))<br>  f2(x)<br>&#125;<br><br>f1(<span class="hljs-number">0</span>)<br>&gt;&gt; <span class="hljs-number">1.</span> [f1] p: <span class="hljs-number">1</span>, q: <span class="hljs-number">2</span><br>&gt;&gt; <span class="hljs-number">3.</span> [f1] p: <span class="hljs-number">1</span>, q: <span class="hljs-number">22.</span> [f2] p: <span class="hljs-number">3</span>, q: <span class="hljs-number">2</span><br>&gt;&gt; x p q <br>&gt;&gt; <span class="hljs-number">0</span> <span class="hljs-number">3</span> <span class="hljs-number">2</span><br><br><span class="hljs-comment">##注意运行的顺序和展示的值</span><br></code></pre></div></td></tr></table></figure>
+
+<h2 id="环境的工作方式"><a href="#环境的工作方式" class="headerlink" title="环境的工作方式"></a>环境的工作方式</h2><p>环境是一组名称组成的对象，每个名称(变量)都指向一个对象，并且每个环境(除了空环境)都要一个父环境，当我们寻找某个名称的时候会沿着“环境链”进行搜索</p>
+<p>我们可以通过<code>new.env</code>来创建新环境，通过$和[]来在新环境中创建变量(和列表操作类似)</p>
+<figure class="highlight r"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs r">e1 &lt;- new.env()<br>e1<br>&gt;&gt; &lt;environment: <span class="hljs-number">0x00000209ed933aa0</span>&gt;<br><span class="hljs-comment">##环境是用内存地址来表示</span><br><br><span class="hljs-comment">##创建变量</span><br>e1$x &lt;- 1<br>e1[[<span class="hljs-string">&quot;y&quot;</span>]] &lt;- <span class="hljs-number">2</span><br></code></pre></div></td></tr></table></figure>
+
+<p>但是在访问变量的时候，环境不能像列表那样通过索引来提取元素：</p>
+<figure class="highlight r"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs r">e1[[<span class="hljs-number">1</span>]]<br>&gt;&gt; Error <span class="hljs-keyword">in</span> e1[[<span class="hljs-number">1</span>]]: 取子集环境时的参数不对<br>e1[<span class="hljs-number">1</span>:<span class="hljs-number">2</span>]<br>&gt;&gt; Error <span class="hljs-keyword">in</span> e1[<span class="hljs-number">1</span>:<span class="hljs-number">2</span>]: 类别为<span class="hljs-string">&#x27;environment&#x27;</span>的对象不可以取子集<br></code></pre></div></td></tr></table></figure>
+
+<p>可以通过使用变量的名称或者专门的函数(exist/get/ls)来访问环境中的变量：</p>
+<figure class="highlight r"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs r">e1[[<span class="hljs-string">&quot;x&quot;</span>]]<br>&gt;&gt; [<span class="hljs-number">1</span>] <span class="hljs-number">1</span><br><br>exists(<span class="hljs-string">&quot;x&quot;</span>,e1) <span class="hljs-comment">##exist判断某个变量是否在环境中</span><br>&gt;&gt; [<span class="hljs-number">1</span>] <span class="hljs-literal">TRUE</span><br>get(<span class="hljs-string">&quot;x&quot;</span>,e1)<span class="hljs-comment">##get从环境中获取相应的对象</span><br>&gt;&gt; [<span class="hljs-number">1</span>] <span class="hljs-number">1</span><br>ls(e1)<span class="hljs-comment">##ls查看环境中所有变量</span><br>&gt;&gt; [<span class="hljs-number">1</span>] <span class="hljs-string">&quot;x&quot;</span> <span class="hljs-string">&quot;y&quot;</span><br></code></pre></div></td></tr></table></figure>
+
+<p>环境还有两个重要的特征：</p>
+<ul>
+<li>  环境有父环境</li>
+<li>  环境有引用语义</li>
+</ul>
+<h3 id="链接环境"><a href="#链接环境" class="headerlink" title="链接环境"></a>链接环境</h3><p>环境有父环境，当我们寻找一个变量的时候，在当前环境中找不到就会去父环境中寻找<br>在创建环境时可以指定其父环境：</p>
+<figure class="highlight r"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs r">e2 &lt;- new.env(parent = e1) <span class="hljs-comment">##创建新环境e2，其父环境是e1</span><br>e1<br>&gt;&gt; &lt;environment: <span class="hljs-number">0x00000209ed933aa0</span>&gt;<br>e2<br>&gt;&gt; &lt;environment: <span class="hljs-number">0x00000209ece0a5b0</span>&gt;<br><br><span class="hljs-comment">##可以使用parent.env查看环境的父环境</span><br>parent.env(e2)<br>&gt;&gt; &lt;environment: <span class="hljs-number">0x00000209ed933aa0</span>&gt;<br><span class="hljs-comment">##可以看到和e1的内存地址一样</span><br></code></pre></div></td></tr></table></figure>
+
+<p>需要注意的是：只有环境访问函数(exists/get)会沿着环境链寻找变量，操作符($/[])不会.</p>
+<figure class="highlight r"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs r">e2$y &lt;- 2<br>ls(e2)<br>&gt;&gt; [<span class="hljs-number">1</span>] <span class="hljs-string">&quot;y&quot;</span><br>e2[[<span class="hljs-string">&quot;y&quot;</span>]]<br>&gt;&gt; [<span class="hljs-number">1</span>] <span class="hljs-number">2</span><br>e2$y<br>&gt;&gt; [<span class="hljs-number">1</span>] <span class="hljs-number">2</span><br><br>exists(<span class="hljs-string">&quot;y&quot;</span>,e2)<br>&gt;&gt; [<span class="hljs-number">1</span>] <span class="hljs-literal">TRUE</span><br>exists(<span class="hljs-string">&quot;x&quot;</span>,e2)<span class="hljs-comment">##x在e2中并没有，但是exists会到e2的父环境e1中找到x</span><br>&gt;&gt; [<span class="hljs-number">1</span>] <span class="hljs-literal">TRUE</span><br>get(<span class="hljs-string">&quot;x&quot;</span>,e2)<br>&gt;&gt; [<span class="hljs-number">1</span>] <span class="hljs-number">1</span><br><br>e2[[<span class="hljs-string">&quot;x&quot;</span>]]<br>&gt;&gt; <span class="hljs-literal">NULL</span><br>e2$x<br>&gt;&gt; <span class="hljs-literal">NULL</span><br><br><span class="hljs-comment">##我们也可以让这些函数不去在父环境中寻找，加上参数inherits = FALSE</span><br>exists(<span class="hljs-string">&quot;x&quot;</span>,e2,inherits = <span class="hljs-literal">FALSE</span>)<br>&gt;&gt; [<span class="hljs-number">1</span>] <span class="hljs-literal">FALSE</span><br>get(<span class="hljs-string">&quot;x&quot;</span>,e2,inherits = <span class="hljs-literal">FALSE</span>)<br>&gt;&gt; Error <span class="hljs-keyword">in</span> get(<span class="hljs-string">&quot;x&quot;</span>, e2, inherits = <span class="hljs-literal">FALSE</span>): 找不到对象<span class="hljs-string">&#x27;x&#x27;</span><br></code></pre></div></td></tr></table></figure>
+
+<p>当每次开启一个新的R会话时工作环境都会时R的一个内置环境，即全局环境(R_GlobalEnv)：</p>
+<figure class="highlight r"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs r">environment()<span class="hljs-comment">##使用environment()查看当前工作环境</span><br>&gt;&gt; &lt;environment: R_GlobalEnv&gt;<br><br><span class="hljs-comment">##还可以通过其他方式访问全局环境</span><br><span class="hljs-built_in">globalenv</span>()<br>&gt;&gt; &lt;environment: R_GlobalEnv&gt;<br>.GlobalEnv<br>&gt;&gt; &lt;environment: R_GlobalEnv&gt;<br></code></pre></div></td></tr></table></figure>
+
+<p>那么全局环境的父环境是什么？全局环境的父环境的父环境是什么？最终有没有尽头呢？<br>我们可以通过下面的函数来探索一下：</p>
+<figure class="highlight r"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs r">parents &lt;- <span class="hljs-keyword">function</span>(env)&#123;<br>  <span class="hljs-keyword">while</span>(<span class="hljs-literal">TRUE</span>)&#123;<br>    name &lt;- environmentName(env)<br>    txt &lt;- <span class="hljs-keyword">if</span> (<span class="hljs-built_in">nzchar</span>(name))&#123;<br>      name<br>    &#125;<span class="hljs-keyword">else</span>&#123;<br>      format(env)<br>    &#125;<br>    cat(txt,<span class="hljs-string">&quot;\n&quot;</span>)<br>    env &lt;- parent.env(env)<br>  &#125;<br>&#125;<br><br>parents(<span class="hljs-built_in">globalenv</span>())<br>&gt;&gt; R_GlobalEnv <br>&gt;&gt; package:rtracklayer <br>&gt;&gt; package:GenomicRanges <br>&gt;&gt; package:GenomeInfoDb <br>&gt;&gt; package:IRanges <br>&gt;&gt; package:S4Vectors <br>&gt;&gt; package:BiocGenerics <br>&gt;&gt; package:parallel <br>&gt;&gt; package:stats4 <br>&gt;&gt; package:dplyr <br>&gt;&gt; package:rmarkdown <br>&gt;&gt; tools:rstudio <br>&gt;&gt; package:stats <br>&gt;&gt; package:graphics <br>&gt;&gt; package:grDevices <br>&gt;&gt; package:utils <br>&gt;&gt; package:datasets <br>&gt;&gt; package:methods <br>&gt;&gt; Autoloads <br>&gt;&gt; base <br>&gt;&gt; R_EmptyEnv<br>&gt;&gt; Error <span class="hljs-keyword">in</span> parent.env(env): 空环境没有父母环境<br></code></pre></div></td></tr></table></figure>
+
+<p>可以看到这个环境链条从空环境起始经过多个拓展包的环境最后终止于空环境，并且空环境没有父环境，这个结果和search(搜索路径)的结果相似：</p>
+<figure class="highlight r"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs r">search()<br>&gt;&gt;  [<span class="hljs-number">1</span>] <span class="hljs-string">&quot;.GlobalEnv&quot;</span>            <span class="hljs-string">&quot;package:rtracklayer&quot;</span>   <span class="hljs-string">&quot;package:GenomicRanges&quot;</span> <span class="hljs-string">&quot;package:GenomeInfoDb&quot;</span> <br>&gt;&gt;  [<span class="hljs-number">5</span>] <span class="hljs-string">&quot;package:IRanges&quot;</span>       <span class="hljs-string">&quot;package:S4Vectors&quot;</span>     <span class="hljs-string">&quot;package:BiocGenerics&quot;</span>  <span class="hljs-string">&quot;package:parallel&quot;</span>     <br>&gt;&gt;  [<span class="hljs-number">9</span>] <span class="hljs-string">&quot;package:stats4&quot;</span>        <span class="hljs-string">&quot;package:dplyr&quot;</span>         <span class="hljs-string">&quot;package:rmarkdown&quot;</span>     <span class="hljs-string">&quot;tools:rstudio&quot;</span>        <br>&gt;&gt; [<span class="hljs-number">13</span>] <span class="hljs-string">&quot;package:stats&quot;</span>         <span class="hljs-string">&quot;package:graphics&quot;</span>      <span class="hljs-string">&quot;package:grDevices&quot;</span>     <span class="hljs-string">&quot;package:utils&quot;</span>        <br>&gt;&gt; [<span class="hljs-number">17</span>] <span class="hljs-string">&quot;package:datasets&quot;</span>      <span class="hljs-string">&quot;package:methods&quot;</span>       <span class="hljs-string">&quot;Autoloads&quot;</span>             <span class="hljs-string">&quot;package:base&quot;</span><br></code></pre></div></td></tr></table></figure>
+
+<p>需要注意的是：我们每加载一个包，该包的环境就会加到全局路径的后面，所以如果需要调用两个包中同名函数，会优先选取后加载的包的函数(后加载的包mask了前面包的同名函数)：</p>
+<figure class="highlight r"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs r">library(dplyr)<br>search()<br>&gt;&gt;  [<span class="hljs-number">1</span>] <span class="hljs-string">&quot;.GlobalEnv&quot;</span>            <span class="hljs-string">&quot;package:rtracklayer&quot;</span>   <span class="hljs-string">&quot;package:GenomicRanges&quot;</span> <span class="hljs-string">&quot;package:GenomeInfoDb&quot;</span> <br>&gt;&gt;  [<span class="hljs-number">5</span>] <span class="hljs-string">&quot;package:IRanges&quot;</span>       <span class="hljs-string">&quot;package:S4Vectors&quot;</span>     <span class="hljs-string">&quot;package:BiocGenerics&quot;</span>  <span class="hljs-string">&quot;package:parallel&quot;</span>     <br>&gt;&gt;  [<span class="hljs-number">9</span>] <span class="hljs-string">&quot;package:stats4&quot;</span>        <span class="hljs-string">&quot;package:dplyr&quot;</span>         <span class="hljs-string">&quot;package:rmarkdown&quot;</span>     <span class="hljs-string">&quot;tools:rstudio&quot;</span>        <br>&gt;&gt; [<span class="hljs-number">13</span>] <span class="hljs-string">&quot;package:stats&quot;</span>         <span class="hljs-string">&quot;package:graphics&quot;</span>      <span class="hljs-string">&quot;package:grDevices&quot;</span>     <span class="hljs-string">&quot;package:utils&quot;</span>        <br>&gt;&gt; [<span class="hljs-number">17</span>] <span class="hljs-string">&quot;package:datasets&quot;</span>      <span class="hljs-string">&quot;package:methods&quot;</span>       <span class="hljs-string">&quot;Autoloads&quot;</span>             <span class="hljs-string">&quot;package:base&quot;</span><br><br>library(data.table)<br>&gt;&gt; Warning: package <span class="hljs-string">&#x27;data.table&#x27;</span> was built under R version <span class="hljs-number">3.6</span>.2<br>search()<br>&gt;&gt;  [<span class="hljs-number">1</span>] <span class="hljs-string">&quot;.GlobalEnv&quot;</span>            <span class="hljs-string">&quot;package:data.table&quot;</span>    <span class="hljs-string">&quot;package:rtracklayer&quot;</span>   <span class="hljs-string">&quot;package:GenomicRanges&quot;</span><br>&gt;&gt;  [<span class="hljs-number">5</span>] <span class="hljs-string">&quot;package:GenomeInfoDb&quot;</span>  <span class="hljs-string">&quot;package:IRanges&quot;</span>       <span class="hljs-string">&quot;package:S4Vectors&quot;</span>     <span class="hljs-string">&quot;package:BiocGenerics&quot;</span> <br>&gt;&gt;  [<span class="hljs-number">9</span>] <span class="hljs-string">&quot;package:parallel&quot;</span>      <span class="hljs-string">&quot;package:stats4&quot;</span>        <span class="hljs-string">&quot;package:dplyr&quot;</span>         <span class="hljs-string">&quot;package:rmarkdown&quot;</span>    <br>&gt;&gt; [<span class="hljs-number">13</span>] <span class="hljs-string">&quot;tools:rstudio&quot;</span>         <span class="hljs-string">&quot;package:stats&quot;</span>         <span class="hljs-string">&quot;package:graphics&quot;</span>      <span class="hljs-string">&quot;package:grDevices&quot;</span>    <br>&gt;&gt; [<span class="hljs-number">17</span>] <span class="hljs-string">&quot;package:utils&quot;</span>         <span class="hljs-string">&quot;package:datasets&quot;</span>      <span class="hljs-string">&quot;package:methods&quot;</span>       <span class="hljs-string">&quot;Autoloads&quot;</span>            <br>&gt;&gt; [<span class="hljs-number">21</span>] <span class="hljs-string">&quot;package:base&quot;</span><br><br><span class="hljs-comment">##可以看到data.table到前面去了</span><br></code></pre></div></td></tr></table></figure>
+
+<h3 id="引用语义"><a href="#引用语义" class="headerlink" title="引用语义"></a>引用语义</h3><p>引用语义指的是：修改环境并不会复制环境的副本(也就是没有复制修改机制)：</p>
+<figure class="highlight r"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs r">e3 &lt;- e1<br>e1$x<br>&gt;&gt; [<span class="hljs-number">1</span>] <span class="hljs-number">1</span><br>e3$x<br>&gt;&gt; [<span class="hljs-number">1</span>] <span class="hljs-number">1</span><br><br>e3$x &lt;- 2<br>e1$x<br>&gt;&gt; [<span class="hljs-number">1</span>] <span class="hljs-number">2</span><br><span class="hljs-comment">##因此e3和e1指向同一个对象，改变e3中的变量值，e1中的变量值也会改变</span><br></code></pre></div></td></tr></table></figure>
+
+<h3 id="与函数相关的环境"><a href="#与函数相关的环境" class="headerlink" title="与函数相关的环境"></a>与函数相关的环境</h3><p>有3个与函数及其运行过程相关的环境：</p>
+<ul>
+<li>执行环境(executing environment):<br>  每次函数执行时，R都会新建一个环境来管理函数的执行过程，所以函数的参数和在函数内部创建的变量都是执行环境中的变量</li>
+<li>封闭环境(enclosing<br>  environment)：定义函数的环境，也是执行环境的父环境，所以在函数执行的时候，没有在执行环境中找到的变量就会到其父环境，也就是封闭环境中寻找(词法作用域)，可以使用environment()来获取函数的封闭环境</li>
+<li>调用环境(calling environment):<br>  调用函数的环境，可以使用parent.frame()来获取调用环境</li>
+</ul>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E7%BC%96%E7%A8%8B/">编程</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/01/05/group_by_column/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【R】按列分组计算</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/01/03/deep_learning/">
+                        <span class="hidden-mobile">深度学习入门</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <div id="waline"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#waline', function() {
+      Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/@waline/client@0.14.8/dist/Waline.min.js', function () {
+        new Waline({
+          el: "#waline",
+          placeholder: "说点什么",
+          path: window.location.pathname,
+          avatar: "retro",
+          meta: ["nick","mail","link"],
+          pageSize: "5",
+          lang: "zh-CN",
+          highlight: true,
+          serverURL: "https://comments-flax.vercel.app",
+          avatarCDN: "",
+          avatarForce: false,
+          requiredFields: [],
+          emojiCDN: "https://cdn.jsdelivr.net/gh/walinejs/emojis@1.0.0/bilibili",
+          emojiMaps: {},
+          anonymous: null,
+        });
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- LeanCloud 统计PV -->
+        <span id="leancloud-site-pv-container" style="display: none">
+            总访问量 
+            <span id="leancloud-site-pv"></span>
+             次
+          </span>
+      
+      
+        <!-- LeanCloud 统计UV -->
+        <span id="leancloud-site-uv-container" style="display: none">
+            总访客数 
+            <span id="leancloud-site-uv"></span>
+             人
+          </span>
+      
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.2/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js" ></script>
+
+
+
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      $('#local-search-input').on('click', function() {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      });
+      $('#modalSearch').on('shown.bs.modal', function() {
+        $('#local-search-input').focus();
+      });
+    })()
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>
