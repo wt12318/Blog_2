@@ -5,7 +5,7 @@ comment: false
 subtitle: Bioinformatic resources
 ---
 
-<div class="markdown-body">
-[UCSC Xena](https://xena.ucsc.edu/)
-</div>
 
+
+
+[UCSC Xena](https://xena.ucsc.edu/)
