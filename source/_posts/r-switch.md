@@ -1,9 +1,13 @@
 ---
 title: 【R】switch函数用法
-date: 2021-05-26 17:14:18
+date: 2021-01-04 17:14:18
 tags: 编程
 index_img: img/switch.png
 ---
+
+`switch`函数的基本用法
+
+<!-- more -->
 
 `switch`的基本用法为`switch (expression, list)`    
 第一个参数是表达式，第二个参数是列表；基于表达式的值返回列表中相应元素(按照名称)的值  
