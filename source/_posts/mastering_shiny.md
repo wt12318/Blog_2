@@ -38,20 +38,20 @@ shinyApp(ui, server)
 
 UI 定义了和用户相互作用的网页，在这里，这个网页显示 `hello, shiny`；server 函数规定了 app 的行为，这里是空的，因此这个简单的 app 没有做任何事情，最后 `shinyApp(ui, server)` 从UI 和 server 创建并启动了 APP（在 Rstudio 中可以通过新建项目选择 `shiny web application`来创建 app 的框架，也可以在 `app.R` 文件中打入 `shinyapp` 然后按 Shift+Tab 键） 
 
-![shiny](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/shiny.gif)
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/shiny.gif)
 
 有几种方式可以来运行我们的 `shiny app`:
 
 - 点击 **Run App** 按钮：
 
-  <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/屏幕截图 2021-06-08 163242.png" alt="屏幕截图 2021-06-08 163242" style="zoom:50%;" />
+  <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/屏幕截图 2021-06-08 163242.png" alt="" style="zoom:50%;" />
 
 - 使用快捷键：`Cmd/Ctrl` + `Shift` + `Enter`
 - 使用函数 `shiny::runApp()` 参数是 `app.R` 文件的路径
 
 通过上面的方法启动 App 后，就可以得到下面的结果：
 
-<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210608163552620.png" alt="image-20210608163552620" style="zoom:50%;" />
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210608163552620.png" alt="" style="zoom:50%;" />
 
 现在可以向这个 App 的 UI 中添加一些输入和输出（展示 `dataset` 包中的内置数据）：
 
@@ -68,7 +68,7 @@ ui <- fluidPage(
 
 运行这个 APP 后可以得到：
 
-<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210608170440462.png" alt="image-20210608170440462" style="zoom:50%;" />
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210608170440462.png" alt="" style="zoom:50%;" />
 
 我们只能选取一些值，但是并不能看到输出，因为此时还没有告诉 shiny 如何通过输入得到输出，而这个功能是通过 `server` 函数来实现。
 
@@ -92,7 +92,7 @@ server <- function(input, output, session) {
 
 现在可以再次启动 APP：
 
-![shiny1](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/shiny1.gif)
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/shiny1.gif)
 
 ## 基本 UI
 
@@ -129,7 +129,7 @@ UI 的基本元素包括输入和输出，都由特殊的函数来控制，如�
    )
    ```
 
-   <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210608183704337.png" alt="image-20210608183704337" style="zoom:50%;" />
+   <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210608183704337.png" alt="" style="zoom:50%;" />
 
 3. 日期输入：使用 `dataInput()` 来输入单个日期或者 `dataRangeInput()` 来输入两个日期，选择日期时是在日历上选择
 
@@ -140,7 +140,7 @@ UI 的基本元素包括输入和输出，都由特殊的函数来控制，如�
    )
    ```
 
-   <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210608184017084.png" alt="image-20210608184017084" style="zoom:50%;" />
+   <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210608184017084.png" alt="" style="zoom:50%;" />
 
 4. 选择输入：用户必须从我们定义好的选项中选择值，可以使用 `selectInput()` 和 `radioButtons()`
 
@@ -153,7 +153,7 @@ UI 的基本元素包括输入和输出，都由特殊的函数来控制，如�
    )
    ```
 
-   <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210608185109736.png" alt="image-20210608185109736" style="zoom:50%;" />
+   <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210608185109736.png" alt="" style="zoom:50%;" />
 
    `selectInput` 是通过下拉菜单来展示所有可能的值的，可以使用参数 `multiple = TRUE` 来使得用户可以选择多个值；`radioButtons` 除了可以展示所有的值，还可以通过参数 `choiceNames/choiceValues` 来对展示的内容进行编码（也就是展示的值和返回值不一定要一样，只需要对应即可）：
 
@@ -171,7 +171,7 @@ UI 的基本元素包括输入和输出，都由特殊的函数来控制，如�
    ##两个list一一对应，choiceNames用来展示，choiceValues用来返回
    ```
 
-   <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210608190106186.png" alt="image-20210608190106186" style="zoom:50%;" />
+   <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210608190106186.png" alt="" style="zoom:50%;" />
 
    `radioButtons` 是不能多选的，可以使用 `checkboxGroupInput()` 来代替：
 
@@ -181,7 +181,7 @@ UI 的基本元素包括输入和输出，都由特殊的函数来控制，如�
    )
    ```
 
-   <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210608190230405.png" alt="image-20210608190230405" style="zoom:50%;" />
+   <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210608190230405.png" alt="" style="zoom:50%;" />
 
 5. 文件上传：使用 `fileInput()` 来载入文件
 
@@ -191,7 +191,7 @@ UI 的基本元素包括输入和输出，都由特殊的函数来控制，如�
    )
    ```
 
-   <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210608190451189.png" alt="image-20210608190451189" style="zoom:50%;" />
+   <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210608190451189.png" alt="" style="zoom:50%;" />
 
 
 ### 输出
@@ -217,11 +217,11 @@ UI 的基本元素包括输入和输出，都由特殊的函数来控制，如�
    }
    ```
 
-   ![image-20210608213354202](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210608213354202.png)
+   ![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210608213354202.png)
 
    当 render 函数中有多行代码的时候需要使用花括号（上面的例子是不需要花括号的）；这两个 render 函数有一些区别：`renderText` 将结果合并成一个字符串，和 `textOutput`配对；而 `renderPrint` 则打印结果，就像在控制台看到的一样，和 `verbatimTextOutput` 配对；这两者的区别和 `cat`，`print`函数的区别类似：
 
-   ![image-20210608220708286](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210608220708286.png)
+   ![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210608220708286.png)
 
 2. 表格：有两种方法可以将数据框以表格的形式展示出来
 
@@ -239,7 +239,7 @@ UI 的基本元素包括输入和输出，都由特殊的函数来控制，如�
    }
    ```
 
-   ![image-20210608221259399](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210608221259399.png)
+   ![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210608221259399.png)
 
 3. 图：使用 `plotOutput` 和 `renderPlot` 来展示 R 图像
 
@@ -252,7 +252,7 @@ UI 的基本元素包括输入和输出，都由特殊的函数来控制，如�
    }
    ```
 
-   <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210608221435573.png" alt="image-20210608221435573" style="zoom:50%;" />
+   <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210608221435573.png" alt="" style="zoom:50%;" />
 
 # 基础响应
 
@@ -276,7 +276,7 @@ server <- function(input, output, session) {
 shinyApp(ui, server)
 ```
 
-![image-20210608230047209](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210608230047209.png)
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210608230047209.png)
 
 另外，只能在响应式的内容中（比如 render 函数和 reactive 函数）才可以读取 input 中的内容，例如，下面的 server 函数就会报错：
 
@@ -288,7 +288,7 @@ server <- function(input, output, session) {
 shinyApp(ui, server)
 ```
 
-![image-20210608230518148](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210608230518148.png)
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210608230518148.png)
 
 ### output
 
@@ -301,7 +301,7 @@ server <- function(input, output, session) {
 shinyApp(ui, server)
 ```
 
-![image-20210608231735673](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210608231735673.png)
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210608231735673.png)
 
 ```R
 server <- function(input, output, session) {
@@ -310,7 +310,7 @@ server <- function(input, output, session) {
 shinyApp(ui, server)
 ```
 
-![image-20210608231820559](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210608231820559.png)
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210608231820559.png)
 
 ## 响应式编程
 
@@ -331,7 +331,7 @@ server <- function(input, output, session) {
 
 每次输入不同的字符，输出都会相应的改变：
 
-![shiny2](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/shiny2.gif)
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/shiny2.gif)
 
 上面的 APP 能够工作（每次输入都会有响应的输出，而不是只输出一次）的原因在于：我们的代码并不是告诉 shiny 去创建一个字符并打印到屏幕上，而是告诉 shiny 怎样能够创建一个字符，具体运行的时间由 shiny 决定，这就涉及到命令式编程（imperative）和声明式编程（declarative）的区别：
 
@@ -356,7 +356,7 @@ shinyApp(ui, server)
 
 启动 app 并不会报错，但是没有输出：
 
-![shiny3](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/shiny3.gif)
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/shiny3.gif)
 
 这是因为并不需要输出 output 中的 greting，因此 `renderText` 并不会运行
 
@@ -364,7 +364,7 @@ shinyApp(ui, server)
 
 由于 shiny 的惰性机制，shiny中代码的执行并不像一般的 R 脚本一样（从前往后）；因此为了理解代码的执行顺序，我们需要检查响应图（reactive graph），其描述了输入和输出是如何联系到一起的，上面那个简单的 APP 的响应图如下：
 
-![The reactive graph shows how the inputs and outputs are connected](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/graph-1b.png)
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/graph-1b.png)
 
 这个图的意思就是当 name 改变的时候，greeting 就会被重新计算，也就是说 greeting 对于 name 有一个**响应依赖**（reactive dependency）
 
@@ -385,7 +385,7 @@ server <- function(input, output, session) {
 
 响应表达式是为了减少 shiny app 的计算，提高运行效率；精简 APP 的响应图，从而使得 APP 的可读性增强。响应表达式同时有着输入和输出的特征，一方面像输入一样，我们可以在输出中使用响应表达式的结果，另一方面像输出一样，响应表达式依赖输入来自动更新，下面的图可以有助于理解：
 
-![Inputs and expressions are reactive producers; expressions and outputs are reactive consumers](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/producers-consumers.png)
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/producers-consumers.png)
 
 将输入和响应表达式称为生产者（producer），将输出和表达式称为消费者（consumer），我们先来创建一个更复杂的 APP 来看使用响应表达式的优点。
 
@@ -429,7 +429,7 @@ freqpoly(x1, x2)
 cat(t_test(x1, x2))
 ```
 
-<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210609223421109.png" alt="image-20210609223421109" style="zoom: 33%;" />
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210609223421109.png" alt="" style="zoom: 33%;" />
 
 然后我们就可以写一个 shiny app 来根据用户的输入比较不同的分布。`fluidRow` 表示行布局，这里将页面分成两行，第一行又分成3列（`column`），前两列表示两个分布的参数，第3列表示多边形绘图的参数；然后第二行分成两列，两列的比例是 9:3 第一个比较宽的列用来画图，第二个比较窄的列用来输出 t 检验的内容。
 
@@ -481,7 +481,7 @@ shinyApp(ui, server)
 
 启动 APP：
 
-![shiny4](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/shiny4.gif)
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/shiny4.gif)
 
 我们看一下上面的 server 函数中 t 检验的输出函数：
 
@@ -494,7 +494,7 @@ shinyApp(ui, server)
 
 我们想象的运行方式应该是：当 n1，mean1 或者 sd1 改变的时候更新 x1，从而更新 t 检验的输出，当 n2，mean2 或者 sd2 改变的时候更新 x2，从而更新 t 检验的输出；但是实际情况是 shiny **将输出当成整体看待**，也就是 n1，mean1 ，sd1，n2，mean2 ，sd2 中有一个改变，需要更新 t 检验的输出时，会重新计算 x1，x2，用响应图来表示就是：
 
-<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/case-study-1.png" alt="The reactive graph shows that every output depends on every input" style="zoom:33%;" />
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/case-study-1.png" alt="" style="zoom:33%;" />
 
 这就造成了运算的低效以及增加了 APP 的复杂性，另外在这个例子中由于是随机抽样，虽然 x2 没有改变，但是如果我们重新运行 x2 得到的结果也会变化，这不是我们想要的，因此我们需要响应表达式。
 
@@ -524,7 +524,7 @@ server <- function(input, output, session) {
 
 这样就可以简化响应图：
 
-<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/case-study-2.png" alt="Using reactive expressions considerably simplifies the graph, making it much easier to understand" style="zoom:33%;" />
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/case-study-2.png" alt="" style="zoom:33%;" />
 
 这个时候当只有其中一个分布的参数发生改变，比如 n1，mean1 或者 sd1，只会重新计算 x1，从而更新输出 ttest，x2 不会被重新计算，另外之前改变绘图参数时，x1 和 x2 都会被重新计算，而现在则不会出现这种情况，也就是说 x1 和 x2 变成了两个独立的模块，可以实现模块的重用（reuse），提高 APP  的效率。
 
@@ -562,13 +562,13 @@ server <- function(input, output, session) {
 
 启动 app：
 
-![shiny5](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/shiny5.gif)
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/shiny5.gif)
 
 
 
 这个 app 产生的响应图如下：
 
-<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/timing-button.png" alt="timing-button" style="zoom:33%;" />
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/timing-button.png" alt="" style="zoom:33%;" />
 
 可以看到，虽然我们点击按钮可以更新图，但是更改分布的参数也能更新图，而我们想要的是：更改参数并不更新图，只有在点击按钮之后图才会被更新；也就是说需要用 simulate 的依赖关系取代分布参数的依赖关系，而不是添加一个 simulate 的依赖关系。因此我们可以使用 `eventReactive` ，这个函数有两个参数，第一个参数指定输出的依赖，第二个参数指定计算的内容（多行代码使用花括号括起来），只有依赖改变的时候才会计算该内容：
 
@@ -587,11 +587,11 @@ server <- function(input, output, session) {
 }
 ```
 
-![shiny6](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/shiny6.gif)
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/shiny6.gif)
 
 这个时候依赖关系就变成了（虚线表示只使用值，实线表示响应依赖关系）：
 
-<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/timing-button-2.png" alt="timing-button-2" style="zoom:33%;" />
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/timing-button-2.png" alt="" style="zoom:33%;" />
 
 ---
 
