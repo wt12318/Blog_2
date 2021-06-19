@@ -12,7 +12,9 @@ index_img: img/neo.png
 
 
 
+使用NeoPredPipe预测新抗原
 
+<!-- more -->
 
 [NeoPredPipe](https://github.com/MathOnco/NeoPredPipe)是一个可以从单区域或多区域测序得到的VCF文件来预测新抗原的流程工具,使用的注释软件为`ANNOVAR`;另外该软件在预测新抗原之后还有一个筛选步骤,这个筛选步骤是依据[2017 Nature](https://www.nature.com/articles/nature24473)提出的`Neoantigen recognition potential`来进行的
 
