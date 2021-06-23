@@ -350,13 +350,11 @@ pytorch 与 numpy 的比较：
 
 ## 自动求导
 
-自动求导的核心是计算图，通过将复杂的函数拆分成计算图中每个节点处的简单运算，并在节点处保留简单运算的梯度，然后通过反向传播运用链式法则求得复杂函数的梯度（计算图的概念见
-[深度学习入门](https://wutaoblog.com.cn/2021/01/03/deep_learning/)。
+自动求导的核心是计算图，通过将复杂的函数拆分成计算图中每个节点处的简单运算，并在节点处保留简单运算的梯度，然后通过反向传播运用链式法则求得复杂函数的梯度（计算图的概念见 [深度学习入门](https://wutaoblog.com.cn/2021/01/03/deep_learning/)。
 
 ![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/74d0cafe66686492ce6228e5fa0f81fc.png)
 
-图中 x，w，b 为叶子节点（叶子节点的张量参数 requires_grad 需要设置为
-True），z 为根节点
+图中 x，w，b 为叶子节点（叶子节点的张量参数 requires_grad 需要设置为True），z 为根节点
 
 ``` python
 import torch
