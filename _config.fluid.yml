@@ -718,7 +718,7 @@ waline:
   avatarCDN:
   avatarForce: false
   requiredFields: []
-  emojiCDN: ['https://cdn.jsdelivr.net/gh/walinejs/emojis@1.0.0/bilibili']
+  emoji: ['https://cdn.jsdelivr.net/gh/walinejs/emojis@1.0.0/bilibili']
   emojiMaps: {}
   anonymous:
 
