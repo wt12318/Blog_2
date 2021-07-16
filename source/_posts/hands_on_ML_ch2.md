@@ -182,7 +182,7 @@ housing.hist(bins=50, figsize=(20,15))
 plt.show()
 ```
 
-![](index.zh-cn_files/figure-commonmark/unnamed-chunk-8-1.png)<!-- -->
+![unnamed-chunk-8-1](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/unnamed-chunk-8-1.png)
 
 观察数据的分布可以得到一些可能注意不到的信息：比如这里的`median income` 变量，看横坐标范围是0.5-15，所以不可能是以美元作为单位，这个时候我们就要尽量弄清楚这些已经经过处理的数值是怎么得到的(这里经过了转化，单位变成了$10000，并且下限是0.5，上限是15);另外我们看到这些*变量的尺度差异比较大*，后续需要进行缩放处理(scaling); 还有就是这些变量看起来都是偏向分布的(tailed distribution),这对于某些机器学习算法的学习可能比较困难，所以后续可能要进行转化，使其分布趋向于钟形分布
 
@@ -695,7 +695,7 @@ grid_search.fit(housing_prepared, housing_labels)
 >>              return_train_score=True, scoring='neg_mean_squared_error')
 ```
 
-param\_grid提供需要实验的超参数值，是一个列表，列表的元素是字典，每个字典里面是需要尝试的超参数的值，所以这里面就是：首先评估第一个字典中的`3*4`个超参数的组合，一共12个模型，再评估第二个字典中的`2*3`个超参数的组合，一个6个模型，所以总的需要评估12+6=18个模型，对每个模型训练5次(交叉验证中CV=5)
+param\_grid 提供需要实验的超参数值，是一个列表，列表的元素是字典，每个字典里面是需要尝试的超参数的值，所以这里面就是：首先评估第一个字典中的`3*4`个超参数的组合，一共12个模型，再评估第二个字典中的`2*3`个超参数的组合，一个6个模型，所以总的需要评估12+6=18个模型，对每个模型训练5次(交叉验证中CV=5)
 
 得到的最好的结果存储在`best_params_`中：
 
