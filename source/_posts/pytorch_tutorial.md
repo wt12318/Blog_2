@@ -11,7 +11,7 @@ index_img: img/pytorc.jpg
 
 <!-- more -->
 
-学习 Pytorch 官网教程，主要包括一下内容：
+学习 Pytorch 官网教程，主要包括以下内容：
 
 ![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210721075853969.png)
 
@@ -326,7 +326,12 @@ training_data
 >> Transform: ToTensor()
 ```
 
-主要有以下的参数： - `root`：训练集/测试集存放的位置 - `train`：是训练集还是测试集 - `download`：当在 `root` 中找不到数据时是否从网络上下载 - `transform`（转化样本）/`target_transform`（转化标签）：如何对数据进行转化处理
+主要有以下的参数：
+
+- `root`：训练集/测试集存放的位置 
+- `train`：是训练集还是测试集
+- `download`：当在 `root` 中找不到数据时是否从网络上下载 
+- `transform`（转化样本）/`target_transform`（转化标签）：如何对数据进行转化处理
 
 ### 迭代和可视化数据集
 
