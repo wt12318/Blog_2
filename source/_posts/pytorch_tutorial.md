@@ -40,14 +40,14 @@ x_data.dtype
 >> torch.int64
 ```
 
-1.  从 numpy 数组创建
+2. 从 numpy 数组创建
 
 ``` python
 np_array = np.array(data)
 x_np = torch.from_numpy(np_array)
 ```
 
-1.  从另一个 Tensor 创建，`torch.**_like` 函数，会保留作为参数的 Tensor 的形状和数据类型，当然也可以进行覆盖：
+3. 从另一个 Tensor 创建，`torch.**_like` 函数，会保留作为参数的 Tensor 的形状和数据类型，当然也可以进行覆盖：
 
 ``` python
 x_ones = torch.ones_like(x_data)##全为1的Tensor，形状和数据类型一致
