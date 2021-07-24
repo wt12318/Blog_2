@@ -398,7 +398,7 @@ for i in range(1, cols * rows + 1):
 plt.show()
 ```
 
-<img src="index.zh-cn_files/figure-markdown_github/unnamed-chunk-26-1.png" width="768" />
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/unnamed-chunk-26-1.png" width="768" />
 
 ### 创建自定义数据集
 
@@ -471,7 +471,7 @@ plt.imshow(img, cmap="gray")
 plt.show()
 ```
 
-<img src="index.zh-cn_files/figure-markdown_github/unnamed-chunk-26-3.png" width="768" />
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/unnamed-chunk-26-3.png" width="768" />
 
 ``` python
 print(f"Label: {label}")
