@@ -43,7 +43,7 @@ def div(x,y):
 
 div(1,2)
 >> 0.5
-print(div.__doc__)
+print(div.__doc__)##__doc__获取文档
 >> 除法计算
 >>   
 >>   y不能为0
@@ -149,22 +149,50 @@ num2##局部变量
 在内部作用域中想要改变外部作用域的变量时需要使用`global`(外部全局变量)和`nonlocal`(外部非全局变量)关键字
 
 ``` python
-def printinfo7(num1):  global a  a = 2  num2 = 2  print(num1+a+num2)printinfo7(1)>> 5print(a) ##a发生了改变>> 2
+def printinfo7(num1):  
+    global a  
+    a = 2  
+    num2 = 2  
+    print(num1+a+num2)
+
+printinfo7(1)
+>> 5
+print(a) ##a发生了改变
+>> 2
 ```
 
 当一个函数包含在另一个函数内部，这种函数叫做内嵌函数，内嵌函数只能在函数内部进行调用
 
 ``` python
-def outer():  print('outer函数在这被调用')    def inner():    print('inner函数在这被调用')    inner()  # 该函数只能在outer函数内部被调用outer()>> outer函数在这被调用>> inner函数在这被调用inner()##不能在外部访问>> Error in py_call_impl(callable, dots$args, dots$keywords): NameError: name 'inner' is not defined
+def outer():  
+    print('outer函数在这被调用')    
+    def inner():    
+        print('inner函数在这被调用')    
+    inner()  # 该函数只能在outer函数内部被调用
+
+outer()
+>> outer函数在这被调用
+>> inner函数在这被调用
+
+inner()##不能在外部访问
+>> Error in py_call_impl(callable, dots$args, dots$keywords): NameError: name 'inner' is not defined
 ```
 
 当一个内嵌函数对外层的非全局作用域的变量进行引用，那么这个内嵌函数就是**闭包**：
 
 ``` python
-def funx(x):  def funy(y):    return(x * y)    return funynew_f = funx(8)print(new_f,type(new_f))>> <function funx.<locals>.funy at 0x00000209F628AE50> <class 'function'>new_f(2)>> 16
+def funx(x):  
+    def funy(y):    
+        return(x * y)    
+    return funy
+
+new_f = funx(8)
+print(new_f,type(new_f))
+>> <function funx.<locals>.funy at 0x00000209F628AE50> <class 'function'>
+new_f(2)>> 16
 ```
 
-从上面的例子可以看出，我们可以使用闭包来创建函数，作为函数工厂来使用(和R里面的闭包类似)
+从上面的例子可以看出，我们可以使用闭包来创建函数，作为函数工厂来使用(和R里面的闭包类似)。
 
 上面也提到了可以使用`nonlocal`来改变外层非全局变量：
 
@@ -197,3 +225,21 @@ def n_fac(n):
 n_fac(100)
 >> 93326215443944152681699238856266700490715968264381621468592963895217599993229915608941463976156518286253697920827223758251185210916864000000000000000000000000
 ```
+
+### Lambda 表达式
+
+上面讲的都是以 `def` 关键字定义的 “正规” 的函数，除了这种函数之外，python 中还有一种用 `lambda` 关键字定义的匿名函数，结构为：
+
+```python
+lambda argument_list: expression
+```
+
+- argument_list 是参数，可以是位置参数和关键字参数，和上面的一样
+- expression 对传入函数的实参进行的操作
+
+lambda 不需要 `return` 语句，表达式 expression 的结果就是返回值；匿名函数不能访问到 argument_list 之外的参数，下面是一些例子：
+
+```python
+
+```
+

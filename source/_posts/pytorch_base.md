@@ -1,5 +1,5 @@
 ---
-title: Pytorch 基础
+title:【Pytorch】Tensor 的基本操作
 date: 2021-06-23 20:59:00
 tags: 编程
 categories:
@@ -7,11 +7,9 @@ categories:
 index_img: img/pytorc.jpg
 ---
 
-Python深度学习基于PyTorch
+Tensor 的基本操作和自动求导
 
 <!-- more -->
-
-
 
 对tensor的操作以作用的对象分有两类：
 
