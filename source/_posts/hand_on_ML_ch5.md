@@ -1,5 +1,5 @@
 ---
-title: 【Hands on ML ch5】- SVM
+title: 【Hands on ML ch5】- 支持向量机（SVM）
 author: wutao
 date: 2021-06-20 23:00:00
 categories:
