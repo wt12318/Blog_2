@@ -5,13 +5,9 @@ tags: 编程
 index_img: img/python.jpg
 ---
 
-
-
-天池python task2
+python主要数据结构
 
 <!-- more -->
-
-Task2 主要包含python主要数据结构：
 
 -   列表
 -   元组

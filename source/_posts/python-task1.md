@@ -5,15 +5,9 @@ tags: 编程
 index_img: img/python.jpg
 ---
 
-
-
-
-
-天池python task1
+基本数据类型，控制语句和异常处理
 
 <!-- more -->
-
-Task1 主要包含以下内容：
 
 -   变量，运算符和基本数据类型
 
