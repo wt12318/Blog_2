@@ -5,10 +5,6 @@ tags: 编程
 index_img: img/python.jpg
 ---
 
-
-
-函数
-
 函数，类与对象
 
 <!-- more -->
