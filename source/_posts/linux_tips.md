@@ -662,17 +662,17 @@ fi
 done
 ```
 
-### 几个取整函数：```ceiling``` ; ```floor``` ; ```trunc``` ; ```round``` ; ```signif```
+### 几个取整函数：ceiling ; floor ; trunc ; round; signif
 
-```ceiling```返回不小于该数字的最小整数，即向上取整
+`ceiling` 返回不小于该数字的最小整数，即向上取整
 
-```floor``` 返回不大于该数字的最大整数，即向下取整
+`floor` 返回不大于该数字的最大整数，即向下取整
 
-```trunc``` 返回距离0最近的整数，即向零取整
+`trunc` 返回距离0最近的整数，即向零取整
 
 ![](https://raw.githubusercontent.com/wt12318/picgo/master/img/20200128111606.png)
 
-```round``` 采取**四舍六入五成双**的原则：
+`round` 采取**四舍六入五成双**的原则：
 
 - `<=`4舍去
 - `>=`6进一位
@@ -682,9 +682,9 @@ done
     - 当5前一位为奇数时，舍5进一位
     - 当5前一位为偶数时，舍5不进位
 
-``round``也可以指定保留小数点的位数：```round(x,digits=0)```
+`round`也可以指定保留小数点的位数：`round(x,digits=0)`
 
-```signif``` 保留有效数字，```signif(x,digits=6)``` 默认保留6位
+`signif` 保留有效数字，`signif(x,digits=6)` 默认保留6位
 
 ### 安装`github`上的包
 
