@@ -791,5 +791,31 @@ print(end - start)
 #0.031 0.001 0.032 
 ```
 
+### 设置了 SSH key 但是 Github push 仍然需要密码
 
+设置了 SSH key 但是 Github push 仍然需要密码，而 github 在 8 月 13 后只支持已 token 的形式 push：
+
+```shell
+git push origin main
+Username for 'https://github.com': wt12318
+Password for 'https://wt12318@github.com':
+remote: Support for password authentication was removed on August 13, 2021. Please use a personal access token instead.
+remote: Please see https://github.blog/2020-12-15-token-authentication-requirements-for-git-operations/ for more information.
+fatal: unable to access 'https://github.com/wt12318/Blog_2.git/': The requested URL returned error: 403
+```
+
+需要输入密码是由于使用了 `https` 的 url，参考[git - SSH Key - Still asking for password and passphrase - Stack Overflow](https://stackoverflow.com/questions/21095054/ssh-key-still-asking-for-password-and-passphrase)，所以需要从 `https` 转到 `ssh`:
+
+```shell
+git remote -v
+origin  https://github.com/wt12318/Blog_2.git (fetch)
+origin  https://github.com/wt12318/Blog_2.git (push)
+
+git remote set-url origin git@github.com:wt12318/Blog_2.git
+git remote -v
+origin  git@github.com:wt12318/Blog_2.git (fetch)
+origin  git@github.com:wt12318/Blog_2.git (push)
+
+git push origin main
+```
 
