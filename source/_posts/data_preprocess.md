@@ -11,10 +11,6 @@ index_img: img/data_preprocess.png
 
 
 
-
-
-
-
 数据预处理相关知识及 Scikit-learn 的实现，包括 Data transformation，Encoding categorical features，和 Imputation of missing values
 
 <!-- more -->
@@ -34,8 +30,7 @@ index_img: img/data_preprocess.png
 
 ### Standardization
 
-Standardization 指的是将数据减去其均值，除以标准差，使得数据的均值为 0
-，方差为 1. 注意 Standardization 处理后的数据并不一定服从正态分布。
+Standardization 指的是将数据减去其均值，除以标准差，使得数据的均值为 0，方差为 1. 注意 Standardization 处理后的数据并不一定服从正态分布。
 
 ``` python
 from sklearn import preprocessing
@@ -62,8 +57,6 @@ scaler.scale_
 scaler.scale_ == X_train.std(axis=0) ##这里的scale_就是std
 >> array([ True,  True,  True])
 ```
-
-
 
 **fit** 就是从数据中学到东西，这里就是mean 和 std，**transform** 就是利用学到的东西对数据进行转化，这两步也可以合为一步：**fit_transform**。
 
@@ -147,13 +140,11 @@ print(max_abs_scaler.scale_)
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/1280px-Quantile_distribution_function.svg.png" style="zoom:50%" />
 
 The cumulative distribution function (shown as F(x)) gives the p values as a function of the q values. The quantile function does the opposite: it gives the q values as a function of the p values.
-也就是累积分布函数的自变量是 X 轴，给定一个数可以得到一个概率，而分位数函数是累计分布函数的逆函数，自变量是
-y轴。 分位数转化是通过下面的函数作用于原数据得到转化后的数据：
+也就是累积分布函数的自变量是 X 轴，给定一个数可以得到一个概率，而分位数函数是累计分布函数的逆函数，自变量是 y轴。 分位数转化是通过下面的函数作用于原数据得到转化后的数据：
 $$
 G^{-1}(F(X))
 $$
-其中 F(X) 是原始数据的累积分布函数，G 是我们想要转化得到的分布的分位数函数。比如我们想要将原始数据转化为均值为
-0， 方差为 1 的正态分布，那么首先要得到 F(X)，也就是原数据中对应的分位数，然后再用正态分布的分位数函数进行转化。
+其中 F(X) 是原始数据的累积分布函数，G 是我们想要转化得到的分布的分位数函数。比如我们想要将原始数据转化为均值为0， 方差为 1 的正态分布，那么首先要得到 F(X)，也就是原数据中对应的分位数，然后再用正态分布的分位数函数进行转化。
 
 ![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210818215720349.png)
 
@@ -376,9 +367,7 @@ enc.transform([['female', 'from Asia', 'uses Chrome']]).toarray()
 >> array([[1., 0., 0., 0., 0., 0.]])
 ```
 
-也可以使用 `drop` 参数将类别变量编码成 n-1 个新的变量而不是 n 个新的变量（n 是类别变量的类别数），也就是通过 `drop`
-指定在编码时要丢弃的类别。这种方法可以有效的避免输入数据的共线性，比如在（非正则化的）线性回归中共线性会造成协方差矩阵不可逆。  `drop` 参数可以取 `first`，表示丢弃每个特征的第一个类别，如果只有一个类别那么这个特征会被丢弃，也可以取
-`if_binary`，表示只丢弃有两个类别的特征的第一个类别，有一个类别或者多于两个类别的特征的类别不会被丢弃，还可以是一个数组（array），表示某个特征中要丢弃的类别。
+也可以使用 `drop` 参数将类别变量编码成 n-1 个新的变量而不是 n 个新的变量（n 是类别变量的类别数），也就是通过 `drop` 指定在编码时要丢弃的类别。这种方法可以有效的避免输入数据的共线性，比如在（非正则化的）线性回归中共线性会造成协方差矩阵不可逆。  `drop` 参数可以取 `first`，表示丢弃每个特征的第一个类别，如果只有一个类别那么这个特征会被丢弃，也可以取 `if_binary`，表示只丢弃有两个类别的特征的第一个类别，有一个类别或者多于两个类别的特征的类别不会被丢弃，还可以是一个数组（array），表示某个特征中要丢弃的类别。
 
 ``` python
 ##first
@@ -496,7 +485,7 @@ print(np.round(imp.transform(X_test)))
 
 ### 标记缺失值
 
-除了对缺失值进行填充，标记缺失值也是一种有用的方法，通常和填充一起使用，在 Scikit-learn 中通过 `MissingIndicator` 实现（前面的 `SimpleImputer` 和 `IterativeImputer` 都有一个 `add_indicator` 的参数，设置为 True 时可以直接 `MissingIndicator` 的结果和原来的数据合并）。
+除了对缺失值进行填充，标记缺失值也是一种有用的方法，通常和填充一起使用，在 Scikit-learn 中通过 `MissingIndicator` 实现（前面的 `SimpleImputer` 和 `IterativeImputer` 都有一个 `add_indicator` 的参数，设置为 True 时可以直接将`MissingIndicator` 的结果和原来的数据合并）。
 
 ``` python
 from sklearn.impute import MissingIndicator
