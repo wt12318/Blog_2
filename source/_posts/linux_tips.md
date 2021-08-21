@@ -449,7 +449,7 @@ tar -ztv -f cp_folder.tar.gz                 #查看压缩文件夹中的文件�
 tar -zxv -f cp_folder.tar.gz                 #打开包并解压缩（gzip格式）
 ```
 
-#### `bz2`
+#### bz2
 
 压缩：`bzip2`;解压：`bunzip2`
 
@@ -861,4 +861,20 @@ origin  git@github.com:wt12318/Blog_2.git (push)
 
 git push origin main
 ```
+
+### 如何将 PPT 无损转成 PDF 
+
+用 Office Powerpoint 打开 PPT （前提是电脑已经装了 Adobe Acrobat）。
+
+首先点击 ACROBAT 插件首选项--高级设置进行设置：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210821102156796.png" style="zoom:50%;" />
+
+接着将一般里面的对象级压缩和图像中三类图像的采样和压缩都关闭：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210821102401529.png" style="zoom:50%;" />
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210821102503066.png" style="zoom:50%;" />
+
+接着就可以确定并导出 PDF 了。一个好用的在线 PDF 编辑工具：[PDF24 Tools: 免费且易于使用的在线PDF工具](https://tools.pdf24.org/zh/)
 
