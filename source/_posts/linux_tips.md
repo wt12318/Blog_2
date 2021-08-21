@@ -167,13 +167,9 @@ Windows Registry Editor Version 5.00
 
 ### `xargs`命令
 
-使用管道可以方便地将一个命令的输出作为下一个命令的输入，但是有些命令并不支持管道输入，如`ls`,`mkdir`等，这时就可以用`xargs`命令
+使用管道可以方便地将一个命令的输出作为下一个命令的输入，但是有些命令并不支持管道输入，如`ls`,`mkdir`等，这时就可以用`xargs`命令。
 
-`xargs`可以接受文件或者命令的输出，将其传递给其他命令，默认是`echo`
-
-`xargs`可以将多行的输出转化成一行，这就是其可以将输出传递给其他命令的基础（当然也可以用不同的参数得到不同格式的输出）
-
-看几个例子：
+`xargs`可以接受文件或者命令的输出，将其传递给其他命令，默认是`echo`；`xargs`可以将多行的输出转化成一行，这就是其可以将输出传递给其他命令的基础（当然也可以用不同的参数得到不同格式的输出），看几个例子：
 
 #### `xargs`和`wc`
 
@@ -216,7 +212,7 @@ ls *.jpg | xargs -n1 -I {} cp {} /data/images ##将当前目录下的所有jpg�
 
 #### 使用`-n`选项，复制文件到多个位置
 
-`-n`后面接数字，表示一次传递的参数的数目
+`-n`后面接数字，表示一次传递的参数的数目。
 
 ```shell
  echo ./dir_one/ ./dir_two/ | xargs -n 1 cp -v *.gtf ##-v 报告复制过程
@@ -406,17 +402,7 @@ rename 's/names/replace/' file
 
 ### 标准输入，标准输出与标准错误
 
-主要是3个符号：``<`` ``>`` ``-``
-
-标准输出与标准错误都是输出到屏幕上的
-
-可以用```>``` 将标准输出重定向到某个文件
-
-```2 >&1``` 将标准错误重定向到标准输出，如果已经将标准输出定向到某个文件，那么这个命令可以将标准错误与标准输出定向到一个文件（**Linux 终端用 2 表示标准错误，1 表示标准输出**）
-
-``<``表示标准输入 后面接可以产生输出的命令 可以将输出转为输入；也可以用```-```表示标准输入
-
-下面看一个例子
+主要是3个符号：`<` `>` `-`；标准输出与标准错误都是输出到屏幕上的；可以用`>` 将标准输出重定向到某个文件；`2 >&1` 将标准错误重定向到标准输出，如果已经将标准输出定向到某个文件，那么这个命令可以将标准错误与标准输出定向到一个文件（**Linux 终端用 2 表示标准错误，1 表示标准输出**）；`<`表示标准输入 后面接可以产生输出的命令 可以将输出转为输入；也可以用```-```表示标准输入，下面看一个例子：
 
 ```shell
 ##我们先写一个脚本
@@ -789,6 +775,63 @@ end <- proc.time()
 print(end - start)
 # 用户  系统  流逝 
 #0.031 0.001 0.032 
+```
+
+### 编译安装 R：
+
+```shell
+wget https://mirrors.sjtug.sjtu.edu.cn/cran/src/base/R-4/R-4.1.0.tar.gz
+
+sudo yum install gcc-c++
+sudo yum -y install gcc-gfortran
+sudo yum install readline-devel
+sudo yum install zlib-devel
+sudo yum install bzip2-devel
+sudo yum -y install xz-devel.x86_64
+sudo yum install pcre pcre-devel
+sudo yum install libcurl libcurl-devel
+sudo yum install pcre2 pcre2-devel
+sudo yum install java-1.8.0-openjdk-devel.x86_64
+
+##安装perl
+sudo yum install perl*
+cpan install XML::Simple
+cpan install XML::LibXML
+wget https://www.cpan.org/src/5.0/perl-5.34.0.tar.gz
+tar zxf perl-5.34.0.tar.gz
+./Configure -des -D -prefix=/usr/local/
+make
+make install
+
+sudo yum install libpng-devel
+sudo yum install libjpeg-devel
+sudo yum install libtiff-devel
+sudo yum install libcairo-devel
+sudo yum search libcair
+sudo yum search cairo
+sudo yum install cairo-devel.x86_64
+
+#configure: WARNING: you cannot build info or HTML versions of the R manuals
+#configure: WARNING: you cannot build PDF versions of the R manuals
+#configure: WARNING: you cannot build PDF versions of vignettes and help pages
+##https://stackoverflow.com/questions/24983906/configure-warning-you-cannot-build-info-or-html-versions-of-the-r-manuals
+sudo yum install texinfo.x86_64
+sudo yum install texlive.x86_64
+
+#configure: WARNING: neither inconsolata.sty nor zi4.sty found: PDF vignettes and package manuals will not be rendered optimally 
+wget http://mirrors.ctan.org/fonts/inconsolata.zip
+#解压 ：
+unzip inconsolata.zip 
+#将文件拷贝到目录下：
+cp -Rfp inconsolata/* /usr/share/texmf/
+#刷新sty ：
+mktexlsr
+
+##最后编译安装
+./configure --with-cairo --enable-memory-profiling --enable-R-shlib 
+            --with-blas --with-lapack --prefix=/opt/R/4.1 -with-x=no
+make
+make install
 ```
 
 ### 设置了 SSH key 但是 Github push 仍然需要密码
