@@ -777,7 +777,7 @@ print(end - start)
 #0.031 0.001 0.032 
 ```
 
-### 编译安装 R：
+### 编译安装 R
 
 ```shell
 wget https://mirrors.sjtug.sjtu.edu.cn/cran/src/base/R-4/R-4.1.0.tar.gz
