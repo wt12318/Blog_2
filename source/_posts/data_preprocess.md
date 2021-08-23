@@ -146,7 +146,7 @@ G^{-1}(F(X))
 $$
 其中 F(X) 是原始数据的累积分布函数，G 是我们想要转化得到的分布的分位数函数。比如我们想要将原始数据转化为均值为0， 方差为 1 的正态分布，那么首先要得到 F(X)，也就是原数据中对应的分位数，然后再用正态分布的分位数函数进行转化。
 
-![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210818215720349.png)
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210818215720349(1).png)
 
 ``` python
 import seaborn as sns
@@ -310,7 +310,11 @@ trunc5_transformer.fit_transform(X)
 
 ## 编码类别变量
 
-对于类别变量，通常有 3 种处理策略： - 直接丢弃 - 顺序编码– OrdinalEncoder - One hot 编码– OneHotEncoder 
+对于类别变量，通常有 3 种处理策略： 
+
+- 直接丢弃 
+-  顺序编码 – OrdinalEncoder  
+- One hot 编码 – OneHotEncoder 
 
 ``` python
 enc = preprocessing.OrdinalEncoder()
