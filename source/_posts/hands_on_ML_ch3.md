@@ -6,8 +6,7 @@ index_img: img/image1.jpg
 
 Hands on ML 第三章笔记，主要是分类相关的知识
 <!-- more -->
-本章使用的数据集是MNIST数据集，有70000张手写的数字图像(这个数据集也被称为是机器学习的“hello
-world”)
+本章使用的数据集是MNIST数据集，有70000张手写的数字图像(这个数据集也被称为是机器学习的“hello world”)
 
 Scikit-Learn提供了一些函数来下载常用的数据集，下面的代码可以下载MNIST数据集：
 
@@ -18,10 +17,9 @@ mnist = fetch_openml('mnist_784', version=1)
 mnist.keys()
 ```
 
-通过Scikit-Learn下载的数据是字典的结构，包含key和value，比如`DESCR`key表示数据集的描述，`data`
-key表示数据集，`target` key表示数据集的标签
+通过Scikit-Learn下载的数据是字典的结构，包含key和value，比如`DESCR`key表示数据集的描述，`data` key表示数据集，`target` key表示数据集的标签。
 
-使用Scikit-Learn下载太慢，所以在openml官网下载了csv格式的[数据](https://www.openml.org/d/554)，再使用numpy读入
+使用Scikit-Learn下载太慢，所以在openml官网下载了csv格式的[数据](https://www.openml.org/d/554)，再使用numpy读入：
 
 ``` python
 import os
@@ -78,9 +76,7 @@ y_train_5 = (y_train == 5)
 y_test_5 = (y_test == 5)
 ```
 
-我们首先尝试SGD(Stochastic Gradient
-Descent)分类器【随机梯度下降是一种算法，
-Scikit-Learn里面的SGDClassifier类指的是一系列模型，这些模型的优化算法都是SGD，SGDClassifier类默认的是线性SVM模型，参照官网上的[说明](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.SGDClassifier.html)】:
+我们首先尝试SGD(Stochastic Gradient Descent)分类器【随机梯度下降是一种算法，Scikit-Learn里面的SGDClassifier类指的是一系列模型，这些模型的优化算法都是SGD，SGDClassifier类默认的是线性SVM模型，参照官网上的[说明](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.SGDClassifier.html)】:
 
 ``` python
 from sklearn.linear_model import SGDClassifier
@@ -123,18 +119,11 @@ cross_val_score(never_5_clf, X_train, y_train_5, cv=3, scoring="accuracy")
 >> array([0.91125, 0.90855, 0.90915])
 ```
 
-这个模型都有0.9以上的准确度，因为只有10%的图片是5，所以总是猜不是5，90%是对的
-
-上面的例子说明：仅仅使用准确度来衡量模型是不太好的，特别是对于有偏向性的数据(skewed
-datasets)
+这个模型都有0.9以上的准确度，因为只有10%的图片是5，所以总是猜不是5，90%是对的，这说明：仅仅使用准确度来衡量模型是不太好的，特别是对于有偏向性的数据(skewed datasets)。
 
 ### 混淆矩阵
 
-评估一个分类器的更好的方法是混淆矩阵(confusion matrix)
-
-混淆矩阵的每一行是真实的类，每一列是预测的类
-
-要计算混淆矩阵，首先要获取预测值，可以使用cross_val_predict函数，这个函数也进行交叉验证，不过返回的不是评估分数而是在每一个验证集上的预测值(因此是“clean”的预测，所谓clean指的是预测使用的是在训练过程中没有看过的数据)：
+评估一个分类器的更好的方法是混淆矩阵(confusion matrix)，混淆矩阵的每一行是真实的类，每一列是预测的类；要计算混淆矩阵，首先要获取预测值，可以使用cross_val_predict函数，这个函数也进行交叉验证，不过返回的不是评估分数而是在每一个验证集上的预测值(因此是“clean”的预测，所谓clean指的是预测使用的是在训练过程中没有看过的数据)：
 
 ``` python
 from sklearn.model_selection import cross_val_predict
@@ -153,7 +142,7 @@ confusion_matrix(y_train_5, y_train_pred)
 ```
 
 这个混淆矩阵可以使用下图来表示：
-![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/%E6%BC%94%E7%A4%BA%E6%96%87%E7%A8%BF1_01.png)
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210204170319913.png)
 
 一个完美的分类器的混淆矩阵应该只有主对角线上是非零值
 
@@ -162,17 +151,15 @@ confusion_matrix(y_train_5, y_train_pred)
 -   精度(precision)表示 在预测的positive里面真实的也是positive的比例：
 
     $$
-    precision = \\frac{TP}{TP+FP}
+    precision = \frac{TP}{TP+FP}
     $$
 
 -   召回率(recall)(或者叫灵敏度sensitivity; 真阳性率FPR)表示
     在真实的positive里面预测是positive的比例：
 
     $$
-    recall = \\frac{TP}{TP+FN}
+    recall = \frac{TP}{TP+FN}
     $$
-
-![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210204170319913.png)
 
 ### 精度和召回率
 
@@ -189,8 +176,7 @@ recall_score(y_train_5, y_train_pred)
 
 这些值的意思是：当这个分类器认为某个图片是5，那么有83.7%的机率是对的；并且这个分类器只检测到65%的是5的图片
 
-也可以将精度和召回率结合成一个值：F_1 score
-(两者的几何平均，几何平均给予小的值更大的权重)：
+也可以将精度和召回率结合成一个值：F_1 score (两者的几何平均，几何平均给予小的值更大的权重)：
 
 ![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210204171113298.png)
 
@@ -203,14 +189,13 @@ f1_score(y_train_5, y_train_pred)
 >> 0.7325171197343846
 ```
 
-需要注意的是：**在不同情况下，我们对于precision和recall的关注度是不一样的**
+需要注意的是：**在不同情况下，我们对于precision和recall的关注度是不一样的**：
 
-比如，如果训练的分类器的任务是检测对儿童安全的视频，那么这个分类器的precision就更重要(尽可能保证预测是安全的视频实际上也是安全的，而不是说将所有的安全的视频都给检出)；而如果分类器的任务是根据商场的监控图像来检测小偷，这个时候分类器的recall就更重要(将所有的小偷尽可能全部检测出，虽然有可能发出假的的警报)
+比如，如果训练的分类器的任务是检测对儿童安全的视频，那么这个分类器的precision就更重要(尽可能保证预测是安全的视频实际上也是安全的，而不是说将所有的安全的视频都给检出)；而如果分类器的任务是根据商场的监控图像来检测小偷，这个时候分类器的recall就更重要(将所有的小偷尽可能全部检测出，虽然有可能发出假的的警报)。
 
 ### Precision/Recall 平衡
 
-对于每个观测值，SGDClassifier都会依据决策函数(decision
-function)来计算一个值，再根据特定的阈值，如果计算的值高于阈值则为positive类，低于阈值则为negative类，所以改变这个阈值就是使得precision和recall有所变化，这个过程可以用下图来表示：
+对于每个观测值，SGDClassifier都会依据决策函数(decision function)来计算一个值，再根据特定的阈值，如果计算的值高于阈值则为positive类，低于阈值则为negative类，所以改变这个阈值就是使得precision和recall有所变化，这个过程可以用下图来表示：
 
 ![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210204173205578.png)
 
@@ -230,9 +215,7 @@ y_some_digit_pred
 >> array([False])
 ```
 
-那么我们怎么选择一个合适的阈值呢？
-首先可以使用cross_val_predict()得到每个实例的决策函数值(同样是“clean”的)，然后使用
-precision_recall_curve()函数来计算所有阈值的precision和recall值：
+那么我们怎么选择一个合适的阈值呢？首先可以使用cross_val_predict()得到每个实例的决策函数值(同样是“clean”的)，然后使用 precision_recall_curve()函数来计算所有阈值的precision和recall值：
 
 ``` python
 y_scores = cross_val_predict(sgd_clf, X_train, y_train_5, cv=3, method="decision_function")
@@ -325,9 +308,7 @@ recall_score(y_train_5, y_train_pred_90)
 
 ### ROC曲线
 
-ROC曲线全称为：receiver operating characteristic
-curve；ROC曲线展示了真阳性率(true positive rate,
-recall的另一个叫法)和假阳性率(false positive rate, FPR)的关系
+ROC曲线全称为：receiver operating characteristic curve；ROC曲线展示了真阳性率(true positive rate, recall的另一个叫法)和假阳性率(false positive rate, FPR)的关系
 
 $$
 FPR = \\frac{FP}{FP+TN}=1-TNR=1-\\frac{TN}{FP+TN}
@@ -372,9 +353,7 @@ plt.show()
 
 <img src="/img/hands_on_ML_ch3_files/figure-markdown_github/unnamed-chunk-24-1.png" width="672" />
 
-图中的虚线表示完全随机的分类器的ROC曲线，一个好的分类器要尽可能离这条线远，并且向左上角靠拢(高的recall并且比较低的假阳性)
-
-一种比较不同的分类器的方法就是计算ROC曲线下面积(AUC)，越接近1说明这个模型越好(图中虚线的AUC是0.5)：
+图中的虚线表示完全随机的分类器的ROC曲线，一个好的分类器要尽可能离这条线远，并且向左上角靠拢(高的recall并且比较低的假阳性)，一种比较不同的分类器的方法就是计算ROC曲线下面积(AUC)，越接近1说明这个模型越好(图中虚线的AUC是0.5)：
 
 ``` python
 from sklearn.metrics import roc_auc_score
@@ -383,8 +362,7 @@ roc_auc_score(y_train_5, y_scores)
 >> 0.9604938554008616
 ```
 
-现在我们可以来比较一下
-随机森林分类器(RandomForestClassifier)和SVM分类器(SGDClassifier,默认参数)了
+现在我们可以来比较一下 随机森林分类器(RandomForestClassifier)和SVM分类器(SGDClassifier,默认参数)了。
 
 要注意的是RandomForestClassifier没有decision_function方法而是predict_proba方法，该方法返回的是一个array数组，每一行是一个观测，每一列是该观测属于各类的概率：
 
@@ -429,8 +407,7 @@ roc_auc_score(y_train_5, y_scores_forest)
 
 ## 多类别分类
 
-有一些算法能够处理多分类问题(比如SGD
-分类器，随随机森林分类器和朴素贝叶斯分类器)而一些算法只能处理二分类问题(比如逻辑斯蒂回归，支持向量机等)，但是我们可以使用一些方法来使这些算法可以用来处理多分类问题
+有一些算法能够处理多分类问题(比如SGD 分类器，随随机森林分类器和朴素贝叶斯分类器)而一些算法只能处理二分类问题(比如逻辑斯蒂回归，支持向量机等)，但是我们可以使用一些方法来使这些算法可以用来处理多分类问题。
 
 主要有两种方法：
 
@@ -440,9 +417,7 @@ roc_auc_score(y_train_5, y_scores_forest)
 -   一对一策略(one-versus-one
     (OvO)):对所有的类两两组合训练二分类的分类器，如果有N类，那么就需要训练N\*(N-1)/2个分类器，对于一个图片就需要运行所有的分类器(10类别是45个)，在这些结果中预测次数最多的类就是该图片的预测类，这个方法的好处是在训练时只需要对一部分训练数据进行训练(只涉及要识别的类的数据，比如0-1分类器只需要对所有的0/1图片进行训练)
 
-对于一些算法(比如支持向量机)对大的训练集处理比较困难(scale poorly with
-the size of the training
-set),对于这些算法OvO策略比较适合，因为训练的时候不需要全部的训练集；对于大部分的二分类算法，OvR比较适合
+对于一些算法(比如支持向量机)对大的训练集处理比较困难(scale poorly with the size of the training set),对于这些算法OvO策略比较适合，因为训练的时候不需要全部的训练集；对于大部分的二分类算法，OvR比较适合。
 
 Scikit-Learn会依据算法的不同来选择OvO或者OvR：
 
@@ -487,7 +462,7 @@ cross_val_score(sgd_clf, X_train_scaled, y_train, cv=3, scoring="accuracy")##精
 
 ## 错误分析
 
-当我们通过一系列的步骤找到了一个不错的模型并想要进一步提升其性能，一种方法就是分析这个模型犯的错误
+当我们通过一系列的步骤找到了一个不错的模型并想要进一步提升其性能，一种方法就是分析这个模型犯的错误。
 
 首先需要查看混淆矩阵：
 
@@ -538,13 +513,13 @@ plt.show()
 
 <img src="/img/hands_on_ML_ch3_files/figure-markdown_github/unnamed-chunk-35-1.png" width="480" />
 
-可以看到8类的列最亮，也就是说很多图片都被错误地分成8了；另外3和5也是经常被相互错分的
+可以看到8类的列最亮，也就是说很多图片都被错误地分成8了；另外3和5也是经常被相互错分的。
 
-我们可以针对这种错误来想办法提升模型，例如：可以收集更多的图片，这些图片长得像8但又不是8，用这些数据作为训练集；还可以编码一些新的特征，比如图像中闭环的数目(8有2个，6有1个，5没有)；也可以对图像进行预处理(使图像居中，突出某些特征等)
+我们可以针对这种错误来想办法提升模型，例如：可以收集更多的图片，这些图片长得像8但又不是8，用这些数据作为训练集；还可以编码一些新的特征，比如图像中闭环的数目(8有2个，6有1个，5没有)；也可以对图像进行预处理(使图像居中，突出某些特征等)。
 
 ## 多标签分类
 
-多标签分类指的是：对于一个观测值可以输出多个类别；比如一个人像识别系统被训练可以识别3张脸A,B,C，当来了一张A和C的照片，这个分类器就会输出\[1,0,1\],也就是对这一张照片可以有3个类别
+多标签分类指的是：对于一个观测值可以输出多个类别；比如一个人像识别系统被训练可以识别3张脸A,B,C，当来了一张A和C的照片，这个分类器就会输出\[1,0,1\],也就是对这一张照片可以有3个类别。
 
 这里，我们可以将每个图片都赋予两个类的属性，图片上的数值是否大于7和数字是否为偶数(这里使用的是K近邻分类算法)：
 
@@ -561,8 +536,7 @@ knn_clf.predict([some_digit])
 >> array([[False,  True]])
 ```
 
-评估多标签分类器的方法有很多，取决于不同的项目;比如可以使用每个标签的F1
-score的均值：
+评估多标签分类器的方法有很多，取决于不同的项目;比如可以使用每个标签的F1 score的均值：
 
 ``` python
 y_train_knn_pred = cross_val_predict(knn_clf, X_train, y_multilabel, cv=3)
@@ -573,6 +547,4 @@ f1_score(y_multilabel, y_train_knn_pred, average="macro")##有不同的平均方
 
 ## 多输出分类
 
-全称为多输出-多标签分类，意思是：对于每个观测值有多个标签(像上面的多标签分类一样)，并且对于每个标签有多个值(上面只有T/F两个值)
-
-举个例子：我们现在有一个系统，输入是有噪声的图片，输出是降噪后的图片；那么对于每个图片，输出有多个标签(每个像素都是一个标签)并且每个标签有多个值(像素密度从0-255)
+全称为多输出-多标签分类，意思是：对于每个观测值有多个标签(像上面的多标签分类一样)，并且对于每个标签有多个值(上面只有T/F两个值)，举个例子：我们现在有一个系统，输入是有噪声的图片，输出是降噪后的图片；那么对于每个图片，输出有多个标签(每个像素都是一个标签)并且每个标签有多个值(像素密度从0-255)。
