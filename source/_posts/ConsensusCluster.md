@@ -1,7 +1,7 @@
 ---
 title: 一致性聚类（Consensus Clustering）
 author: wutao
-date: 2021-03-28 17:03:30
+date: 2021-08-31 17:03:30
 slug: lagrange_duality
 categories:
   - R
@@ -13,7 +13,7 @@ index_img: img/cc.png
 
 
 
-一致性聚类概率及R实现
+一致性聚类概念及R实现
 
 <!-- more -->
 
