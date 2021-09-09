@@ -7,6 +7,16 @@ categories:
 index_img: img/logo.png
 ---
 
+
+
+
+
+<!-- more -->
+
+通过 pyEGA3 下载 EGA 数据
+
+<!-- more -->
+
 目前比较简单的方法是利用[EGA download client---pyEGA3](https://github.com/EGA-archive/ega-download-client)来下载
 
 ### 下载和安装
