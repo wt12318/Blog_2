@@ -9,10 +9,6 @@ index_img: img/logo.png
 
 
 
-
-
-<!-- more -->
-
 通过 pyEGA3 下载 EGA 数据
 
 <!-- more -->
