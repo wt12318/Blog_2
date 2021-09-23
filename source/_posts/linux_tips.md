@@ -874,7 +874,39 @@ git push origin main
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210821102401529.png" style="zoom:50%;" />
 
+
+
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210821102503066.png" style="zoom:50%;" />
 
 接着就可以确定并导出 PDF 了。一个好用的在线 PDF 编辑工具：[PDF24 Tools: 免费且易于使用的在线PDF工具](https://tools.pdf24.org/zh/)
+
+### 如何使用 FTP 下载 ENA 的 FASTQ 数据
+
+先安装ftp服务（centos 7）：
+
+```bash
+sudo yum -y install lftp
+```
+
+没有权限的可以手动编译：http://lftp.yar.ru/get.html
+
+安装好了之后就可以使用ENA上的ftp地址进行下载，比如这里的CCLE的一个细胞系的RNA-seq数据：
+
+```bash
+lftp ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR861/006/SRR8615916 ##注意要加上ftp://
+```
+
+ls 一下就可以看到我们要下载的数据：
+
+![image-20210923093125983](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210923093125983.png)
+
+然后使用 `pget` 就可以进行多线程下载了：
+
+```bash
+pget -n 10 SRR8615916_1.fastq.gz
+```
+
+下载速度还是比较快的：
+
+![image-20210923093222640](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210923093222640.png)
 
