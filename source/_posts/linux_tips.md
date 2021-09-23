@@ -872,6 +872,8 @@ git push origin main
 
 接着将一般里面的对象级压缩和图像中三类图像的采样和压缩都关闭：
 
+
+
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210821102401529.png" style="zoom:50%;" />
 
 
@@ -898,7 +900,7 @@ lftp ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR861/006/SRR8615916 ##注意要加上f
 
 ls 一下就可以看到我们要下载的数据：
 
-![image-20210923093125983](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210923093125983.png)
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210923093125983.png)
 
 然后使用 `pget` 就可以进行多线程下载了：
 
@@ -908,5 +910,5 @@ pget -n 10 SRR8615916_1.fastq.gz
 
 下载速度还是比较快的：
 
-![image-20210923093222640](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210923093222640.png)
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210923093222640.png)
 
