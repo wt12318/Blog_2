@@ -44,8 +44,7 @@ WGCNA 的主要思想就是将基因聚合成一个一个的模块，然后再�
     
 -   Eigengene significance：当我们有样本信息时，我们可以计算 eigengene 与这些样本特征的相关性，相关系数就是 eigengene significance
     
--   Module Membership / eigengene-based connectivity：每一个基因都可以和每一个模块的 eigengene
-    做相关性，如果这个相关性是 0，说明这个基因不属于这个模块，如果是 1 或者 -1，那么说明这个基因和该模块是正相关或者负相关的关系，可以用这种方法来寻找模块的 hub 基因
+-   Module Membership / eigengene-based connectivity：每一个基因都可以和每一个模块的 eigengene 做相关性，如果这个相关性是 0，说明这个基因不属于这个模块，如果是 1 或者 -1，那么说明这个基因和该模块是正相关或者负相关的关系，可以用这种方法来寻找模块的 hub 基因
     
 -   Hub gene：连接度比较高的基因
 
@@ -57,8 +56,7 @@ WGCNA 的主要思想就是将基因聚合成一个一个的模块，然后再�
 
 ### 读取数据，进行样本和基因筛选
 
-输入数据需要标准化，对于芯片表达数据，可以使用 RMA ，log 的 MAS5 数据（RMA 已经经过 log2 转化了）或其他的标准化方法，对于 RNA-seq 数据，可以使用 FPKM/TPM （需要 log 转化） 或者使用 DESeq2 的
-varianceStabilizingTransformation 函数进行标准化后的数据（官方推荐的方法）。一般情况下，我们可以筛选掉一些在大部分样本中表达比较低的基因，对于样本可以进行聚类，然后删除一些离群的样本：
+输入数据需要标准化，对于芯片表达数据，可以使用 RMA ，log 的 MAS5 数据（RMA 已经经过 log2 转化了）或其他的标准化方法，对于 RNA-seq 数据，可以使用 FPKM/TPM （需要 log 转化） 或者使用 DESeq2 的 varianceStabilizingTransformation 函数进行标准化后的数据（官方推荐的方法）。一般情况下，我们可以筛选掉一些在大部分样本中表达比较低的基因，对于样本可以进行聚类，然后删除一些离群的样本：
 
 ``` r
 library(WGCNA)
