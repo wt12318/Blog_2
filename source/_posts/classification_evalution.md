@@ -14,7 +14,7 @@ index_img: img/class.jpg
 
 
 
-分类模型评估的基本概率
+分类模型评估的基本概念
 
 <!-- more -->
 
