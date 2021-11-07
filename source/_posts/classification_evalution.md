@@ -135,8 +135,7 @@ Specificity 关注的是负类样本，表示的是真实的负类中有多少�
 $$
 Specificity = \frac{TN}{FP+TN}
 $$
-F1 score 是对 precision 和 recall 的调和，F1 其实是 F-beta
-的一种特殊情况 (beta=1):
+F1 score 是对 precision 和 recall 的调和，F1 其实是 F-beta 的一种特殊情况 (beta=1):
 
 $$
 F\_{beta} = (1+\beta ^2)\frac{precison \times recall }{\beta ^2 \times precision + recall}
