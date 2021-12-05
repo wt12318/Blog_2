@@ -777,7 +777,7 @@ print(end - start)
 #0.031 0.001 0.032 
 ```
 
-### 编译安装 R
+### Centos7 编译安装 R
 
 ```shell
 wget https://mirrors.sjtug.sjtu.edu.cn/cran/src/base/R-4/R-4.1.0.tar.gz
@@ -911,4 +911,75 @@ pget -n 10 SRR8615916_1.fastq.gz
 下载速度还是比较快的：
 
 ![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210923093222640.png)
+
+### 如何用 R 一次性读入一个文件夹下所有的文件并合并
+
+先生成一些文件：
+
+```R
+dir.create("test")
+##在 test 下生成一些csv文件
+df <- data.frame(
+  x=c(1:100),
+  y=rep(c("a","b","c","d"),each=5)
+)
+dt_list <- split(df, list(df$y))
+for (i in names(dt_list)) {
+  write.csv(dt_list[[i]], paste0("test/",i, ".csv"))
+}
+```
+
+最直接的方法就是使用 `for` 循环将每个文件读入并存为 `list` 的一个元素，接着可以使用 `dplyr` 的 `bind_rows` 函数进行合并：
+
+```R
+files <-  list.files("test/",pattern="*.csv",full.names = T)
+res <- vector("list")
+for (i in seq_along(files)){
+  res[[i]] <- read.csv(files[i])
+}
+res <- dplyr::bind_rows(res)
+##也可以使用 data.table 的 rbindlist 函数
+##res <- data.table::rbindlist(res)
+```
+
+能用 `for` 循环的地方就可以使用 `apply` 簇函数进行替代简化：
+
+```R
+library(dplyr)
+files <-  list.files("test/",pattern="*.csv",full.names = T)
+res <- lapply(files, read.csv) %>% 
+  bind_rows(.)
+```
+
+也可以使用 `do.call` 结合 `rbind` 直接将读入的数据按行合并：
+
+```R
+files <-  list.files("test/",pattern="*.csv",full.names = T)
+res <- do.call(rbind,lapply(files,read.csv))
+```
+
+### 如何在 Shell 中并行
+
+首先需要安装 `GNU parallel`:
+
+```shell
+wget http://ftp.gnu.org/gnu/parallel/parallel-latest.tar.bz2
+tar xjf parallel-latest.tar.bz2
+cd parallel-20211022/
+./configure --prefix=$HOME
+make
+make install
+```
+
+最简单的使用方法就是：`cat list | parallel do_something | process_output`，可以通过 `-j` 参数来指定需要调用的核数：
+
+```bash
+#!/bin/bash
+for line in `cat /home/wt/common_driver/data/hla.txt`
+do
+  hla=$(echo $line | awk -F',' '{print $1}')
+  hla_alt=$(echo $line | awk -F',' '{print $2}')
+  cat /home/wt/common_driver/data/pep8/files | parallel -j 15 netMHCpan -p /home/wt/common_driver/data/pep8/split/{} -BA -l 8 -xls -a $hla -xlsfile /home/wt/common_driver/data/pep8/results/${hla_alt}_{}.xls
+done
+```
 
