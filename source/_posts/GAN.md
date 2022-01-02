@@ -1,10 +1,10 @@
 ---
-title: 分类模型评估指标
+title: 对抗生成网络
 author: wutao
 date: 2021-12-15 10:00:00
 categories:
   - 深度学习
-index_img: img/gans.jpg
+index_img: img/gan.png
 ---
 
 
