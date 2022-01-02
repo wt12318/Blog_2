@@ -3,6 +3,8 @@ title: Linux & R Tips
 date: 2021-08-05 19:14:18
 tags: 编程
 index_img: img/linux.jpg
+categories:
+  - Linux
 ---
 
 

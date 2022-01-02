@@ -2,9 +2,8 @@
 title: 分类模型评估指标
 author: wutao
 date: 2021-11-06 10:00:00
-slug: ML
 categories:
-  - notes
+  - 机器学习
 index_img: img/class.jpg
 ---
 

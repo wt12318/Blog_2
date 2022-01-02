@@ -4,10 +4,7 @@ author: wutao
 date: 2021-03-19 10:00:00
 slug: snakemake
 categories:
-  - python
-  - skills
-tags:
-  - bioinformatics
+  - 生物信息
 index_img: img/snakemake.png
 ---
 

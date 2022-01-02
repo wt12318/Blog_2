@@ -4,9 +4,8 @@ author: wutao
 date: 2021-03-28 17:03:30
 slug: lagrange_duality
 categories:
-  - math
-tags:
-  - notes
+  - 机器学习
+  - 数学
 index_img: img/lage.png
 ---
 

@@ -4,10 +4,7 @@ author: wutao
 date: 2021-01-03 10:00:00
 slug: deep-learning
 categories:
-  - "reading notes"
-tags:
-  - notes
-  - deep learning
+  - 深度学习
 math: true
 index_img: img/Deep-Learning-AI-blog-image.jpg
 ---

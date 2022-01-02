@@ -2,6 +2,8 @@
 title: 【hands on ML Ch6】-决策树模型
 date: 2021-03-04 10:00:00    
 index_img: img/image1.jpg
+categories:
+  - 机器学习
 ---
 
 

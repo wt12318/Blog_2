@@ -2,6 +2,8 @@
 title: 【hands on ML Ch2】-端到端机器学习
 date: 2021-01-23 10:00:00    
 index_img: img/image1.jpg
+categories:
+  - 机器学习
 ---
 
 

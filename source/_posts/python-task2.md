@@ -3,6 +3,8 @@ title: Python 基础02
 date: 2021-02-24 16:57:07
 tags: 编程
 index_img: img/python.jpg
+categories:
+  - python
 ---
 
 python主要数据结构

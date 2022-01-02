@@ -4,8 +4,7 @@ author: wutao
 date: 2021-10-14 10:00:00
 slug: skill
 categories:
-  - Bioinformatics
-  - R
+  - 生物信息
 index_img: img/net.png
 ---
 

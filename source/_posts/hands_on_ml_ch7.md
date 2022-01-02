@@ -2,6 +2,8 @@
 title: 【hands on ML Ch7】- 集成学习
 date: 2021-08-24 22:00:00    
 index_img: img/image1.jpg
+categories:
+  - 机器学习
 ---
 
 hands on ML 第七章，集成学习和随机森林

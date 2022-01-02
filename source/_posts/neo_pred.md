@@ -4,9 +4,7 @@ author: wutao
 date: 2021-03-25 17:03:30
 slug: NeoPredPipe
 categories:
-  - skills
-tags:
-  - bioinformatics
+  - 生物信息
 index_img: img/neo.png
 ---
 

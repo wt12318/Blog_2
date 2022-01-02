@@ -4,10 +4,7 @@ author: wutao
 date: 2021-01-13 10:00:00 
 slug: hands_on_ML
 categories:
-  - reading notes
-tags:
-  - ML
-  - notes
+  - 机器学习
 index_img: img/image1.jpg
 ---
 

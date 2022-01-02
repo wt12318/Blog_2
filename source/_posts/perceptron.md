@@ -3,6 +3,8 @@ title: 感知机模型
 date: 2021-03-14 16:47:27
 tags: 机器学习
 index_img: img/per.png
+categories:
+  - 机器学习
 ---
 
 

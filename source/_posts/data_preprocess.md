@@ -5,7 +5,7 @@ date: 2021-08-20 10:00:00
 slug: ML
 categories:
   - python
-  - ML
+  - 数据处理
 index_img: img/data_preprocess.png
 ---
 

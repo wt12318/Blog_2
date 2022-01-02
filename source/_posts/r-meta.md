@@ -3,6 +3,8 @@ title: 【R语言编程指南】元编程
 date: 2021-01-14 17:11:27
 tags: 编程
 index_img: img/r_inter.jpg
+categories:
+  - R
 ---
 
 

@@ -2,6 +2,8 @@
 title: 【hands on ML Ch4】-训练模型
 date: 2021-02-08 10:00:00    
 index_img: img/image1.jpg
+categories:
+  - 机器学习
 ---
 
 hands on ML 主要包括线性回归，多项式回归，逻辑回归，softmax回归，梯度下降和正则化方法

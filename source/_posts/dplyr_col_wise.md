@@ -2,6 +2,8 @@
 title: dplyr列式操作    
 date: 2021-01-23 10:00:00    
 index_img: img/across.png
+categories:
+  - R
 ---
 
 

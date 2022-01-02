@@ -3,6 +3,8 @@ title: Python 基础 03
 date: 2021-03-01 16:58:48
 tags: 编程
 index_img: img/python.jpg
+categories:
+  - python
 ---
 
 函数，类与对象

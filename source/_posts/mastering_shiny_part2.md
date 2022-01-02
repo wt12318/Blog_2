@@ -3,6 +3,8 @@ title: Shiny基础-2
 date: 2021-07-15 19:14:18
 tags: 编程
 index_img: img/shiny.jpg
+categories:
+  - R
 
 ---
 

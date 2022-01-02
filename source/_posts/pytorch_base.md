@@ -3,7 +3,7 @@ title: 【Pytorch】Tensor 的基本操作
 date: 2021-06-23 20:59:00
 tags: 编程
 categories:
-  - DL
+  - 深度学习
 index_img: img/pytorc.jpg
 ---
 

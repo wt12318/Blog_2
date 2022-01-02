@@ -4,8 +4,8 @@ author: wutao
 date: 2021-06-19 10:00:00
 slug: math
 categories:
-  - math
-  - ML
+  - 机器学习
+  - 数学
 index_img: img/svm.png
 ---
 

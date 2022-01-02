@@ -2,6 +2,8 @@
 title: 基因组版本坐标转化
 date: 2021-02-26 10:00:00    
 index_img: img/liftover1.png
+categories:
+  - 生物信息
 ---
 
 

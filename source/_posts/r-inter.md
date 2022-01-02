@@ -3,6 +3,8 @@ title: 【R语言编程指南】R内部机制
 date: 2021-01-04 17:03:30
 tags: 编程
 index_img: img/r_inter.jpg
+categories:
+  - R
 ---
 
 

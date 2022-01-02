@@ -2,13 +2,8 @@
 title: 利用blogdown创建博客
 author: wutao
 date: 2021-01-06 10:00:00
-slug: blogdown
 categories:
   - R
-  - skills
-tags:
-  - R
-  - blog
 index_img : /img/hugoCover.jpg
 ---
 

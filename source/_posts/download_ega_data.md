@@ -3,7 +3,7 @@ title: 下载EGA数据
 author: wutao
 date: 2021-09-08 10:00:00 
 categories:
-  - bioinformatics
+  - 生物信息
 index_img: img/logo.png
 ---
 

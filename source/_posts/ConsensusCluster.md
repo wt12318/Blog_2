@@ -5,9 +5,7 @@ date: 2021-08-31 17:03:30
 slug: lagrange_duality
 categories:
   - R
-  - Statistics
-tags:
-  - notes
+  - 统计学
 index_img: img/cc.png
 ---
 

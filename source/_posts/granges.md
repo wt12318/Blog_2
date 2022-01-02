@@ -2,6 +2,8 @@
 title: GenomicRanges基因组区间操作    
 date: 2021-01-28 10:00:00    
 index_img: img/bioconductor_logo_rgb.jpg
+categories:
+  - 生物信息
 ---
 
 利用`GenomicRanges`包进行基因组区间操作

@@ -1,7 +1,9 @@
 ---
 title: do.call 用法    
 date: 2021-01-21 10:00:00    
-index_img: img/do_call.png    
+index_img: img/do_call.png   
+categories:
+  - R 
 ---
 
 

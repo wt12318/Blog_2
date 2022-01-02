@@ -2,7 +2,8 @@
 title: dplyr行式操作    
 date: 2021-07-10 10:00:00    
 index_img: img/dplyr.png
-
+categories:
+  - R
 ---
 
 

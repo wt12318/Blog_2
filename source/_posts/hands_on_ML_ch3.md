@@ -2,6 +2,8 @@
 title: 【hands on ML Ch3】-分类  
 date: 2021-02-04 10:00:00    
 index_img: img/image1.jpg
+categories:
+  - 机器学习
 ---
 
 Hands on ML 第三章笔记，主要是分类相关的知识

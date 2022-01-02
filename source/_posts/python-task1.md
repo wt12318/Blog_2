@@ -3,6 +3,8 @@ title: python 基础01
 date: 2021-02-13 16:54:19
 tags: 编程
 index_img: img/python.jpg
+categories:
+  - python
 ---
 
 基本数据类型，控制语句和异常处理

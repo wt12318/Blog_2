@@ -3,6 +3,8 @@ title: Shiny基础-1
 date: 2021-06-10 19:14:18
 tags: 编程
 index_img: img/shiny.jpg
+categories:
+  - R
 ---
 
 Shiny app 基础知识 参考：[Mastering Shiny](https://mastering-shiny.org/index.html)

@@ -2,11 +2,8 @@
 title: Git简介
 author: wutao
 date: 2021-01-17 10:00:00
-slug: git-notes
 categories:
   - Git
-tags:
-  - notes
 index_img: img/git.jpg
 ---
 

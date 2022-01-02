@@ -2,6 +2,8 @@
 title: dplyr基础
 date: 2021-01-20 10:00:00    
 index_img: img/dplyr.png
+categories:
+  - R
 ---
 
 

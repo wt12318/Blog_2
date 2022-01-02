@@ -2,6 +2,8 @@
 title: 【R】按列分组计算 
 date: 2021-01-05 10:00:00    
 index_img: img/OIP.jpg
+categories:
+  - R
 ---
 
 R按列进行分组计算
