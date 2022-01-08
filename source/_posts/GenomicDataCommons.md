@@ -325,8 +325,6 @@ tree ~/.cache/GenomicDataCommons
 如果下载的是 controlled-access 数据，需要提供 token
 </p>
 
-
-
 ## 元数据获取
 
 ### 临床数据
@@ -550,7 +548,7 @@ str(presults)
 >>  - attr(*, "class")= chr [1:3] "GDCprojectsResults" "GDCResults" "list"
 ```
 
-可以看到默认只返回 10 条记录，我们可以使用 `results()` 的 `size` 和 `from` 参数来改变需要返回的数量（size 表示返回的记录数，from 表示从哪个索引开始返回数据）；也有一个简便的函数 `results_all()` 返回所有的请求结果，可想而知这种方法可能会导致下载的数据非常大，花费的时间比较久，因此尽量使用 `counts()` 和 `results()` 来获取数据。
+可以看到默认只返回 10 条记录，我们可以使用 `results()` 的 `size` 和 `from` 参数来改变需要返回的数量（size 表示返回的记录数，from 表示从哪个索引开始返回数据）；也有一个简便的函数 `results_all()` 返回所有的请求结果，可想而知这种方法可能会导致下载的数据非常大，花费的时间比较久，因此尽量使用 `counts()` 和`results()` 来获取数据。
 
 ``` r
 length(ids(presults))
