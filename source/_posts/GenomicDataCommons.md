@@ -39,7 +39,7 @@ library(GenomicDataCommons)
 
 ## 检查连接和状态
 
-`GenomicDataCommons` 包需要网络连接，并且在使用时 NCI 的 GDC API 处于可操作和非维护状态，使用 `status` 来检查连接和状态：
+`GenomicDataCommons` 包需要网络连接，并且在使用时需要 NCI 的 GDC API 处于可操作和非维护状态，使用 `status` 来检查连接和状态：
 
 ``` r
 GenomicDataCommons::status()
@@ -67,8 +67,7 @@ stopifnot(GenomicDataCommons::status()$status=="OK")
 
 ## 寻找数据
 
-在下载数据之前，我们需要先制作原始数据的 `manifest` 文件，这个文件中有数据的 UUID ，可以被 GDC 的 API
-用来定位下载的文件。比如下面的代码获取了卵巢癌 RNA-seq数据的原始 counts：
+在下载数据之前，我们需要先制作原始数据的 `manifest` 文件，这个文件中有数据的 UUID ，可以被 GDC 的 API 用来定位下载的文件。比如下面的代码获取了卵巢癌 RNA-seq数据的原始 counts：
 
 ``` r
 ge_manifest = files() %>%
@@ -323,8 +322,9 @@ tree ~/.cache/GenomicDataCommons
 ```
 
 <p class="note note-primary">
-如果下载的是 `controlled-access` 数据，需要提供 `token`
+如果下载的是 controlled-access 数据，需要提供 token
 </p>
+
 
 
 ## 元数据获取
@@ -574,8 +574,7 @@ listviewer::jsonedit(presults)
 
 ### 字段和值
 
-前面也已经看到从 GDC 检索和获取数据的中心就是指定返回哪些字段，根据字段和值进行筛选并进行聚合统计。GenomicDataCommons 有两个简单的函数：`available_fields()` 和 `default_fields()`，这两个函数的参数可以是代表访问点（endpoint）名称的字符（“cases”, “files”, “annotations”, 或 “projects”）或者是 `GDCQuery`
-对象，返回相应的字段名称：
+前面也已经看到从 GDC 检索和获取数据的中心就是指定返回哪些字段，根据字段和值进行筛选并进行聚合统计。GenomicDataCommons 有两个简单的函数：`available_fields()` 和 `default_fields()`，这两个函数的参数可以是代表访问点（endpoint）名称的字符（“cases”, “files”, “annotations”, 或 “projects”）或者是 `GDCQuery` 对象，返回相应的字段名称：
 
 ``` r
 default_fields('files')
@@ -1053,8 +1052,7 @@ dt <- manifest %>%
   dplyr::filter(sample %in% re$sample)
 ```
 
-由于 BAM 文件较大，而计算 mapped 的总 reads 数只需要 BAM 的索引文件（也就是 BAI 文件），因此我们下载 BAI 文件就行，但是 TCGA 并没有直接提供 BAI 文件的 UUID，因此我们需要进行进一步的处理。根据 GDC
-官方的[文档](https://gdc.cancer.gov/about-gdc/gdc-faqs)显示，在用 api 下载 BAM 文件时在末尾加上 `?pretty=true&expand=index_files`就可以得到一个含有 BAI 的 UUID 的 JSON 文件：
+由于 BAM 文件较大，而计算 mapped 的总 reads 数只需要 BAM 的索引文件（也就是 BAI 文件），因此我们下载 BAI 文件就行，但是 TCGA 并没有直接提供 BAI 文件的 UUID，因此我们需要进行进一步的处理。根据 GDC 官方的[文档](https://gdc.cancer.gov/about-gdc/gdc-faqs)显示，在用 api 下载 BAM 文件时在末尾加上 `?pretty=true&expand=index_files`就可以得到一个含有 BAI 的 UUID 的 JSON 文件：
 
 ![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220108143545648.png)
 
