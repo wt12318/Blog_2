@@ -318,7 +318,11 @@ AAACAATCAGGAAAGCTCAGCAGCATAAAACTATGAGAAAACTGGGTCTGAGAATCCAGATGTCCTGAGTGAGTAAAGGG
 如果想要一步完成融合转录本的检测，融合事件的效应，以及重构融合转录本，就可以直接运行：
 
 ```shell
-STAR-Fusion --genome_lib_dir /home/data/t040201/data/STAR_data/GRCh38_gencode_v37_CTAT_lib_Mar012021.plug-n-play/ctat_genome_lib_build_dir --left_fq HEC108_1.fastq.gz --right_fq HEC108_2.fastq.gz  --output_dir /home/data/t040201/cell_lines/fusion --FusionInspector inspect --examine_coding_effect --denovo_reconstruct
+cd /home/data/t040201/cell_lines
+mkdir KLE_fusion
+
+nohup STAR-Fusion --genome_lib_dir /home/data/t040201/data/STAR_data/GRCh38_gencode_v37_CTAT_lib_Mar012021.plug-n-play/ctat_genome_lib_build_dir --left_fq KLE_1.fastq.gz --right_fq KLE_2.fastq.gz  --output_dir /home/data/t040201/cell_lines/KLE_fusion/ --FusionInspector inspect --examine_coding_effect --denovo_reconstruct &
 ```
 
 主要查看的文件包括 `star-fusion.fusion_predictions.abridged.tsv` （融合事件），`star-fusion.fusion_predictions.abridged.coding_effect.tsv` (融合事件对编码区域的影响) , FusionInspector-inspect 目录下的 `finspector.FusionInspector.fusions.abridged.tsv` （校验后的融合以及 FAR 值）和 `finspector.gmap_trinity_GG.fusions.fasta` （重构的融合转录本序列）文件
+
