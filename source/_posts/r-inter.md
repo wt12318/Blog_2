@@ -97,6 +97,12 @@ v1
 >> [1] 1 2 3
 ```
 
+可用下图来说明：
+
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220226110746801.png)
+
+
+
 ## 词法作用域
 
 本节中有几个知识点：
