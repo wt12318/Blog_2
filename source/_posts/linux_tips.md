@@ -9,7 +9,7 @@ categories:
 
 
 
-常用的 Linux Shell ，R 命令/脚本和报错解决方法
+常用的 Linux Shell ，R 命令/脚本和报错解决方法，长期更新
 
 <!-- more -->
 
@@ -988,3 +988,33 @@ done
 ## Shell 如何按行把文件拼起来
 
 使用 `column` 命令：`paste file1 file2 | column -s $'\t' -t`, `-s` 表示分割符[column(1): columnate lists - Linux man page (die.net)](https://linux.die.net/man/1/column)
+
+## 启动 Rstudio-server 报错
+
+先 `rstudio-server stop` 再 `rstudio-server start` 报错：
+
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220228084453167.png)
+
+找到占用8787端口的进程，然后kill掉：
+
+```shell
+lsof -i tcp:8787
+sudo kill -9 PID
+```
+
+接着重启 Rstudio 就可以了：
+
+```shell
+rstudio-server restart
+```
+
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220228084711556.png)
+
+
+
+
+
+
+
+
+
