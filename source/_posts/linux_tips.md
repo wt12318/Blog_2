@@ -709,6 +709,32 @@ Error: Failed to install 'regexplain-master.zip' from local:
 install.packages("~/packages/regexplain-master/",repos=NULL,type="source")
 ```
 
+### 配置国内 R镜像
+
+使用 `usethis::edit_r_profile()` 打开 `.Rprofile`, 然后在末尾添加相应的镜像。
+
+[南大]([Help (nju.edu.cn)](https://mirror.nju.edu.cn/help/bioconductor))：
+
+```R
+options(BioC_mirror="https://mirror.nju.edu.cn/bioconductor")
+options("repos" = c(CRAN="https://mirror.nju.edu.cn/CRAN/"))
+```
+
+[清华]([CRAN | 镜像站使用帮助 | 清华大学开源软件镜像站 | Tsinghua Open Source Mirror](https://mirrors.tuna.tsinghua.edu.cn/help/CRAN/))：
+
+```R
+options(BioC_mirror="https://mirrors.tuna.tsinghua.edu.cn/bioconductor")
+options("repos" = c(CRAN="https://mirrors.tuna.tsinghua.edu.cn/CRAN/"))
+```
+
+[中科大]():
+
+```R
+options(repos = c(USTC="https://mirrors.ustc.edu.cn/CRAN/"))
+```
+
+
+
 ### 翻转字符串
 
 参考：https://www.r-bloggers.com/four-ways-to-reverse-a-string-in-r/
@@ -1012,6 +1038,259 @@ rstudio-server restart
 ![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220228084711556.png)
 
 
+
+### 安装 cellassign
+
+```shell
+install.packages("tensorflow")
+tensorflow::install_tensorflow(extra_packages='tensorflow-probability')
+```
+
+报错：
+
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220225122450-ebc8ilw.png)
+
+安装官方的指示：
+
+---
+
+Hi, can you please follow the instructions on the Issue Template that, I believe, was presented to you when you filed the issue? Issue template reproduced here for convenience:
+
+Many installation issues are resolved by running the following in a **fresh R session** (you can restart R in Rstudio with Ctrl+Shift+F10):
+
+```r
+#installthedevelopmentversionofpackages,incasethe
+#issueisalreadyfixedbutnotonCRANyet.
+install.packages("remotes")
+remotes::install_github(sprintf("rstudio/%s",c("reticulate","tensorflow","keras")))
+reticulate::miniconda_uninstall()#startwithablankslate
+reticulate::install_miniconda()
+keras::install_keras()
+```
+
+Test to see if installation was successful.
+
+```r
+tensorflow::as_tensor("HelloWorld")
+```
+
+If the above snippet succeeded and you saw something like `tf.Tensor(b'Hello World', shape=(), dtype=string)`, then 🎉, you've successfully installed Tensorflow.
+
+If the above installation failed, please gather some diagnostic info:
+
+```r
+reticulate::py_config()
+tensorflow::tf_config()
+reticulate::import("tensorflow")
+reticulate::py_last_error()
+sessionInfo()
+```
+
+Please copy and paste the FULL OUTPUT of running all three snippets, and be sure to enclose the output lines with three backticks (```) for monospace formatting.
+
+---
+
+但是重新安装 conda 时出错：
+
+```r
+> reticulate::install_miniconda()
+* Installing Miniconda -- please wait a moment ...
+* Downloading 'https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh' ...
+trying URL 'https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh'
+Error in download.file(url, destfile = installer, mode = "wb") : 
+  cannot open URL 'https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh'
+In addition: Warning message:
+In download.file(url, destfile = installer, mode = "wb") :
+  URL 'https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh': status was 'Problem with the SSL CA cert (path? access rights?)'
+```
+
+查看这个函数：
+
+```r
+> reticulate::install_miniconda
+function (path = miniconda_path(), update = TRUE, force = FALSE) 
+{
+    check_forbidden_install("Miniconda")
+    if (grepl(" ", path, fixed = TRUE)) 
+        stop("cannot install Miniconda into a path containing spaces")
+    install_miniconda_preflight(path, force)
+    message("* Installing Miniconda -- please wait a moment ...")
+    url <- miniconda_installer_url()
+    installer <- miniconda_installer_download(url)
+    miniconda_installer_run(installer, update, path)
+    ok <- miniconda_exists(path) && miniconda_test(path)
+    if (!ok) 
+        stopf("Miniconda installation failed [unknown reason]")
+    if (update) 
+        miniconda_update(path)
+    conda <- miniconda_conda(path)
+    python <- miniconda_python_package()
+    conda_create("r-reticulate", packages = c(python, "numpy"), 
+        conda = conda)
+    messagef("* Miniconda has been successfully installed at %s.", 
+        pretty_path(path))
+    path
+}
+```
+
+关键在于这3句：
+
+```r
+url <- miniconda_installer_url()
+installer <- miniconda_installer_download(url)
+miniconda_installer_run(installer, update, path)
+```
+
+```r
+> url <- reticulate:::miniconda_installer_url()
+> url
+[1] "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
+
+> reticulate:::miniconda_installer_download
+function (url) 
+{
+    installer <- file.path(tempdir(), basename(url))
+    if (file.exists(installer)) 
+        return(installer)
+    messagef("* Downloading %s ...", shQuote(url))
+    status <- download.file(url, destfile = installer, mode = "wb")
+    if (!file.exists(installer)) {
+        fmt <- "download of Miniconda installer failed [status = %i]"
+        stopf(fmt, status)
+    }
+    installer
+}
+```
+
+所以 `miniconda_installer_download ` 返回的就是 miniconda 的 sh 文件的路劲，我们提供一下应该就可以了：
+
+```r
+> path = miniconda_path()
+> update = TRUE
+> installer <- "/home/wt/software/Miniconda3-latest-Linux-x86_64.sh"
+> reticulate:::miniconda_installer_run(installer, update, path)
+PREFIX=/home/wt/.local/share/r-miniconda
+Unpacking payload ...
+Collecting package metadata (current_repodata.json): ...working... done                      
+Solving environment: ...working... done
+
+## Package Plan ##
+
+  environment location: /home/wt/.local/share/r-miniconda
+
+  added / updated specs:
+    - _libgcc_mutex==0.1=main
+    - _openmp_mutex==4.5=1_gnu
+    - brotlipy==0.7.0=py39h27cfd23_1003
+    - ca-certificates==2021.10.26=h06a4308_2
+    - certifi==2021.10.8=py39h06a4308_2
+    - cffi==1.15.0=py39hd667e15_1
+    - charset-normalizer==2.0.4=pyhd3eb1b0_0
+    - conda-content-trust==0.1.1=pyhd3eb1b0_0
+    - conda-package-handling==1.7.3=py39h27cfd23_1
+    - conda==4.11.0=py39h06a4308_0
+    - cryptography==36.0.0=py39h9ce1e76_0
+    - idna==3.3=pyhd3eb1b0_0
+    - ld_impl_linux-64==2.35.1=h7274673_9
+    - libffi==3.3=he6710b0_2
+    - libgcc-ng==9.3.0=h5101ec6_17
+    - libgomp==9.3.0=h5101ec6_17
+    - libstdcxx-ng==9.3.0=hd4cf53a_17
+    - ncurses==6.3=h7f8727e_2
+    - openssl==1.1.1m=h7f8727e_0
+    - pip==21.2.4=py39h06a4308_0
+    - pycosat==0.6.3=py39h27cfd23_0
+    - pycparser==2.21=pyhd3eb1b0_0
+    - pyopenssl==21.0.0=pyhd3eb1b0_1
+    - pysocks==1.7.1=py39h06a4308_0
+    - python==3.9.7=h12debd9_1
+    - readline==8.1.2=h7f8727e_1
+    - requests==2.27.1=pyhd3eb1b0_0
+    - ruamel_yaml==0.15.100=py39h27cfd23_0
+    - setuptools==58.0.4=py39h06a4308_0
+    - six==1.16.0=pyhd3eb1b0_0
+    - sqlite==3.37.0=hc218d9a_0
+    - tk==8.6.11=h1ccaba5_0
+    - tqdm==4.62.3=pyhd3eb1b0_1
+    - tzdata==2021e=hda174b7_0
+    - urllib3==1.26.7=pyhd3eb1b0_0
+    - wheel==0.37.1=pyhd3eb1b0_0
+    - xz==5.2.5=h7b6447c_0
+    - yaml==0.2.5=h7b6447c_0
+    - zlib==1.2.11=h7f8727e_4
+
+
+The following NEW packages will be INSTALLED:
+
+  _libgcc_mutex      pkgs/main/linux-64::_libgcc_mutex-0.1-main
+  _openmp_mutex      pkgs/main/linux-64::_openmp_mutex-4.5-1_gnu
+  brotlipy           pkgs/main/linux-64::brotlipy-0.7.0-py39h27cfd23_1003
+  ca-certificates    pkgs/main/linux-64::ca-certificates-2021.10.26-h06a4308_2
+  certifi            pkgs/main/linux-64::certifi-2021.10.8-py39h06a4308_2
+  cffi               pkgs/main/linux-64::cffi-1.15.0-py39hd667e15_1
+  charset-normalizer pkgs/main/noarch::charset-normalizer-2.0.4-pyhd3eb1b0_0
+  conda              pkgs/main/linux-64::conda-4.11.0-py39h06a4308_0
+  conda-content-tru~ pkgs/main/noarch::conda-content-trust-0.1.1-pyhd3eb1b0_0
+  conda-package-han~ pkgs/main/linux-64::conda-package-handling-1.7.3-py39h27cfd23_1
+  cryptography       pkgs/main/linux-64::cryptography-36.0.0-py39h9ce1e76_0
+  idna               pkgs/main/noarch::idna-3.3-pyhd3eb1b0_0
+  ld_impl_linux-64   pkgs/main/linux-64::ld_impl_linux-64-2.35.1-h7274673_9
+  libffi             pkgs/main/linux-64::libffi-3.3-he6710b0_2
+  libgcc-ng          pkgs/main/linux-64::libgcc-ng-9.3.0-h5101ec6_17
+  libgomp            pkgs/main/linux-64::libgomp-9.3.0-h5101ec6_17
+  libstdcxx-ng       pkgs/main/linux-64::libstdcxx-ng-9.3.0-hd4cf53a_17
+  ncurses            pkgs/main/linux-64::ncurses-6.3-h7f8727e_2
+  openssl            pkgs/main/linux-64::openssl-1.1.1m-h7f8727e_0
+  pip                pkgs/main/linux-64::pip-21.2.4-py39h06a4308_0
+  pycosat            pkgs/main/linux-64::pycosat-0.6.3-py39h27cfd23_0
+  pycparser          pkgs/main/noarch::pycparser-2.21-pyhd3eb1b0_0
+  pyopenssl          pkgs/main/noarch::pyopenssl-21.0.0-pyhd3eb1b0_1
+  pysocks            pkgs/main/linux-64::pysocks-1.7.1-py39h06a4308_0
+  python             pkgs/main/linux-64::python-3.9.7-h12debd9_1
+  readline           pkgs/main/linux-64::readline-8.1.2-h7f8727e_1
+  requests           pkgs/main/noarch::requests-2.27.1-pyhd3eb1b0_0
+  ruamel_yaml        pkgs/main/linux-64::ruamel_yaml-0.15.100-py39h27cfd23_0
+  setuptools         pkgs/main/linux-64::setuptools-58.0.4-py39h06a4308_0
+  six                pkgs/main/noarch::six-1.16.0-pyhd3eb1b0_0
+  sqlite             pkgs/main/linux-64::sqlite-3.37.0-hc218d9a_0
+  tk                 pkgs/main/linux-64::tk-8.6.11-h1ccaba5_0
+  tqdm               pkgs/main/noarch::tqdm-4.62.3-pyhd3eb1b0_1
+  tzdata             pkgs/main/noarch::tzdata-2021e-hda174b7_0
+  urllib3            pkgs/main/noarch::urllib3-1.26.7-pyhd3eb1b0_0
+  wheel              pkgs/main/noarch::wheel-0.37.1-pyhd3eb1b0_0
+  xz                 pkgs/main/linux-64::xz-5.2.5-h7b6447c_0
+  yaml               pkgs/main/linux-64::yaml-0.2.5-h7b6447c_0
+  zlib               pkgs/main/linux-64::zlib-1.2.11-h7f8727e_4
+
+
+Preparing transaction: ...working... done
+Executing transaction: ...working... done
+installation finished.
+```
+
+但是安装`tensorflow::install_tensorflow(extra_packages='tensorflow-probability')` 的时候还是有同样的错误，找了半天，原来是环境变量的问题：
+
+```r
+usethis::edit_r_environ()
+##把CURL_CA_BUNDLE=/opt/microsoft/ropen/4.0.2/lib64/R/lib/microsoft-r-cacert.pem给注释掉
+```
+
+接下来可以正常安装了：
+
+```r
+tensorflow::install_tensorflow(extra_packages='tensorflow-probability')
+
+> tensorflow::tf_config()
+2022-03-03 19:34:09.642406: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libcudart.so.11.0'; dlerror: libcudart.so.11.0: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /home/data/R/R-4.1.0/lib::/lib:/usr/local/lib64:/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.292.b10-1.el7_9.x86_64/jre/lib/amd64/server:/usr/local/lib
+2022-03-03 19:34:09.642611: I tensorflow/stream_executor/cuda/cudart_stub.cc:29] Ignore above cudart dlerror if you do not have a GPU set up on your machine.
+Loaded Tensorflow version 2.8.0
+TensorFlow v2.8.0 (~/miniconda3/lib/python3.9/site-packages/tensorflow)
+Python v3.9 (~/miniconda3/bin/python)
+
+#devtools::install_github("Irrationone/cellassign") 网不行
+BiocManager::install("scran")
+install.packages("~/software/cellassign/",repos=NULL,type="source")
+```
 
 
 
