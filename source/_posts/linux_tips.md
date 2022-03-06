@@ -10,7 +10,7 @@ categories:
 
 
 
-常用的 Linux Shell ，R 命令/脚本和报错解决方法，长期更新
+常用的 Linux Shell ，R 命令/脚本和报错解决方法
 
 <!-- more -->
 
@@ -713,27 +713,31 @@ install.packages("~/packages/regexplain-master/",repos=NULL,type="source")
 
 使用 `usethis::edit_r_profile()` 打开 `.Rprofile`, 然后在末尾添加相应的镜像。
 
-[南大]([Help (nju.edu.cn)](https://mirror.nju.edu.cn/help/bioconductor))：
+[南大](https://mirror.nju.edu.cn/help/bioconductor)：
 
 ```R
 options(BioC_mirror="https://mirror.nju.edu.cn/bioconductor")
 options("repos" = c(CRAN="https://mirror.nju.edu.cn/CRAN/"))
 ```
 
-[清华]([CRAN | 镜像站使用帮助 | 清华大学开源软件镜像站 | Tsinghua Open Source Mirror](https://mirrors.tuna.tsinghua.edu.cn/help/CRAN/))：
+[清华](https://mirrors.tuna.tsinghua.edu.cn/help/CRAN/)：
 
 ```R
 options(BioC_mirror="https://mirrors.tuna.tsinghua.edu.cn/bioconductor")
 options("repos" = c(CRAN="https://mirrors.tuna.tsinghua.edu.cn/CRAN/"))
 ```
 
-[中科大]():
+[中科大](https://mirrors.ustc.edu.cn/help/):
 
 ```R
 options(repos = c(USTC="https://mirrors.ustc.edu.cn/CRAN/"))
 ```
 
+如果改了镜像安装包时还是会出现下载失败，可以尝试修改 `download.file.method` (Rprofile):
 
+```R
+options(download.file.method="libcurl")##添加到.Rprofile
+```
 
 ### 翻转字符串
 
@@ -1039,7 +1043,7 @@ rstudio-server restart
 
 
 
-### 安装 cellassign
+### 安装 tensorflow 额外包 CURL_CA_BUNDLE 设置
 
 ```shell
 install.packages("tensorflow")
@@ -1291,6 +1295,133 @@ Python v3.9 (~/miniconda3/bin/python)
 BiocManager::install("scran")
 install.packages("~/software/cellassign/",repos=NULL,type="source")
 ```
+
+
+
+### 安装 magick 没有 Magick++.pc
+
+在安装 `UniprotR` 时会安装依赖包 `magick`, 报错信息：
+
+```shell
+* installing *source* package ‘magick’ ...
+** package ‘magick’ successfully unpacked and MD5 sums checked
+** using staged installation
+Package Magick++ was not found in the pkg-config search path.
+Perhaps you should add the directory containing `Magick++.pc'
+to the PKG_CONFIG_PATH environment variable
+No package 'Magick++' found
+Using PKG_CFLAGS=
+Using PKG_LIBS=-lMagick++-6.Q16
+--------------------------- [ANTICONF] --------------------------------
+Configuration failed to find the Magick++ library. Try installing:
+ - deb: libmagick++-dev (Debian, Ubuntu)
+ - rpm: ImageMagick-c++-devel (Fedora, CentOS, RHEL)
+ - csw: imagemagick_dev (Solaris)
+ - brew imagemagick@6 (MacOS)
+For Ubuntu versions Trusty (14.04) and Xenial (16.04) use our PPA:
+   sudo add-apt-repository -y ppa:cran/imagemagick
+   sudo apt-get update
+   sudo apt-get install -y libmagick++-dev
+If Magick++ is already installed, check that 'pkg-config' is in your
+PATH and PKG_CONFIG_PATH contains a Magick++.pc file. If pkg-config
+is unavailable you can set INCLUDE_DIR and LIB_DIR manually via:
+R CMD INSTALL --configure-vars='INCLUDE_DIR=... LIB_DIR=...'
+-------------------------- [ERROR MESSAGE] ---------------------------
+<stdin>:1:10: fatal error: Magick++.h: No such file or directory
+compilation terminated.
+--------------------------------------------------------------------
+ERROR: configuration failed for package ‘magick’
+* removing ‘/home/data/public/R/library/magick’
+Warning in install.packages :
+  installation of package ‘magick’ had non-zero exit status
+```
+
+安装 `ImageMagick`：
+
+```shell
+yum install  ImageMagick-devel ImageMagick-c++-devel
+```
+
+网不行，从源码安装：
+
+```shell
+git clone https://github.com/ImageMagick/ImageMagick.git ImageMagick-7.1.0
+cd ImageMagick-7.1.0
+```
+
+编译：
+
+```shell
+sudo ./configure
+[sudo] password for wt: 
+checking build system type... x86_64-pc-linux-gnu
+checking host system type... x86_64-pc-linux-gnu
+checking target system type... x86_64-pc-linux-gnu
+checking for a BSD-compatible install... /bin/install -c
+checking whether build environment is sane... yes
+checking for a thread-safe mkdir -p... /bin/mkdir -p
+checking for gawk... gawk
+checking whether make sets $(MAKE)... yes
+checking whether make supports nested variables... yes
+checking whether UID '0' is supported by ustar format... yes
+checking whether GID '0' is supported by ustar format... yes
+checking how to create a ustar tar archive... gnutar
+checking whether make supports nested variables... (cached) yes
+Configuring ImageMagick 7.1.0-26
+checking whether build environment is sane... yes
+checking whether make supports the include directive... yes (GNU style)
+checking for gcc... gcc
+checking whether the C compiler works... no
+configure: error: in `/home/data/public/ImageMagick-7.1.0-26':
+configure: error: C compiler cannot create executables
+See `config.log' for more details
+```
+
+查看 `config.log` 发现找不到共享库 `error while loading shared libraries: libisl.so.15: cannot open shared object file`，但是LD_LIBRARY_PATH已经添加了（这个库在 `/usr/local/lib` 中，这个路径已经是LD_LIBRARY_PATH了，但是就是找不到），采用第二种方法：
+
+```shell
+cat /etc/ld.so.conf
+#include ld.so.conf.d/*.conf
+#include /usr/local/lib
+cd /etc/ld.so.conf.d
+sudo me.conf
+##把 /usr/local/lib 添加到me.conf
+sudo ldconfig
+```
+
+然后就可以编译安装了：
+
+```shell
+sudo ./configure
+sudo make
+sudo make install 
+```
+
+还是会报错，确实没有 `Magick++.pc`:
+
+```shell
+Perhaps you should add the directory containing `Magick++.pc'
+```
+
+[pkg_config_path 环境变量设置 教程 - 付杰博客 (fujieace.com)](https://www.fujieace.com/kali-linux/pkg_config_path.html)
+
+先用conda安装，然后把`Magick++.pc`所在的路径添加到`PKG_CONFIG_PATH` 环境变量（.Renviron）中:
+
+```shell
+conda install -c conda-forge imagemagick
+cd miniconda3/
+find Magick++.pc *
+#./lib/pkgconfig/Magick++.pc
+#./pkgs/imagemagick-7.0.11_14-pl5320hb118871_0/lib/pkgconfig/Magick++.pc
+# bash 中 添加export PKG_CONFIG_PATH=/home/wt/miniconda3/lib/pkgconfig:$PKG_CONFIG_PATH
+usethis::edit_r_environ()
+#添加 PKG_CONFIG_PATH=/home/wt/miniconda3/lib/pkgconfig
+install.packages("~/software/magick_2.7.3.tar.gz",repos=NULL,type="source")
+```
+
+
+
+### GCC 版本更新
 
 
 
