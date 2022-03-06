@@ -1043,7 +1043,7 @@ rstudio-server restart
 
 
 
-### 安装 tensorflow 额外包 CURL_CA_BUNDLE 设置
+## 安装 tensorflow 额外包 CURL_CA_BUNDLE 设置
 
 ```shell
 install.packages("tensorflow")
@@ -1298,7 +1298,7 @@ install.packages("~/software/cellassign/",repos=NULL,type="source")
 
 
 
-### 安装 magick 没有 Magick++.pc
+## 安装 magick 没有 Magick++.pc
 
 在安装 `UniprotR` 时会安装依赖包 `magick`, 报错信息：
 
@@ -1421,7 +1421,7 @@ install.packages("~/software/magick_2.7.3.tar.gz",repos=NULL,type="source")
 
 
 
-### GCC 版本更新
+## GCC 版本更新
 
 
 
