@@ -1,6 +1,6 @@
 ---
 title: R 启动设置
-date: 2021-08-05 19:14:18
+date: 2022-03-06 19:14:18
 tags: 编程
 index_img: img/r_start_up.png
 categories:
