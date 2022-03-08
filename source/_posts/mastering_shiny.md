@@ -20,9 +20,7 @@ install.packages("shiny")
 library(shiny)
 ```
 
-创建一个 `shiny app` 最简单的方法是创建一个文件夹，放入一个空文件 `app.R` ，这个文件告诉 `shiny` app 的样式和行为
-
-我们在 `app.R`  中写入一下内容来创建一个最简单的 APP：
+创建一个 `shiny app` 最简单的方法是创建一个文件夹，放入一个空文件 `app.R` ，这个文件告诉 `shiny` app 的样式和行为，我们在 `app.R`  中写入以下内容来创建一个最简单的 APP：
 
 ```R
 library(shiny)
@@ -38,7 +36,7 @@ server <- function(input, output, session){
 shinyApp(ui, server)
 ```
 
-UI 定义了和用户相互作用的网页，在这里，这个网页显示 `hello, shiny`；server 函数规定了 app 的行为，这里是空的，因此这个简单的 app 没有做任何事情，最后 `shinyApp(ui, server)` 从UI 和 server 创建并启动了 APP（在 Rstudio 中可以通过新建项目选择 `shiny web application`来创建 app 的框架，也可以在 `app.R` 文件中打入 `shinyapp` 然后按 Shift+Tab 键） 
+UI 定义了和用户相互作用的页面，这里网页显示了  `hello, shiny`；server 函数规定了 app 的行为，这里是空的，因此这个简单的 app 没有做任何事情，最后 `shinyApp(ui, server)` 从UI 和 server 创建并启动了 APP（在 Rstudio 中可以通过新建项目选择 `shiny web application`来创建 app 的框架，也可以在 `app.R` 文件中打入 `shinyapp` 然后按 Shift+Tab 键） 
 
 ![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/shiny.gif)
 
@@ -58,7 +56,6 @@ UI 定义了和用户相互作用的网页，在这里，这个网页显示 `hel
 现在可以向这个 App 的 UI 中添加一些输入和输出（展示 `dataset` 包中的内置数据）：
 
 ```R
-
 ui <- fluidPage(
   selectInput("dataset", label = "Dataset", choices = ls("package:datasets")),
   verbatimTextOutput("summary"),
@@ -66,15 +63,13 @@ ui <- fluidPage(
 )
 ```
 
-`fluidPage` 是布局函数，控制着页面的基本结构；`selectInput` 是输入控制，用来和用户交互，这里是标签为 `Dataset` 的选择框；`verbatimTextOutput` 和 `tableOutput` 是输出控制，告诉 shiny 在哪里放置渲染后的输出
-
-运行这个 APP 后可以得到：
+`fluidPage` 是布局函数，控制着页面的基本结构；`selectInput` 是输入控制，用来和用户交互，这里是标签为 `Dataset` 的选择框；`verbatimTextOutput` 和 `tableOutput` 是输出控制，告诉 shiny 在哪里放置渲染后的输出；运行这个 APP 后可以得到：
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210608170440462.png" alt="" style="zoom:50%;" />
 
 我们只能选取一些值，但是并不能看到输出，因为此时还没有告诉 shiny 如何通过输入得到输出，而这个功能是通过 `server` 函数来实现。
 
-可以定义一个 `server` 函数如下，来得到所选数据的汇总统计和数据的打印：
+可以定义一个 `server` 函数如下，来得到所选数据的汇总统计和打印数据：
 
 ```R
 server <- function(input, output, session) {
@@ -98,7 +93,7 @@ server <- function(input, output, session) {
 
 ## 基本 UI
 
-UI 的基本元素包括输入和输出，都由特殊的函数来控制，如上面的 `selectInput` ,`verbatimTextOutput` 和 `tableOutput`
+UI 的基本元素包括输入和输出，都由特殊的函数来控制，如上面的 `selectInput` ,`verbatimTextOutput` 和 `tableOutput`。
 
 ### 输入
 
@@ -109,7 +104,7 @@ UI 的基本元素包括输入和输出，都由特殊的函数来控制，如�
 
 大部分输入函数有第二个参数：`label` ，来展示这个输入控件的名字；第三个参数是值 （value）,可以用来设定默认值（不一定会有这个参数），下面是一些常用的输入函数：
 
-1. 文字输入：少量文字可以使用 `textInput()`，密码可以使用 `passwordInput()`，成段的文字可以使用 `textAreaInput()`
+1. 文字输入：少量文字可以使用 `textInput()`，密码可以使用 `passwordInput()`，成段的文字可以使用 `textAreaInput()`:
 
    ```R
    ui <- fluidPage(
@@ -121,7 +116,7 @@ UI 的基本元素包括输入和输出，都由特殊的函数来控制，如�
 
    <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210608183050854.png" style="zoom:50%;" />
 
-2. 数字输入：可以使用 `numericInput()` 来创建一个文本框，但是只能输入数字，或者使用 `sliderInput()` 来创建一个滑条（如果提供的 value 是有两个元素的向量，滑条的两端都可以移动）
+2. 数字输入：可以使用 `numericInput()` 来创建一个文本框，但是只能输入数字，或者使用 `sliderInput()` 来创建一个滑条（如果提供的 value 是有两个元素的向量，滑条的两端都可以移动）:
 
    ```R
    ui <- fluidPage(
@@ -133,7 +128,7 @@ UI 的基本元素包括输入和输出，都由特殊的函数来控制，如�
 
    <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210608183704337.png" alt="" style="zoom:50%;" />
 
-3. 日期输入：使用 `dataInput()` 来输入单个日期或者 `dataRangeInput()` 来输入两个日期，选择日期时是在日历上选择
+3. 日期输入：使用 `dateInput()` 来输入单个日期或者 `dateRangeInput()` 来输入两个日期，选择日期时是在日历上选择:
 
    ```R
    ui <- fluidPage(
@@ -198,9 +193,7 @@ UI 的基本元素包括输入和输出，都由特殊的函数来控制，如�
 
 ### 输出
 
-在 UI 中创建的输出会被 server 函数的返回来填充，像 Input 一样，output 函数的第一个参数也是 ID，这个 output ID 也和 server 函数中是对应的。
-
-每一个前端（UI）的输出函数都和后端（server）的一个渲染函数（render）相对应；一般有3种类型的输出：文字，表格和图：
+在 UI 中创建的输出会被 server 函数的返回来填充，像 Input 一样，output 函数的第一个参数也是 ID，这个 output ID 也和 server 函数中是对应的。每一个前端（UI）的输出函数都和后端（server）的一个渲染函数（render）相对应；一般有3种类型的输出：文字，表格和图：
 
 1. 文字：一般的文字用 `textOutput()` 来输出，代码和控制台的显示可以使用 `verbatimTextOutput()` 来输出
 
@@ -221,7 +214,7 @@ UI 的基本元素包括输入和输出，都由特殊的函数来控制，如�
 
    ![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210608213354202.png)
 
-   当 render 函数中有多行代码的时候需要使用花括号（上面的例子是不需要花括号的）；这两个 render 函数有一些区别：`renderText` 将结果合并成一个字符串，和 `textOutput`配对；而 `renderPrint` 则打印结果，就像在控制台看到的一样，和 `verbatimTextOutput` 配对；这两者的区别和 `cat`，`print`函数的区别类似：
+   当 `render` 函数中有多行代码的时候需要使用花括号（上面的例子只有一行代码，是不需要花括号的）；这两个 render 函数有一些区别：`renderText` 将结果合并成一个字符串，和 `textOutput`配对；而 `renderPrint` 则打印结果，就像在控制台看到的一样，和 `verbatimTextOutput` 配对；这两者的区别和 `cat`，`print`函数的区别类似：
 
    ![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210608220708286.png)
 
@@ -260,11 +253,11 @@ UI 的基本元素包括输入和输出，都由特殊的函数来控制，如�
 
 ## server函数
 
-server 函数有3个参数：`input` `output` 和 `session` 
+server 函数有3个参数：`input` `output` 和 `session` 。
 
 ### input
 
-input 参数是一个类似列表的对象，含有从 UI 传入的所有数据，每一个数据都有一个唯一的 input ID，我们可以通过 input ID 来获取 input 对象中的数据（`input$ID`）；但是和列表不同，input 是只读的，也就是说如果我们在 server 函数中修改 input 对象就会报错：
+input 参数是一个类似列表的对象，含有从 UI 传入的所有数据，每一个数据都有一个唯一的 input ID，我们可以通过 input ID 来获取 input 对象中的数据（`input$ID`）；但是和列表不同，input 是只读的，也就是说如果我们**在 server 函数中修改 input 对象就会报错**：
 
 ```R
 library(shiny)
@@ -280,7 +273,7 @@ shinyApp(ui, server)
 
 ![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210608230047209.png)
 
-另外，只能在响应式的内容中（比如 render 函数和 reactive 函数）才可以读取 input 中的内容，例如，下面的 server 函数就会报错：
+另外，**只能在响应式的函数中（比如 render 函数和 reactive 函数）才可以读取 input 中的内容**，例如，下面的 server 函数就会报错：
 
 ```R
 server <- function(input, output, session) {
@@ -294,7 +287,7 @@ shinyApp(ui, server)
 
 ### output
 
-output 和 input 类似，也是一个列表类似的对象，元素的名称由 output ID 来规定，主要的不同就是：output 是发送数据到 UI，而 input 是从 UI 接受数据；output 对象总是和 render 函数一起出现，render函数生成的结果储存到 output 对象元素中；和 input 类似，当将 非 render 返回的内容赋值给 output 或者在 server 函数中更改 output 的内容时会引发报错：
+output 和 input 类似，也是一个列表类似的对象，元素的名称由 output ID 来规定，主要的不同就是：**output 是发送数据到 UI，而 input 是从 UI 接受数据**；output 对象总是和 render 函数一起出现，render函数生成的结果储存到 output 对象元素中；和 input 类似，当将 非 render 返回的内容赋值给 output 或者在 server 函数中更改 output 的内容时会引发报错：
 
 ```R
 server <- function(input, output, session) {
@@ -340,7 +333,7 @@ server <- function(input, output, session) {
 - 命令式编程就是发出特殊的指令并且立即执行
 - 声明式编程就是告诉程序想要什么
 
-在 shiny 中的声明式编程另外的特征就是使得 app 非常的 lazy，也就是说只在需要的时候才运行相应的代码，比如下面的例子（greeting 写成了 greting）：
+在 shiny 中的声明式编程另外的特征就是使得 app 具有惰性，也就是说只在需要的时候才运行相应的代码，比如下面的例子（greeting 写成了 greting）：
 
 ```R
 ui <- fluidPage(
@@ -360,11 +353,11 @@ shinyApp(ui, server)
 
 ![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/shiny3.gif)
 
-这是因为并不需要输出 output 中的 greting，因此 `renderText` 并不会运行
+这是因为没有组件需要 output 中的 greting，因此 `renderText` 并不会运行
 
 ### 响应图
 
-由于 shiny 的惰性机制，shiny中代码的执行并不像一般的 R 脚本一样（从前往后）；因此为了理解代码的执行顺序，我们需要检查响应图（reactive graph），其描述了输入和输出是如何联系到一起的，上面那个简单的 APP 的响应图如下：
+由于 shiny 的惰性机制，shiny中代码的执行并不像一般的 R 脚本一样（从前往后）；因此为了理解代码的执行顺序，我们需要检查**响应图**（reactive graph），其描述了**输入和输出是如何联系到一起**的，上面那个简单的 APP 的响应图如下：
 
 ![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/graph-1b.png)
 
@@ -385,11 +378,11 @@ server <- function(input, output, session) {
 
 ## 响应表达式
 
-响应表达式是为了减少 shiny app 的计算，提高运行效率；精简 APP 的响应图，从而使得 APP 的可读性增强。响应表达式同时有着输入和输出的特征，一方面像输入一样，我们可以在输出中使用响应表达式的结果，另一方面像输出一样，响应表达式依赖输入来自动更新，下面的图可以有助于理解：
+响应表达式是为了减少 shiny app 的计算，提高运行效率，精简 APP 的响应图，从而使得 APP 的可读性增强。响应表达式同时有着输入和输出的特征，一方面像输入一样，我们可以在输出中使用响应表达式的结果，另一方面像输出一样，响应表达式依赖输入来自动更新，下面的图可以有助于理解：
 
 ![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/producers-consumers.png)
 
-将输入和响应表达式称为生产者（producer），将输出和表达式称为消费者（consumer），我们先来创建一个更复杂的 APP 来看使用响应表达式的优点。
+将输入和响应表达式称为生产者（producer），将输出和相应表达式称为消费者（consumer），我们先来创建一个更复杂的 APP 来看使用响应表达式的优点。
 
 现在想要比较两个分布（可视化和 t 检验）（在开发 APP 的时候将计算的代码与 APP 分离比较好）：
 
@@ -507,7 +500,7 @@ x1 <- rnorm(input$n1, input$mean1, input$sd1)
 x2 <- rnorm(input$n2, input$mean2, input$sd2)
 ```
 
-因此可以将这部分代码独立出来作为响应表达式，响应表达式就是将代码放到 `reactive` 中并赋给一个变量，然后我们就可以将这个变量视为函数来调用：
+因此可以将这部分代码独立出来作为响应表达式，响应表达式就是将代码放到 `reactive` 中并赋给一个变量，然后我们就可以**将这个变量视为函数来调用**：
 
 ```R
 server <- function(input, output, session) {
