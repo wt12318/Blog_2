@@ -231,9 +231,16 @@ ui <- navbarPage(
 
 Bootstrap 是一个前端组件库，对于 shiny 来说并不需要过多地关注 Bootstrap， 因为 shiny 函数会自动生成 Bootstrap 兼容的 HTML，但是我们也可以自己进行定制：
 
-- 
+- 使用 `bslib::bs_theme()` 定制代码的外观
+- 使用 `class` 参数定制一些布局，输入和输出（class 为 bootstrap 的类名）
+- 也可以自己写函数产生一些 shiny 未提供的 bootstrap 组件
 
+除了 bootstrap 外，一些 R 包也提供了其他不同的 CSS 框架，比如：
 
+- `shiny.semantic` 基于 Fomantic UI 组件库构建
+- `shinyMobile` 基于 framework 7 构建，适用于移动设备
+- `shinymaterial` 基于谷歌的 Material design 框架
+- `shinydashboard ` 可以使用 shiny 来创建仪表盘 app
 
 ## 主题
 
@@ -311,8 +318,6 @@ server <- function(input, output, session) {
 ```
 
 ![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/%E5%8A%A8%E7%94%BB112.gif)
-
-
 
 # 图
 
@@ -532,6 +537,8 @@ server <- function(input, output, session) {
 shinyApp(ui, server)
 ```
 
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220309103028686.png" alt="" style="zoom:50%;" />
+
 `renderImage` 需要输入的是一个列表，必须参数是 `src` 表示图片的路径，其他可选参数有：
 
 - `contentType` ：图片的 MIME 格式（[Multipurpose Internet Mail Extensions]([What Is MIME Type? (metadata2go.com)](https://www.metadata2go.com/file-info/mime-type#:~:text=MIME Types are structured in a certain way%2C,(%2F) is used to separate type from subtype.)），如果有后缀就无需提供
@@ -546,14 +553,14 @@ shinyApp(ui, server)
 
 - 确认（validation），当输入不正确时提醒用户；
 - 信息（notification），输出程序运行的信息；
-- 进度条（process bar）；
+- 进度条（process bar），展示由多个小步骤构成的耗时操作的细节；
 - 对于某些危险的操作给予确定或撤销选项。
 
 ## 确认（Validation）
 
 ### 确认输入
 
-`shinyFeedback` 可以向用户提供额外的反馈，首先需要在 `ui` 中添加 `useShinyFeedback()` 函数，该函数设置了显示错误信息所需要的 HTML 和 JavaScript：
+`shinyFeedback` 包可用来向用户提供额外的反馈，首先需要在 `ui` 中添加 `useShinyFeedback()` 函数，该函数设置了显示错误信息所需要的 HTML 和 JavaScript：
 
 ```R
 ui <- fluidPage(
@@ -688,7 +695,7 @@ server <- function(input, output, session) {
 
 注意 `req` 的参数 `cancelOutput = TRUE`，这个选项会保留最后一个正确的输入得到的输出，如果设为 FALSE 会清除最后正确的结果：
 
- ![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/动画.gif)
+ ![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/%E5%8A%A8%E7%94%BB221.gif)
 
 ### 在输出中确认
 
@@ -721,7 +728,7 @@ server <- function(input, output, session) {
 
 ![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/动画2.gif)
 
-## 确认（Notifications）
+## 通知（Notifications）
 
 当程序运行过程中没有产生问题，但是想要用户知道发生了什么，可以使用 notification。在 shiny 中 `showNotification` 函数可以用来创建 notification，有 3 种方式：
 
@@ -809,7 +816,7 @@ shinyApp(ui, server)
 
 ### 随进度更新
 
-在前面的短时确认中，我们调用了多次 `showNotification` ，产生了多个信息，当一个任务运行时间比较长，并且有多个子任务时，更好的方法是：只显示一个信息，但是随着任务的进度更新这个信息，主要区别就是将上一个信息的调用作为下一个信息的 ID：
+在前面的短时确认中，我们调用了多次 `showNotification` ，产生了多个信息，当一个任务运行时间比较长，并且有多个子任务时，更好的方法是：只显示一个信息，但是随着任务的进度更新这个信息，主要区别就是**将上一个信息的调用作为下一个信息的 ID**：
 
 ```R
 ui <- fluidPage(
@@ -926,7 +933,7 @@ server <- function(input, output, session) {
 
 ![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/动画9.gif)
 
-可以看到进度条默认是在页面的顶部出现并且覆盖整个页面，除了这个默认的之外，我们可以选择不同的进度条样式（使用 `theme` 参数，可以是 `overlay`,`overlay-opacity` 或者 `overlay-percent`）;另外也可以选择不覆盖整个页面，而是在某个输入或输出组件中展示，下面是在一个输入框中展示进度条的例子：
+可以看到进度条默认是在页面的顶部出现并且覆盖整个页面，除了这个默认的之外，我们可以选择不同的进度条样式（使用 `theme` 参数，可以是 `overlay`,`overlay-opacity` 或者 `overlay-percent`）;另外也可以选择不覆盖整个页面，而是在某个输入或输出组件中展示（使用 `selector ` 参数），下面是在一个输入框中展示进度条的例子：
 
 ```R
 library(shiny)
@@ -1019,7 +1026,7 @@ server <- function(input, output, session) {
 
 ![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/动画12.gif)
 
-`showModal` 和 `removeModal` 可以展示和移除对话框。
+`showModal` 和 `removeModal` 可以展示和移除对话框。这里就是当用户点击了按钮就展示对话框，接下来如果选择了 Delete 也就是标签为 ok 的按钮，那么就会展示通知并且移除对话框，如果点击了 Cancel 就会直接移除对话框。
 
 >  什么时候用 observeEvent ，什么时候用 eventReactive？
 >
@@ -1045,7 +1052,7 @@ ui <- fluidPage(
 
 - `name` ：在用户电脑上的原始文件名
 - `size` ：文件大小，单位是字节，默认只能输入最大 5 MB 的文件，可以通过设置环境变量 `shiny.maxRequestSize` 来控制，比如：`options(shiny.maxRequestSize = 10 * 1024^2)` 表示最大上传文件大小设置为 10 M
-- `type` ：文件类型，通常是从文件拓展名推测的
+- `type` ：MIME 文件类型，通常是从文件拓展名推测的
 - `datapath`：上传后，文件所在的临时位置（和临时文件名）
 
 下面是一个具体的展示：
@@ -1123,7 +1130,7 @@ output$download <- downloadHandler(
 该函数有两个参数，并且两个参数都是函数：
 
 - `filename` ：一个没有参数的函数，返回的是文件名（字符串），这个函数的任务是生成在下载对话框中展示给用户的文件名
-- `content` ：有一个参数的函数，参数是存储文件的路径，这个参数是 shiny 自己创建的临时文件，不需要我们指定
+- `content` ：有一个参数的函数，参数是存储文件的路径，这个参数是 shiny 自己创建的临时文件，**不需要我们指定**
 
 下面是一个例子，在内置数据集中选择一个数据集供用户下载：
 
@@ -1354,23 +1361,145 @@ Length  Class   Mode
 
 > 但是在我自己的电脑上不会出现这个问题，可能是云服务的延迟问题？
 
-可以通过 `freezeReactiveValue()` 来 “冻住” 输入解决这个问题，具体来说就是当 shiny 读取 “冻住” 的输入时会触发运行 `req(False)` （前面讲过 `req(False)` 会停止响应过程），并且不需要我们手动 “解冻” 已经 “冻住” 的值，因为当所有的值改变后，shiny 会自动更新（不是很理解）。在实践中，如果要动态地改变输入值，最好都要使用这个技术。
+可以通过 `freezeReactiveValue()` 来 “冻住” 输入解决这个问题，具体来说就是当 shiny 读取 “冻住” 的输入时会触发运行 `req(False)` （前面讲过 `req(False)` 会停止响应过程），并且不需要我们手动 “解冻” 已经 “冻住” 的值，因为当所有的值改变后，shiny 会自动更新（不是很理解）。在实践中，如果要动态地改变输入值，最好都要使用这个技术：
 
-### 练习
+```R
+server <- function(input, output, session) {
+  dataset <- reactive(get(input$dataset, "package:datasets"))
+  
+  observeEvent(input$dataset, {
+    freezeReactiveValue(input, "column")
+    updateSelectInput(inputId = "column", choices = names(dataset()))
+  })
+  
+  output$summary <- renderPrint({
+    summary(dataset()[[input$column]])
+  })
+}
+```
 
-1. Complete the user interface below with a server function that updates `input$date` so that you can only select dates in `input$year`：
+需要注意的是由于 update* 函数会自动更新输入，但是 server 中的行为又会依赖于输入，因此要避免无限循环的出现，比如下面这个 app，每次 `updateNumericInput` 运行时都会改变 `input$n` 的值，造成 `updateNumericInput` 再次运行，陷入无限循环：
 
-   ```R
-   library(shiny)
-   ui <- fluidPage(
-     numericInput("year", "year", value = 2020),
-     dateInput("date", "date")
-   )
-   server <- function(input, output, session) {
-     observeEvent(input$year, {
-       updateDateInput(inputId = "date", min = paste0(input$year,"-01-01"),
-                       max = paste0(input$year,"-12-31"))
-     })
-   }
-   shinyApp(ui, server)
-   ```
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/%E5%8A%A8%E7%94%BB223.gif)
+
+## 动态可见性
+
+比较复杂一点的是选择性的部分展示和隐藏 UI ，在 shiny 中可以利用一个小技巧来解决这种问题：用 tabset 来隐藏可选的 UI，比如：
+
+```R
+ui <- fluidPage(
+  sidebarLayout(
+    sidebarPanel(
+      selectInput("controller", "Show", choices = paste0("panel", 1:3))
+    ),
+    mainPanel(
+      tabsetPanel(
+        id = "switcher",
+        type = "hidden",
+        tabPanelBody("panel1", "Panel 1 content"),
+        tabPanelBody("panel2", "Panel 2 content"),
+        tabPanelBody("panel3", "Panel 3 content")
+      )
+    )
+  )
+)
+
+server <- function(input, output, session) {
+  observeEvent(input$controller, {
+    updateTabsetPanel(inputId = "switcher", selected = input$controller)
+  })
+}
+```
+
+
+
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/%E5%8A%A8%E7%94%BB224.gif)
+
+这里使用了隐藏标签的 tabset （`type = "hidden"`）,并且用 `updateTablesetPanel` 来更新选择的标签达到隐藏标签 UI 的目的。
+
+另外一个需要隐藏 UI 的场景是根据用户的输入展示不同的参数页面（之前的参数页面被隐藏），比如我们想要根据用户选择的分布类型（正态分布，均匀分布，指数分布）来展示可以选择的参数，再根据用户选择的参数来绘制相应的分布图。首先创建一个 `tabsetPanel` ，这个 tabset 有 3 个标签对应 3 个不同的分布参数，但是我们把标签给隐藏起来，然后再把这个 tabset UI 和 `selectInput` ，`numericInput` 合并起来，与绘图区域用侧边栏布局整合，根据用户选择的参数展示相应的 panel 和绘图：
+
+```R
+parameter_tabs <- tabsetPanel(
+  id = "params",
+  type = "hidden",
+  tabPanel("normal",
+           numericInput("mean", "mean", value = 1),
+           numericInput("sd", "standard deviation", min = 0, value = 1)
+  ),
+  tabPanel("uniform", 
+           numericInput("min", "min", value = 0),
+           numericInput("max", "max", value = 1)
+  ),
+  tabPanel("exponential",
+           numericInput("rate", "rate", value = 1, min = 0),
+  )
+)
+ui <- fluidPage(
+  sidebarLayout(
+    sidebarPanel(
+      selectInput("dist", "Distribution", 
+                  choices = c("normal", "uniform", "exponential")
+      ),
+      numericInput("n", "Number of samples", value = 100),
+      parameter_tabs,
+    ),
+    mainPanel(
+      plotOutput("hist")
+    )
+  )
+)
+server <- function(input, output, session) {
+  observeEvent(input$dist, {
+    updateTabsetPanel(inputId = "params", selected = input$dist)
+  }) 
+  
+  sample <- reactive({
+    switch(input$dist,
+           normal = rnorm(input$n, input$mean, input$sd),
+           uniform = runif(input$n, input$min, input$max),
+           exponential = rexp(input$n, input$rate)
+    )
+  })
+  output$hist <- renderPlot(hist(sample()), res = 96)
+}
+shinyApp(ui, server)
+```
+
+下面分别是隐藏了 tabset 的标签和没有隐藏的效果：
+
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220309145928520.png)
+
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220309150005649.png)
+
+因此这种方法在改变参数时底层的 HTML 并没有消失，只是我们看不到而已。
+
+## 利用代码创建 UI
+
+上面讲到的那些方法只能允许我们去改变已经存在的输入，tabset 只能在已知可能的标签时也可以发挥作用，但是有些时候我们想要根据用户的输入来创建不同类型或者不同数量的输入或者输出 UI，就可以使用这种技术来在 app 运行时创建或修改 UI 界面（之前都是在运行前已经确定了 UI）。这种行为主要通过 `uiOutput` 和 `renderUI` 来实现：
+
+- `uiOutput` 在 UI 中放置一个占位符，等待之后的 server 代码（创建的UI）插入
+- `renderUI` 则放在 server 中，利用代码生成相应的 UI 去填充 `uiOutput` 的占位符
+
+下面可以看一个例子：依据用户选择的输入类型（数值或者滑动条）和标签来创建相应的 UI：
+
+```R
+ui <- fluidPage(
+  textInput("label", "label"),
+  selectInput("type", "type", c("slider", "numeric")),
+  uiOutput("numeric")
+)
+server <- function(input, output, session) {
+  output$numeric <- renderUI({
+    if (input$type == "slider") {
+      sliderInput("dynamic", input$label, value = 0, min = 0, max = 10)
+    } else {
+      numericInput("dynamic", input$label, value = 0, min = 0, max = 10) 
+    }
+  })
+}
+```
+
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/%E5%8A%A8%E7%94%BB227.gif)
+
+但是如果在 app 中过分依赖这种行为还导致 app 响应速度变慢（因为 app 需要先载入，然后触发一个调用 server 函数的响应事件，接着生成 HTML，将其插入相应的位置），因此如果更关注性能，还是尽量使用固定的 UI。这种方法还有一个其他的问题，从上面的图可以看出，当我们改变输入 UI 的类型后，之前输入的值就会消失，变成默认值 0 了，我们可以通过 `isolate` 方法
