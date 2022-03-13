@@ -9,9 +9,7 @@ categories:
 
 
 
-
-
-图机器学习 CS224W
+图机器学习 CS224W 课程笔记
 
 <!-- more -->
 
