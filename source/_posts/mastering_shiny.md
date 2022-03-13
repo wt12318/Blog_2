@@ -7,7 +7,7 @@ categories:
   - R
 ---
 
-Shiny app 基础知识 参考：[Mastering Shiny](https://mastering-shiny.org/index.html)
+R Shiny 基础知识 参考：[Mastering Shiny](https://mastering-shiny.org/index.html)
 
 <!-- more -->
 

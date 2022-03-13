@@ -7,7 +7,7 @@ categories:
   - R
 ---
 
-Shiny app 基础知识 参考：[Mastering Shiny](https://mastering-shiny.org/index.html)
+R Shiny 基础知识 参考：[Mastering Shiny](https://mastering-shiny.org/index.html)
 
 <!-- more -->
 
@@ -1502,4 +1502,198 @@ server <- function(input, output, session) {
 
 ![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/%E5%8A%A8%E7%94%BB227.gif)
 
-但是如果在 app 中过分依赖这种行为还导致 app 响应速度变慢（因为 app 需要先载入，然后触发一个调用 server 函数的响应事件，接着生成 HTML，将其插入相应的位置），因此如果更关注性能，还是尽量使用固定的 UI。这种方法还有一个其他的问题，从上面的图可以看出，当我们改变输入 UI 的类型后，之前输入的值就会消失，变成默认值 0 了，我们可以通过 `isolate` 方法
+但是如果在 app 中过分依赖这种行为还导致 app 响应速度变慢（因为 app 需要先载入，然后触发一个调用 server 函数的响应事件，接着生成 HTML，将其插入相应的位置），因此如果更关注性能，还是尽量使用固定的 UI。这种方法还有一个其他的问题，从上面的图可以看出，当我们改变输入 UI 的类型后，之前输入的值就会消失，变成默认值 0 了，我们可以通过将新输入的值设置为现有控件的当前值来解决问题：
+
+```R
+server <- function(input, output, session) {
+  output$numeric <- renderUI({
+    value <- isolate(input$dynamic)
+    if (input$type == "slider") {
+      sliderInput("dynamic", input$label, value = value, min = 0, max = 10)
+    } else {
+      numericInput("dynamic", input$label, value = value, min = 0, max = 10)
+    }
+  })
+}
+```
+
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/%E5%8A%A8%E7%94%BB228.gif)
+
+**注意**两点：
+
+- 这里使用了 `isolate`，其实不使用 `isolate` 在行为上看起来是一样的（直接 `value <-input$dynamic`），但是 `isolate` 使得响应图独立出来，也就是当 `input$dynamic` 改变时，`value <-input$dynamic` 并没有重新运行，而是当 `input$type` 或者 `input$label` 改变时才会运行这行代码
+
+- 在 `selectInput` 中需要将 `slider` 和 `numeric` 交换位置，不然就会产生如下报错，原因在于刚启动 shiny 时 `input$dynamic` 为 NULL，而 滑动窗的初始值不能为 NULL：
+
+  ![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/%E5%8A%A8%E7%94%BB229.gif)
+
+### 多个控件
+
+当需要生成不确定数量或者类型（所谓的不确定是对开发者而言不知道用户需要的输入）的控件时使用动态 UI 是比较有用的。对于这种任务使用函数式编程可以可以使得代码更加清晰（比如 purrr 包中的 map 和 reduce 系列函数）。举个例子：我们想要根据用户的输入产生特定的调色板，首先需要使用 `numericInput` 得到用户需要的颜色数目，`uiOutput` 生成对应数量的输入框，使用户可以输入颜色，然后 `plotOutput` 生成需要的调色板。
+
+```R
+ui <- fluidPage(
+  sidebarLayout(
+    sidebarPanel(
+      numericInput("n", "Number of colours", value = 5, min = 1),
+      uiOutput("col"),
+    ),
+    mainPanel(
+      plotOutput("plot")  
+    )
+  )
+)
+
+server <- function(input, output, session) {
+  col_names <- reactive(paste0("col", seq_len(input$n)))
+  
+  output$col <- renderUI({
+    map(col_names(), ~ textInput(.x, NULL, value = isolate(input[[.x]])))
+  })
+  
+  output$plot <- renderPlot({
+    cols <- map_chr(col_names(), ~ input[[.x]] %||% "")
+    # convert empty inputs to transparent
+    cols[cols == ""] <- NA
+    
+    barplot(
+      rep(1, length(cols)), 
+      col = cols,
+      space = 0, 
+      axes = FALSE
+    )
+  }, res = 96)
+}
+```
+
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/%E5%8A%A8%E7%94%BB230.gif)
+
+- `reactive` 表达式可以用来存储值，这里用 `col_names()` 来存储需要的输入控件的 ID
+
+- 使用 `map` 函数来产生一系列的 `textInput` 控件，这里 value 中使用了 `isolate` 来保留每次的输入，使得在改变控件数量时已输入的内容不会消失：
+
+  ![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/%E5%8A%A8%E7%94%BB247.gif)
+
+- 注意，这里面使用了一种新方法来获取 input 中的元素，之前一直使用的是 `$` ，但是现在元素的名称是一个字符向量，所以需要用 `[[`  来获取元素
+
+- `map_chr` 返回的是字符向量：
+
+  ```R
+  x <- list(a="x",b="y")
+  map_chr(c("a","b"),~x[[.x]])
+  ##[1] "x" "y"
+  ```
+
+  但是如果选出的元素是 NULL ，`map_chr` 就会报错：
+
+  ```R
+  x <- list(a="x",b="y",c=NULL)
+  map_chr(c("a","b","c"),~x[[.x]])
+  ##Error: Result 3 must be a single string, not NULL of length 0
+  ##Run `rlang::last_error()` to see where the error occurred.
+  ```
+
+  而在浏览器渲染成功之前会有一小段的瞬间，此时值为 NULL，因此会出现报错（见下图，可以看到一闪而过的红色报错），所以这里使用了 `%||%` 函数，该函数当左边是 NULL 时会返回右边的值：
+
+  ```R
+  > "a" %||% "b"
+  [1] "a"
+  > NULL %||% "b"
+  [1] "b"
+  ```
+
+  ![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/%E5%8A%A8%E7%94%BB248.gif)
+
+### 动态筛选
+
+这一部分是一个例子，创建一个 app 可以动态筛选任何数据框：每一个数值变量都有一个相应的滑动条来筛选变量范围，每一个因子变量都有一个多选择框来筛选因子水平；首先需要两个函数，一个根据变量类型来创建 UI，另一个函数接受变量和输入控件返回的值，决定要包括那些观测值（返回和变量长度一样的逻辑向量）：
+
+```R
+make_ui <- function(x, var) {
+  if (is.numeric(x)) {
+    rng <- range(x, na.rm = TRUE)
+    sliderInput(var, var, min = rng[1], max = rng[2], value = rng)
+  } else if (is.factor(x)) {
+    levs <- levels(x)
+    selectInput(var, var, choices = levs, selected = levs, multiple = TRUE)
+  } else {
+    # Not supported
+    NULL
+  }
+}
+
+filter_var <- function(x, val) {
+  if (is.numeric(x)) {
+    !is.na(x) & x >= val[1] & x <= val[2]
+  } else if (is.factor(x)) {
+    x %in% val
+  } else {
+    # No control, so don't filter
+    TRUE
+  }
+}
+```
+
+接着结合上面讲到的技术创建 app：
+
+```R
+dfs <- keep(ls("package:datasets"), ~ is.data.frame(get(.x, "package:datasets")))
+
+ui <- fluidPage(
+  sidebarLayout(
+    sidebarPanel(
+      selectInput("dataset", label = "Dataset", choices = dfs),
+      uiOutput("filter")
+    ),
+    mainPanel(
+      tableOutput("data")
+    )
+  )
+)
+server <- function(input, output, session) {
+  data <- reactive({
+    get(input$dataset, "package:datasets")
+  })
+  vars <- reactive(names(data()))
+  
+  output$filter <- renderUI(
+    map(vars(), ~ make_ui(data()[[.x]], .x))
+  )
+  
+  selected <- reactive({
+    each_var <- map(vars(), ~ filter_var(data()[[.x]], input[[.x]]))
+    reduce(each_var, `&`)
+  })
+  
+  output$data <- renderTable(head(data()[selected(), ], 12))
+}
+```
+
+- `keep` 是 `purrr` 包中的一个函数，第一个参数是列表或者向量，第二个参数是函数，只有第二个参数返回是 TRUE 的列表或者向量元素才会被保留：
+
+  ```R
+  > keep(c(1,2,3),~.x>2)
+  [1] 3
+  ```
+
+- 这里使用了两个 `map` ，第一个 `map` 生成 UI 的列表，第二个 `map` 生成变量的 T/F 列表，然后使用 `reduce` 对列表中的元素向量相应的位置做 `&` 运算，也就是保留全为 T 的观测：
+
+  ```R
+  > a <- list(x=c(T,T,F,T),y=c(T,F,F,T))
+  > a
+  $x
+  [1]  TRUE  TRUE FALSE  TRUE
+  
+  $y
+  [1]  TRUE FALSE FALSE  TRUE
+  
+  > reduce(a,`&`)
+  [1]  TRUE FALSE FALSE  TRUE
+  ```
+
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/%E5%8A%A8%E7%94%BB250.gif)
+
+
+
+# 书签
+
