@@ -60,7 +60,7 @@ categories:
 
 图（网络）可以分为有向图，无向图，**异质性图**，加权图，不加权图，有自联结环的图，多图：
 
-<img src="assets/image-20220305214948-jkqll8t.png" alt="image.png" style="zoom:67%;" />
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220305214948-jkqll8t.png" alt="" style="zoom:67%;" />
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220305220709-mstia0u.png" alt="" style="zoom:67%;" />
 
