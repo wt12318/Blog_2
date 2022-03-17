@@ -1427,5 +1427,7 @@ install.packages("~/software/magick_2.7.3.tar.gz",repos=NULL,type="source")
 
 
 
+## 如何删除文件中特定的列
 
+[Deleting a Specific Line From a Text File in Command Line in Linux - SysTutorials](https://www.systutorials.com/how-to-delete-a-specific-line-from-a-text-file-in-command-line-on-linux/#:~:text=Deleting a Specific Line From a Text File in Command Line in Linux,-Posted on Mar&text=You can use the “stream,filtering and transforming text” sed.&text=Here%2C -i means edit the,%3B immediately start next cycle”.)
 

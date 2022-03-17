@@ -449,3 +449,149 @@ $$
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220313170348-eapj54q.png" alt="" style="zoom:67%;" />
 
 ## 第四课
+
+这一课主要是将图视作矩阵，进行图的分析。
+
+互联网可以看作一个有向图，节点是网页，边是超链接；但是不是所有的节点的重要性都是一样的，比如 thispersondoesnotexist.com 和 www.stanford.edu，对于网络构成的图，节点的连接性的差异是非常大的（比如下图的**蓝色**和**红色**节点），因此可以使用网络图的连接结构来对网页进行排序。
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220315151830-cjxn872.png" style="zoom: 67%;" />
+
+本章学习下面的 3 种连接分析方法来计算节点的重要性：
+
+* PageRank
+* Personalized PageRank （PPR）
+* Random Walk with Restart
+
+### PageRank
+
+一个简单的想法是我们可以使用网页的链接来给网页投票：一个网页如果有更多的链接，那么这个网页更重要，使用指向网页的链接还是该网页指出的链接？使用 in-link 可能更好，因为别的网页指向该网页的 in-link 不容易造假，out-link 容易造假，那么现在问题就是所有的 in-link 都是等同的吗？**显然从重要节点指向该网页的 in-link 权重应该更大**，从这个描述可以看出这个问题是一个**递归**的问题。
+
+PageRank 使用的是 `Flow` 的模型即从更重要的网页来源的指向（边）投票更多：如果一个节点 i 有着重要性 $r_i$，同时有 $d_i$ 个出边（out-link），那么每个出边有 $r_i/d_i$ 的票数（权重），对于节点 j，其重要性 $r_j$ 是其所有入边的票数和，比如下面的例子：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220315154100-xgtv87v.png" alt="" style="zoom:67%;" />
+
+因此节点 j 的排序 $r_j$ 可以定义为：
+
+$$
+r_j=\sum_{i\rightarrow j}\frac{r_i}{d_i}
+$$
+
+$d_i$ 是节点 i 的出度（out-degree），对于一个简单的图，我们可以使用这个定义来列出方程：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220315154813-gz9r72o.png" alt="" style="zoom: 67%;" />
+
+但是直接去解这个方程（高斯消元）不是一个方法，因为不能简单的迁移到大的数据集上。对于这个问题，pagerank引入了一种**随机邻接矩阵（stochastic adjacency matrix）M**：$d_i$ 是节点 i 的出度，如果节点 i 指向节点 j，那么 $M_{ji}$ 为 $\frac{1}{d_i}$，因此 M 是一个列随机矩阵，其每列加起来为 1：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202022-03-15%20155429-20220315155527-x9naqjq.png" alt="" style="zoom:50%;" />
+
+再定义一个**排序向量 r，其中的元素 $r_i$ 为第 i 个节点的重要性值**，并且：
+
+$$
+\sum_ir_i=1
+$$
+
+因此上面的 flow equation 可以写成：
+
+$$
+r=M\cdot r
+$$
+
+还以刚才的那个简单的图为例：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220315155929-zfxh2ct.png" style="zoom:67%;" />
+
+现在想象一个场景：随机网上冲浪，在任意时刻 t，我们在某个网页 i，然后在 t+1 时刻我们从网页 i 指向别的网页的链接中随机选一个（均匀分布）到达网页 j，重复这个过程，设 $p(t)$  为时间 t 网页的概率分布，也就是 p(t) 的第 i 个元素为在时刻 t 在网页 i 上的概率；那么可以得到：
+
+$$
+p(t+1)=M\cdot p(t)
+$$
+
+(因为是均匀随机选择边)
+
+那么如果假设这个随机游走达到一种状态，此时：
+
+$$
+p(t+1)=M\cdot p(t)=p(t)
+$$
+
+称这个 p(t) 为随机游走的稳定分布，也就是下一个时刻网页的概率分布和这一个时刻一样，整个系统达到一种平衡。把这个式子和之前的 $r=M\cdot r$ 比较，可以看出两者的形式是一样的，因此 **r 也是这个随机游走的稳定分布**。
+
+回顾一下第二课中节点的特征向量中心性
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220315162222-jqh5aq7.png" alt="" style="zoom:50%;" />
+
+我们可以将 flow equation 写成：
+
+$$
+1\cdot r = M\cdot r
+$$
+
+因此**秩向量 r 也可以看为随机邻接矩阵 M 在特征值为 1 时的特征向量**
+
+我们也可以将上面的**稳定分布看成从任意向量 u 开始，不停的左乘矩阵 M，其极限为 r**，那么这个 r 就是 M 的 principal eigenvector（最大特征值的特征向量），通过这种方式可以有效的解出 r，这个方法叫做 Power iteration（幂迭代），总结：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220315214033-dxjtyaa.png" style="zoom:50%;" />
+
+实际操作时可以分为三步：
+
+* 初始化每个节点的重要性为 1/N：$r^{0}=[1/N,..., 1/N]^T$
+* 进行迭代：$r^{t+1}=M\cdot r^{t}$
+* 当两次迭代的误差小于某个值时停止（这个误差可以使用 L1 范数）：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220315215528-j56twlp.png" style="zoom:50%;" />
+
+举个例子：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220315215601-yr5skbb.png" alt="" style="zoom:67%;" />
+
+上面这个过程可能会出现两个问题：
+
+* 一些节点是 dead end，也就是没有指出的边，有这种节点进行上面的迭代时会造成所有的节点都为0的情况：
+
+  <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220315215811-15jbqap.png" style="zoom:50%;" />
+
+* 第二种情况为 spider traps，也就是有一个节点其所有的指出的边都指向自己，迭代时就会出现该节点是 1 其余都是 0 的情况：
+
+  <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220315220009-r8mc3g2.png" alt="" style="zoom:67%;" />
+
+对于 spider-trap 来说在数学上看着是没有问题的，但是结果不是我们想要的，因为被困在 b 节点并不能说明 b 是最重要的，因此对于这种情况可以采用**有一定概率直接跳到其他节点** (**teleport**)，使得在一定步骤后可以摆脱困在某个节点的情况：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220315220420-nk9mmi6.png" alt="" style="zoom:50%;" />
+
+对于 dead end，这种情况下的随机邻接矩阵就不符合我们的设定，因为某一（些）列加起来是 0 而不是 1，因此我们对这个矩阵可以调整，如果有一列全为 0 则对每个元素赋予同样值：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220315220732-zxhs54i.png" alt="" style="zoom:50%;" />
+
+Google 采取的 PageRank 算法：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220315220836-yyjnedf.png" alt="" style="zoom:50%;" />
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220315220849-tycz1ds.png" alt="" style="zoom:50%;" />
+
+例子：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220315220909-7nr4jta.png" alt="" style="zoom:50%;" />
+
+### Personalized PageRank & Random Walk with Restart
+
+上面讲到的 teleport 是随机的跳向任意节点，但是根据这个 teleport 的目标节点的不同，pageRank 有一些不同的变种。
+
+通过推荐任务来引入问题：有一个二部图代表用户和商品的相互作用（购买）：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220316145048-nwmuryw.png" alt="" style="zoom:50%;" />
+
+我们想要预测的问题是，如果用户和商品 Q 互作，那么我们应该推荐什么商品给这个用户；问题就变成了哪些节点与 Q 最相关，也就是我们需要基于与节点集 S 的邻近性对其他节点进行排序（之前是直接根据节点的重要性进行排序）【这里的S = {Q}】，这个问题可以用 Random Walk with Restart 算法来解决：
+
+* 给定一个 Query-Nodes 集合（可以只有一个节点），开始模拟随机游走
+* 随机走向一个邻居节点，记录其被访问的次数（visit count）
+* 以概率 alpha 重启游走，也就是直接回到 Query-Nodes
+* 重复以上过程，最后有着最高的 visit count 的节点就是和 Query-Nodes 最近的节点
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220316145923-xvr2ivu.png" style="zoom:50%;" />
+
+为什么这个方法可以奏效？原因可能是：考虑了节点间的多种连接，多个路径，有向和无向的路径，还有节点的自由度（也就是节点的边）。
+
+Personalized PageRank ，Random Walk with Restart 和 PageRank 之间的区别就在于如何定义这个重启节点集合 S：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220316150210-p2akpwb.png" alt="" style="zoom: 50%;" />
+
