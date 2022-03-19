@@ -62,11 +62,15 @@ categories:
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220305214948-jkqll8t.png" alt="" style="zoom:67%;" div align=center/>
 
+
+
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220305220709-mstia0u.png" alt="" style="zoom:67%;" div align=center/>
 
 **异质性图表示在同一个图中有不同类型的节点和不同类型的边**：
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220305215050-ev2hg8x.png" alt="image.png" style="zoom: 67%;" div align=center/>
+
+
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220305215057-689lsgr.png" style="zoom:67%;" div align=center/>
 
@@ -78,6 +82,8 @@ categories:
 还有一种特殊的图，叫做**二部图（Bipartite）**，也就是将图的节点分为2部分，每部分之间的节点没有连接，只有不同部分之间的节点有连接，比如上面那个推荐系统的图：
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220305220256-1uh5aom.png" alt="" style="zoom:67%;" div align=center/>
+
+
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220305220318-ben1cez.png" style="zoom:67%;" div align=center/>
 
@@ -142,6 +148,8 @@ categories:
 **特征向量中心性**的思想是如果一个节点的邻居节点是重要的，那么这个节点也比较重要；一个节点的中心性可以表示为其邻居节点中心性的和，这个迭代的形式可以写成矩阵，进一步可以用特征向量来表示一个节点的邻居节点的中心性：
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220306163130-ghw32oa.png" style="zoom:67%;" div align=center/>
+
+
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220306164418-xzx5t26.png" alt="" style="zoom:67%;" div align=center/>
 
@@ -226,7 +234,11 @@ Local neighborhood overlap 的缺点是如果两个节点没有**直接**的共�
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220307161912-mmx0a3j.png" alt="" style="zoom:67%;" div align=center/>
 
+
+
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220307161940-kc4lanj.png" style="zoom:67%;" div align=center/>
+
+
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220307162008-17bs1py.png" style="zoom:67%;" div align=center/>
 
@@ -282,15 +294,23 @@ Graphlet kernel 是基于 Graphlet 的，而这里的Graphlet 和之前提到的
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220307184149-1xbqkl9.png" alt="" style="zoom:67%;" div align=center/>
 
+
+
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220307184202-gju1jyu.png" style="zoom:67%;" div align=center/>
 
+
+
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220307184213-vc81p9r.png" style="zoom:67%;" div align=center/>
+
+
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220307184226-owq5tla.png" style="zoom:67%;" div align=center/>
 
 经过K步的更新后，计算每个颜色数值的出现次数，然后 WL 核就是两个图的颜色数量向量的内积：
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220307184348-8y80rp8.png" alt="" style="zoom:67%;" div align=center/>
+
+
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220307184408-c57lh27.png" alt="" style="zoom:67%;" div align=center/>
 
@@ -391,6 +411,8 @@ node2vec 使用的是有偏的游走，**可以在局部和全局的网络视角
 还有一些其他的随机游走方法：
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220309173809-15ragxx.png" alt="" style="zoom:67%;" div align=center/>
+
+
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220309173847-482bhrq.png" alt="" style="zoom:67%;" div align=center/>
 
