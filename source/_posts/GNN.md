@@ -618,3 +618,149 @@ Personalized PageRank ，Random Walk with Restart 和 PageRank 之间的区别�
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220316150210-p2akpwb.png" alt="" style="zoom: 50%;" div align=center/>
 
 ​    
+
+## 第五课
+
+这一课的主要问题就是：**给定一个一些节点有标签的网络，如何给这个网络其他节点也打上标签**？这个问题是一个半监督学习问题，因为只有一部分样本有标签。我们可以利用前面第 3 课讲到的 node embedding 方法来处理这个问题，也就是先学习节点的 embedding，然后用这个 embedding 向量去预测节点的标签。但是这一课讨论的是另一个处理这类问题的框架：**信息传递（message passing）**该框架的想法就是：网络中存在着相关性，也就是说相似的节点倾向于连接在一起。
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220320162151-sholsef.png" style="zoom:50%;" div align=center/>
+
+两种类型的依赖会导致网络中存在相关性：
+
+* 同质性："物以类聚，人以群分"
+* 影响："社会关系会影响个人的特性"，比如我向朋友推荐我喜欢的音乐，长此以往，他们可能和我的品味变得类似
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220320162639-zp5lmna.png" style="zoom:50%;" div align=center/>
+
+如何使用这种网络中的相关性来帮助我们预测节点的标签？可以想到的是除了用到节点本身的特征之外还需要节点邻居节点的特征和标签（这种方法叫做 **collective classification**）。
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220320215355-net8f5c.png" style="zoom:50%;" div align=center/>
+
+collective classification 一个重要的假设（除了网络中存在同质性）是马尔可夫假设，也就是一个节点的标签和其一阶邻居相关，（也就是和邻居的邻居不相关）：
+
+$$
+P(Y_v)=P(Y_v|N_v)
+$$
+
+$Y_v$ 为节点 v 的标签，$N_v$ 为节点 v 的邻居节点。
+
+collective classification 一般有3个步骤：
+
+* 训练局部分类器（local classifier）：给每个节点初始的标签，基于节点的属性/特征训练分类器，没有用到网络的信息
+* 训练相关分类器（relational classifier）：该分类器可以捕捉节点间的相关性，基于邻居的节点标签或者（和）属性训练分类器，用到了网络的信息
+* 进行集体推理（collective inference）：将相关性在网络间进行“传播”（propagate），对每个节点迭代运用相关分类器直到标签收敛
+
+collective classification 有 3 种经典的方法：
+
+* Relational classification
+* Iterative classification
+* Belief propagation
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220320221256-4cxpzai.png" style="zoom:50%;" div align=center/>
+
+### Relational classifiers
+
+基本想法是：**节点的类概率是其邻居类概率的加权平均**，具体步骤为：
+
+1. 对于有标签的节点，初始化的标签为其真实的标签，对于没有标签的节点，初始化其概率为 0.5
+
+2. 以随机的顺序使用加权平均来迭代更新节点的类概率，直到收敛或者达到最大的迭代次数：
+
+   <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220320222227-i9y8m1e.png" style="zoom:50%;" div align=center/>
+
+例子：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220320222330-x1c78tn.png" style="zoom:50%;" div align=center/>
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220320222346-fwagdrs.png" style="zoom:50%;" div align=center/>
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220320222355-3i0lhu0.png" style="zoom:50%;" div align=center/>
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220320222403-exes9pu.png" style="zoom:50%;" div align=center/>
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220320222415-1pi7pto.png" style="zoom:50%;" div align=center/>
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220320222424-uq5ks5w.png" style="zoom:50%;" div align=center/>
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220320222435-pyng4ia.png" style="zoom:50%;" div align=center/>
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220320222444-7mk05ml.png" style="zoom:50%;" div align=center/>
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220320222456-3faw0j3.png" style="zoom:50%;" div align=center/>
+
+
+### Iterative classification
+
+上面的 Relational classifiers 初始化时直接给没有标签的节点概率 0.5，其实并没有collective classification 的第一步 local classifier，也就是没有使用节点的特征。那么iterative classification就是既考虑了节点的特征也考虑了邻居节点的标签。该方法主要是训练两个分类器：
+
+* $\phi_1(f_v)$ 基于节点的特征 $f_v$ 训练分类器预测节点的标签
+* $\phi_2(f_v,z_v)$ 基于节点的特征 $f_v$ 以及 邻居节点标签的汇总变量 $z_v$ 来训练模型更新节点的标签
+
+$z_v$ 如何计算？可以有几种选择：
+
+* 邻居节点的每种标签的分布（直方图）
+* 最多数量的标签
+* 标签的种类
+* ...
+
+步骤：
+
+1. 在训练集上（节点都有标签）训练两个模型：只使用节点属性，以及使用节点属性和汇总变量
+2. 在测试集上应用第一个模型得到每个节点的标签
+3. 计算每个节点的汇总变量 $z_v$
+4. 用第二个模型 基于节点的特征和汇总变量更新节点的标签
+5. 重复3，4步直到收敛或者达到最大迭代次数
+
+总结：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220320224610-kbc0qbi.png" style="zoom:50%;" div align=center/>
+
+### Belief Propagation （loopy BP 算法）
+
+信念传播是一个迭代过程，邻居节点之间相互“交谈”，传递信息:
+
+> “I (node v) believe you (node u) belong to class 1 with likelihood …”
+
+每个节点收集其邻居节点传递的信息，然后更新自己的信念（比如属于某个类的概率），然后再将这种信息传递给下一个邻居节点。
+
+用数图中节点的数量来引入信息传播的概念：前提是每个节点只能和其邻居相互作用：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220320230930-3fzjkus.png" style="zoom:50%;" div align=center/>
+
+这个里面更新的 belif 就是图上有多个节点，进一步可扩展到树形结构的图上（从叶子节点到根节点）：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220320231050-urotjqw.png" style="zoom:50%;" div align=center/>
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220320231100-urwvfzy.png" style="zoom:50%;" div align=center/>
+
+这个过程就是局部的信息计算，节点收集信息，进行转换，然后再传递给别的节点。
+
+loopy 信念传播算法是一种迭代算法，节点 i 传递给邻居节点 j 的信息是 i 对 j 的状态的信念（比如节点 i 认为 j 是某个类的概率），而节点 i 所接受的信息又来自于其邻居，因此可以将上面那句话写成：
+
+> I (node i) believe that you (node j) belong to class Y_j with probability ... 
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220322201017-9ivd6hf.png" style="zoom: 80%;" div align=center/>
+
+该算法用到的一些记号：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220322201100-rv5xxc5.png" style="zoom:50%;" div align=center/>
+
+算法步骤：
+
+* 初始化所有的信息为 1
+
+* 对每个节点进行迭代：假设现在在节点 i 上，节点 i 传递给节点 j 的信息为 (即节点 i 认为节点 j 属于 $Y_j$ 的 belief)：
+
+  <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220322225819-xl91k7b.png" style="zoom:80%;" div align=center/>
+
+也就是说节点 i 收集整合来自下游的信息（下游节点认为节点 i 属于 $Y_i$ 的 belief，即最后一项连乘）乘以其自己认为自己属于某一类的概率（先验），而 label-label potential 表示节点 i 的标签如何影响节点 j 的标准，因此乘以这个值就是要向节点 j 传递的信息（i 认为 j 应该是某类的 belief），求和是对所有可能的 i 节点的类求和。
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220322230718-2wm1wdh.png" style="zoom:67%;" div align=center/>
+
+但是当图中出现环的时候就可能有问题：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220322230807-35mlurt.png" style="zoom:67%;" div align=center/>
+
+因为此时一个节点的下游分支就有可能不是独立的（用乘法就有问题），最终导致错误的信息被放大，但是实际情况这个影响不大（实际情况中环比较大，使得这个影响减弱），总结：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220322231147-2vzflci.png" style="zoom:50%;" div align=center/>
