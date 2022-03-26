@@ -764,3 +764,189 @@ loopy 信念传播算法是一种迭代算法，节点 i 传递给邻居节点 j
 因为此时一个节点的下游分支就有可能不是独立的（用乘法就有问题），最终导致错误的信息被放大，但是实际情况这个影响不大（实际情况中环比较大，使得这个影响减弱），总结：
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220322231147-2vzflci.png" style="zoom:50%;" div align=center/>
+
+## 第六课
+
+先来回顾一下之前学习的 node embedding 方法：
+
+node embedding 就是把图中的节点映射到 d 维的 embedding 空间，使得在图中相似的节点在这个 embedding 空间中是距离较近的，问题就是如何学习这样的映射函数。之前讲过了 encoder + decoder 策略，encoder 将节点映射到 d 维的向量，decoder 就是衡量映射后的向量间的相似性（可以使用点积），然后这个 encoder + decoder 框架的目标就是使得两个节点 embedding 向量 decoder 后的值（即两个向量的内积）和这两个节点在图中的相似性值接近，那么定义这种相似性又有多种方法，比如 DeepWalk 和 nod2vec 的随机游走方法；之前讲的 encoder 是一种最简单的 “shallow” encoding 的方法，也就是 embedding 矩阵的每一列是一个节点的 embedding，这种 shallow encoder 的缺点有：
+
+* 需要学习的参数数量和节点的数量相关，因为每个节点都需要学习一个 embedding 向量
+* 不能迁移到在训练过程中没有见过的节点上，也就是不能对这些节点生成 embedding
+* 这种方法没有考虑节点或图的特征
+
+这一节讲的是通过图神经网络来构造编码器（encoder）：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220326154720-68gy4ix.png" style="zoom:50%;" />
+
+图和经典的深度学习输入的数据类型（图片或者序列信息）有什么不同：
+
+* 大小可变，拓扑结构复杂，不像图片和序列一样，局部拓扑结构是可变的，而图片和序列的局部拓扑结构是类似的（图片的每个局部结构都是一个方块，序列的局部还是一个线性的结构）
+* 没有固定的节点次序或者参考点，图片可以从左到右，从上到下；序列从左到右
+* 图的结构是可变的，并且有多模态的特征，比如节点的特征可以多样性
+
+### 图深度学习
+
+一些符号标记：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220326155547-tzz6ws6.png" alt="" style="zoom:50%;" />
+
+ 一种简单的方法就是讲邻接矩阵和特征拼接起来作为一个矩阵，然后喂给一个深度神经网络：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220326163511-fn3trcm.png" alt="" style="zoom: 67%;" />
+
+这种方法的问题是：
+
+* 参数仍然和节点的数量有关
+* 不能迁移到不同大小的图上
+* 对节点的次序敏感，也就是即使保持网络结构不变，将节点的标记改变，最后得到的矩阵也会不一样，导致学习到的网络参数也会不同
+
+我们可以从图片的卷积神经网络上获得一些启发，在CNN中我们是使用一个滑框（卷积核）来对图片进行操作，将滑框内的像素整合成下一个卷积层的新的像素：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220326164038-9ehy6dg.png" alt="" style="zoom:67%;" />
+
+在图上就行这种操作会有问题：还是之前讲过的图的局部拓扑结构是变化的，因此我们不能使用类似滑框的方法（也就是在图片上的操作必须要满足平移不变性，而在图上的操作要满足扰动不变性，permutation invariant，即改变节点的次序不影响操作的结果），但是我们可以借鉴 CNN 的思想：将一定范围内的元素进行整合，在图上就是**将一个节点的邻居节点的信息进行整合**：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220326164503-s1gl662.png" alt="" style="zoom:50%;" />
+
+因此图神经网络的关键想法就是基于局部的邻居节点信息来产生节点的embedding：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220326165611-lsx5x8s.png" alt="" style="zoom:50%;" />
+
+所以每个节点都有自己的计算图（computation graph），并且我们可以创建任意深度的模型，在每一层节点都有一个 embedding；在 0 层时，节点的 embedding 就是该节点的输入特征，在第 k 层的 embedding 就可以获得离该节点 k 步的节点的信息：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220326165929-v486kpd.png" alt="" style="zoom:50%;" />
+
+不同的图神经网络的关键区别就在于：如何去聚合和转化邻近节点的信息？一种基本的方法就是对来自各个邻近节点的信息取个平均，然后再用一个神经网络来转化这个聚合的信息：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220326170227-fbjz29g.png" style="zoom:50%;" />
+
+数学化的形式：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220326170351-vtpywpt.png" alt="" style="zoom:50%;" />
+
+需要学习的参数就是上式中的 $W_l$ 和 $B_l$ ,前者是对邻近节点进行转化，后者是对自己的embedding向量进行转化。
+
+接下来就是如何去训练这个模型，可以有两种方法：
+
+* 监督式的训练，直接用节点的 embedding z 和节点的标签来进行监督训练即可：
+
+  <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220326171308-lqblal6.png" alt="" style="zoom:67%;" />
+
+* 非监督式的训练，利用图的结构，也就是相似的节点有着相似的 embedding，节点的相似性可以用第三课中的方法衡量，比如随机游走的方法，embedding 的相似性可以使用点积来衡量：
+
+  <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220326171454-rnaerl0.png" alt="" style="zoom:50%;" />
+
+可以看到这个**训练的参数对一层中所有的节点来说都是共享的**，也就是说即使对于没有训练过的节点甚至是另一个新的图中的节点，我们也可以得到其 embedding，总结一下在图中应用神经网络得到节点 embedding 的过程：
+
+1. 定义邻居节点信息汇总函数
+2. 定义节点 embedding 的 loss 函数
+3. 对节点的批次进行训练
+4. 得到节点的 embedding
+
+### GraphSAGE
+
+前面的方法是通过平均得到邻居节点信息的聚合，而GraphSAGE 则进一步拓展了这一点，并不一定需要平均的操作，下式的 AGG 可以有多种选择，而且是直接将转换后的邻居节点的信息和自身的信息进行连接，不是上面的加和：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220326212546-qthx1jx.png" alt="" style="zoom:50%;" />
+
+比如 AGG 可以选择平均，和上面的GCN一样，也可以选择池化操作（min/max），甚至可以用更复杂的 LSTM，但是需要注意的是：在使用 LSTM时需要将邻居节点的次序打乱，从而避免模型记住了次序（也就是我们需要的是次序无关的模型）：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220326212838-b5hkb5x.png" alt="" style="zoom:50%;" />
+
+总结：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220326212917-qekkdwe.png" alt="" style="zoom:50%;" />
+
+## 第七课
+
+一般的 GNN 架构分成 5 个部分，即GNN 层，包括信息的转换和整合；GNN 层之间如何连接；图的增强，包括特征和图结构的增强；学习目标：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220326213542-bujxnww.png" alt="" style="zoom:50%;" />
+
+### GNN 层
+
+一个单独的 GNN 层的作用是将一组向量（来自邻居节点的embedding 和自己的embedding向量）给压缩成一个向量:
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220326213948-h6lsmxe.png" alt="" style="zoom:50%;" />
+
+那么一个 GNN 层可以分成两个过程：
+
+* 信息的计算
+* 信息的汇聚
+
+信息的计算就是每个节点会计算自己的信息，然后传递给其他的节点，一个简单的例子就是线性转化，将节点的特征（embedding）乘以一个权重，对于多个节点（一层）来说就是乘以一个权重矩阵：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220326214649-zl7mpkk.png" alt="" style="zoom:50%;" />
+
+信息的汇聚就是将来自节点转化后的信息进行整合，这个整合的要去就是对节点次序不敏感，可以使用求和，平均或者最大/最小操作，由于在上述计算过程中我们并没有考虑目标节点自身的信息，所以需要将这个信息加入：在信息计算步骤对自身节点单独赋予参数进行计算，然后在汇聚阶段将邻居的信息和自身的信息进行联合：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220326215214-j1c8h3z.png" alt="" style="zoom:50%;" />
+
+为了增加模型的表达能力还需要增加非线性的激活函数，这个激活函数可以添加在信息计算或者信汇聚步骤。下面来看上节中讲过的 GCN 和 GraphSAGE 如何用这种信息计算和信息汇聚的框架来理解：
+
+对于 GCN 原始的表示为：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220326215653-f67pjcs.png" alt="" style="zoom:50%;" />
+
+可以将 W 写进去，就可以看成计算（乘以 W）和汇聚步骤（求和）：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220326215735-5migblj.png" style="zoom:50%;" />
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220326215805-upl5m4g.png" alt="" style="zoom:50%;" />
+
+对于 GraphSAGE ，原始的形式为：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220326220132-bipkrgj.png" alt="" style="zoom:50%;" />
+
+信息计算是在 AGG 函数内部进行的，比如上节讲过的 3 种选择：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220326220304-og2bqrk.png" alt="" style="zoom:50%;" />
+
+然后信息汇聚过程分为两步，第一步为 AGG 函数汇聚邻居节点的信息，第二步是和自己的信息进行合并，然后乘上个 W ：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220326220505-wjb24av.png" alt="" style="zoom:50%;" />
+
+GraphSAGE 一般还包括一个 L2 标准化的过程，对每一层的所有节点的 embedding 向量进行 L2 标准化，使得每个向量的范围差不多（有相同的 L2 范数）。
+
+##### GAT
+
+图注意力网络应用了注意力机制，也就是对每个邻居节点的关注度不一样，GAT 的一般形式为：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220326222122-v3v7msd.png" alt="" style="zoom:50%;" />
+
+通过比较这个式子和上面的 GCN的形式，可以发现 GCN 中 $\alpha_{vu}$ 就是 $1/|N(v)|$ 在这里面每个节点的重要性都是一样的，但是实际情况更可能是节点的每个邻居不是同等重要的，所以我们可以使得这个 $\alpha_{vu}$ 成为一个可学习得参数，来赋予不同的节点不同的权重。这个注意力权重是通过注意力机制 $\alpha$ 计算出来的：
+
+* 先通过 $\alpha$ 基于一对节点转化后的信息计算注意力系数 $e_{vu}$ :
+
+  <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220326223249-5i8fnhk.png" alt="" style="zoom:50%;" />
+
+* 然后通过 softmax 函数将注意力系数标准化为最终的注意力权重 $\alpha_{vu}$
+
+那么现在的问题就是这个注意力机制 $\alpha$ 是什么？这个有多种选择，一种方法就是通过神经网络来训练这个参数：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220326223555-2b0fwsz.png" alt="" style="zoom:50%;" />
+
+NLP 中的多头注意力机制也可以在这里面应用，可以训练多个注意力机制，得到多个权重，最后将这些embedding 聚合起来：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220326223724-92zc4m6.png" alt="" style="zoom:50%;" />
+
+### 实践中的 GNN 层
+
+现代的一些深度学习的模块也可以加到 GNN 层中：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220326224116-ah7fiy9.png" alt="" style="zoom:50%;" />
+
+* Batch Normalization，批次标准化可以稳定神经网络的训练过程，给定一个批次的输入（节点 embedding），将这些 embedding 向量归一化到均值为0 ，方差为1：
+
+  <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220326224327-2eentle.png" alt="" style="zoom:50%;" />
+
+* Dropout，减轻过拟合现象，**在GNN 中 dropout是应用在线性层的**，比如转化信息的 w 操作：
+
+  <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220326224530-m0f972c.png" alt="" style="zoom:50%;" />
+
+* 激活函数：
+
+  <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220326224738-150qndo.png" alt="" style="zoom:50%;" />
+
+### GNN 层的叠加
