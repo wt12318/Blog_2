@@ -950,3 +950,38 @@ NLP 中的多头注意力机制也可以在这里面应用，可以训练多个�
   <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220326224738-150qndo.png" alt="" style="zoom:50%;" />
 
 ### GNN 层的叠加
+
+接下来就需要将不同的 GNN 层叠加在一起，最直接的方法就是顺序叠加 GNN 层，输入是原始的节点特征，在 L 层的 GNN 后输出是节点的 embedding 向量：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220327141929-75jtckx.png" style="zoom:50%;" />
+
+但是这样叠加很多 GNN 层可能会出现 over-smoothing 问题，也就是最后不同节点的 embedding 向量是非常类似的，而在不是我们想要的，我们需要的是不同的节点有不同的可分辨的 embedding，那么为什么会出现这种问题呢？首先需要了解感受野的概念（receptive field）和 CNN 中的类似，感受野指的是**决定一个节点 embedding 的一组节点**，也就是在 GNN 层的信息流动过程中，感兴趣的节点是从这组节点中收集信息的，在有 K 层的 GNN 中每个节点的感受野是距离其 k 步内（k-hops away）的邻居节点，比如下面的例子，黄色节点的感受野随着 GNN 层数的增多也越来越大，在 3 层 GNN 中其感受野已经是几乎所有节点了：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220327142544-ty8jyc6.png" style="zoom:50%;" />
+
+因此如果我们看两个节点感受野的重合就可以知道为什么 over-smooth 问题会出现，如下图的两个黄色节点，在 3-hop 内的共同邻居几乎覆盖整个网络的节点：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220327142715-1yj89hl.png" style="zoom:50%;" />
+
+所以**如果两个节点的感受野有较大的重合，那么这两个节点收集到的信息几乎是一样的，并且每个 GNN 层的参数也是在节点间是共享的，那么就可能会导致最终两个节点的 embedding 向量是类似的**，也就是所谓的 over-smooth 问题。那么如何去减轻这种 over-smooth 问题呢？
+
+第一个考虑的问题就是谨慎地添加更多的 GNN 层，从上面的描述可以看出GNN 的层和 CNN 的层有所不同，GNN的层的深度表示想要获取多少步远的节点信息 （hops） 不一定越深的网络的表达能力就越好。因此在设计网络层数的时候可以考虑：
+
+* 分析解决问题所必须的感受野
+* 设置 GNN 的层数略大于我们所需要的感受野（不要一味的增大层数）
+
+第二个问题就是在 GNN 层数比较小的情况下，如何增加 GNN 的表达能力？
+
+* 可以增加每一层 GNN 的表达能力，比如可以在信息计算和汇聚步骤使用更加深的神经网络
+
+* 可以把 GNN 层和其他的非 GNN 层结合起来：
+
+  <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220327143750-72coapk.png" style="zoom:50%;" />
+
+如果我们的问题仍然需要比较大的 GNN 层数，如何在不减少 GNN 层的情况下减轻 over-smooth 问题呢？这里可以借鉴**残差连接**的思想，也就是 over-smooth 是由于 GNN 过深导致，那么在较浅的 GNN 层中节点的 embedding 可以更好的区分节点，因此我们可以通过 skip connections 直接在后面较深的 GNN 层中加入之前浅层 GNN 中的这些信息，：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220327144218-m7ts3fh.png" style="zoom:50%;" />
+
+这种方法类似于创建了一个混合模型，将之前的GNN 模型和该层的 GNN 进行加权组合：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220327144419-iooy8wd.png" style="zoom:50%;" />
