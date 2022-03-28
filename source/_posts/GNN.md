@@ -985,3 +985,161 @@ NLP 中的多头注意力机制也可以在这里面应用，可以训练多个�
 这种方法类似于创建了一个混合模型，将之前的GNN 模型和该层的 GNN 进行加权组合：
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220327144419-iooy8wd.png" style="zoom:50%;" />
+
+
+
+## 第八课
+
+下一个问题就是进行节点或者图特征的增强，这一点可以类比 CNN 中的图像增强操作，对应下图中的第 4 点：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220326213542-bujxnww.png" style="zoom:50%;" />
+
+需要图增强的原因是：并不是在所有情况下我们都可以直接将原始的图转化成 GNN 所需要的计算图，下面是一些例子：
+
+* 原始图缺少节点的特征，我们可以进行**特征增强**
+* 图过于稀疏，进行信息传播时效率低下，可以**添加虚拟的节点或者边**来解决
+* 图过于稠密，在进行信息传播时计算就比较复杂，比如一个节点的度非常高，如果直接将原始的图转化为计算图，那么就需要整合该节点所有邻居节点的信息，这个计算就比较耗时，可以**对邻居节点采样**来进行信息计算
+* 图太大，无法将计算图导入 GPU 进行运算，**对图进行采样**，利用子图进行计算 embedding
+
+### 特征增强
+
+进行特征增强通常是由于原始图缺少节点的特征，比如我们只有图的邻接矩阵信息；常用的方法有：
+
+* 给每个节点赋予相同的常数
+* 给每个节点赋予独特的 ID，然后可以将这些 ID 转化为 one hot 向量
+
+下面是两者的比较：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220328180230-ur2ft9j.png" alt="" style="zoom:50%;" />
+
+还有一种情况下需要特征增强：只通过 GNN 难以学习某些特征，比如某个节点所在的环的长度，如下面两个图中节点 v1 所在环的长度一个是 3，一个是 4，但是这两个图中所有节点的度都是 2，因此两个图的计算图是完全相同的：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220328180520-6nv5ckw.png" alt="" style="zoom:50%;" />
+
+所以通过 GNN 无法分辨这两种节点的区别，但是在某些情况下这种区别是重要的，比如分子结构中长度为 3 的环和长度为  4 的环的功能可能完全不一样。一种解决方法就是添加一个向量来表示节点所在环的长度：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220328180800-sivt9ed.png" alt="" style="zoom:50%;" />
+
+另外在第二课中学习的节点特征编码方法都可以使用，比如聚类系数，PageRank，节点中心性等
+
+### 图增强
+
+对于比较稀疏的图，我们可以增加虚拟的节点或者边；对于边，常用的方法是**增加长度为 2 的虚拟边**，从而连接两个距离为 2 的节点，因此在计算 GNN 时可以使用的不再是原始图的邻接矩阵 A，而是 $A+A^2$ (之前讲过两个节点之间长度为 K 的路径的数量就为图的邻居矩阵的K次方的相应位置的数值)，一个典型的例子就是 “作者-论文” 二部图，添加这样的虚拟节点后就可以表示作者的协作关系，也就是如果两个作者节点之间有这种虚拟边的连接就表明这两个作者是这个虚拟边所通过的论文的共同作者：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220328182325-88bqc4u.png" alt="" style="zoom: 67%;" />
+
+对于节点，可以添加一个和所有节点都有连接的虚拟节点，比如现在有一个非常稀疏的图，两个节点间最短的路劲长度都有 10，通过添加这样的虚拟节点后，所有的节点间都有距离为 2 的路径了，可以有效的提高信息传递的效率：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220328182630-2qo12qw.png" alt="" style="zoom:67%;" />
+
+对于过于稠密的图，为了计算的高效，需要对邻居节点进行采样操作：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220328183104-v0il80r.png" alt="" style="zoom:50%;" />
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220328183118-g29rdxo.png" alt="" style="zoom:50%;" />
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220328183136-79wpcja.png" alt="" style="zoom:50%;" />
+
+<img src="C:\Users\wutao\Downloads\新文档\新文档\assets\image-20220328183147-y12actw.png" style="zoom:50%;" />
+
+（这里的 next layer 也可以表示在下一个 epoch 的操作）
+
+总计一下目前讲过的东西：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220328183355-7j4xayp.png" style="zoom:50%;" />
+
+### GNN 预测
+
+下一个问题就是使用 GNN 进行预测，不同的图任务需要不同的预测方法：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220328183606-p5ap93i.png" alt="" style="zoom:50%;" />
+
+对于**节点**，可以直接使用 GNN 产生的节点 embedding 进行预测：在 GNN 计算后我们可以得到 d 维的节点 embedding（$h_v^{L}$)，需要使用一个矩阵来将节点的 embeeding 从 d 维的 embedding 空间映射到 k 维的预测空间（假设分类任务的类别有 k 个，对于回归就是 1）：
+
+$$
+\hat{y_v}=Head_{node}(h_v^{L})=W^Hh_v^L
+$$
+
+对于**边**，预测需要使用节点对:
+
+$$
+\hat{y_{uv}}=Head_{edge}(h_u^L,h_v^L)
+$$
+
+这个 $Head_{edge}$ 可以有多种选择，比如：
+
+* 将两个节点的 embedding 直接连接起来，然后输进一个线性层，这个线性层的作用就是将维度为 2d 的 embedding 映射成 k 维的 embedding
+
+* 也可以直接将两个节点的 embedding 进行点积运算，适用于单个值的预测（比如预测两个节点之间有没有连接），这种方法可以进一步扩展到 k 维的预测：类似于多头注意力，使用多个矩阵参数得到 k 个点积，最后把这 k 个点积拼起来得到 k 维的向量：
+
+  <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220328185519-nlzvyr2.png" alt="" style="zoom:67%;" />
+
+对于图的预测，使用的是所有节点的 embedding，类似于 GNN 层中的汇聚函数 AGG，同样的这种汇聚操作可以是各种池化（平均，最小/最大，求和等），但是直接对所有节点 embedding 进行池化操作可能会损失信息，下面是一个例子：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220328185844-wa7snke.png" alt="" style="zoom:50%;" />
+
+一种解决方法是通过**层次汇聚**来聚合节点的信息，比如还是上面那个例子，我们可以先对前两个节点和后3个节点进行汇聚，然后再对得到的两个结果进行汇聚：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220328211626-qvajezk.png" alt="" style="zoom: 67%;" />
+
+另一种有意思的层次汇聚方法是 **DiffPool**，通过网络中的 community 分析对节点进行分层汇聚，而这个 community 检测也可以通过另一个 GNN 来完成，这两个 GNN 可以并行运算，这样就不需要另外的方法进行 community 检测了：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220328211918-b6esloq.png" alt="" style="zoom: 67%;" />
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220328211957-lr0m8rw.png" style="zoom:67%;" />
+
+### GNN 训练
+
+这一部分和经典的深度学习没有什么区别：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220328212121-5aj9nyu.png" style="zoom: 67%;" />
+
+### 数据集分割
+
+还有一个关键的问题就是我们在训练 GNN 时如果设置训练集，验证集和测试集？
+
+一般来说机器学习中数据集的划分有两种方式：
+
+* 固定划分，也就是把数据分成固定的三份：
+
+  * 训练集用来优化 GNN 模型参数
+  * 验证集用来选择模型超参数
+  * 测试集用来检测并报告模型的性能
+* 随机划分，也就是随机多次划分训练集，验证集和测试集，报告多次平均的性能
+
+但是对于图数据来说，划分数据集和一般的机器学习任务有所不同，比如如果是图片数据集，那么每个数据点是一张图片，每个数据点之间是独立的，但是如果对图的节点进行预测，那么每个数据点是图中的一个节点，这样数据点之间就不是独立的关系了，比如下图的节点5会影响节点1的预测，因为其参与节点1 的信息传递过程，那么如果把节点1 划分到训练集，把节点5划分到测试集，就会造成信息泄露：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220328222817-t95xwnc.png" style="zoom:67%;" />
+
+对图的数据集划分有两类方法：
+
+* Transductive：对于所有的数据集划分，输入的图都可以可被观测的，只划分标签，比如对上图而言，在训练步骤使用整个图计算节点的 embedding，但是计算 Loss 时只使用节点 1和2的标签；在验证步骤也是使用整个图基于训练步骤训练的 GNN 模型计算节点的embedding，但是在评估时使用节点 3 和4的标签
+
+* Inductive：破坏划分数据集之间的连接，从而得到不同的独立的图，在训练步骤使用节点 1和2的图，并用节点 1和2 的标签来计算 Loss；在验证步骤基于训练步骤的模型在节点3和4构成的图中计算 embedding，并使用 3和4的标签来评估模型：
+
+  <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220328223635-z261man.png" style="zoom:67%;" />
+
+总结：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220328223659-ew09eev.png" alt="" style="zoom:50%;" />
+
+需要注意的是预测图中的边，也就是预测两个节点之间是否存在边，这种问题是一种自监督问题，因为不需要外部的标签，也就是在训练过程中隐藏部分节点之间的边，然后让 GNN 模型来预测这些边（supervision edge训练步骤不会输入GNN）。
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220328224810-rfffafh.png" alt="" style="zoom:80%;" />
+
+预测边同样也有两种方法：
+
+* Inductive：在训练集，验证集和测试集中都有两种类型的边：
+
+  <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220328224838-homc0i5.png" alt="" style="zoom:67%;" />
+
+* Transductive：逐步的过程：
+
+  <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220328225104-e8oaree.png" alt="" style="zoom: 50%;" />
+
+  <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220328225131-t9mcwcx.png" alt="" style="zoom:50%;" />
+
+总结整个的 GNN 训练流程：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220328225156-30tniaq.png" alt="" style="zoom:50%;" />
+
