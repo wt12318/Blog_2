@@ -1421,11 +1421,42 @@ install.packages("~/software/magick_2.7.3.tar.gz",repos=NULL,type="source")
 
 
 
-## GCC 版本更新
+## 如何使用 MobaXterm + jupyter lab 实现远程连接
 
+1.  `jupyter-lab --generate-config` 生成配置文件
 
+2.  生成密码：
 
+   ```python
+   from notebook.auth import passwd
+   passwd()
+   ```
 
+3. 修改配置文件：
+
+   ```
+   c.ServerApp.allow_remote_access = True
+   c.ServerApp.ip = '*'
+   c.ServerApp.password = '刚刚生成的序列'
+   ```
+
+4. 后台运行 jupyter-lab：
+
+   ```shell
+   nohup jupyter-lab --no-browser --port 8889 > jupyter.log 2>&1 &
+   ```
+
+接下来就可以使用 MobaXterm 进行端口转发，点击 Tunneling-New SHH tunnel:
+
+![image-20220329211156635](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220329211156635.png)
+
+为了防止断连，可以在设置里面设定 ssh keepalive:
+
+![image-20220329211307841](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220329211307841.png)
+
+此时在浏览器中输入 `http://localhost:8899/` 就可以访问服务器的 jupyter-lab 了。
+
+如果输入密码提示错误的话，可以先 kill 掉 jupyter-lab 的进程，然后 ` jupyter-lab password` 修改密码，然后重新启动。
 
 ## 如何删除文件中特定的列
 
