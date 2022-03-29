@@ -198,7 +198,7 @@ custom_js:
 # The usage is the same as custom_js
 custom_css: 
   - /css/custom.css
-  - /css/macpanel.css
+  - /css/test
 
 # 自定义 <head> 节点中的 HTML 内容
 # Customize <head> HTML content
