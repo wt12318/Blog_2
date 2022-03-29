@@ -1425,11 +1425,11 @@ install.packages("~/software/magick_2.7.3.tar.gz",repos=NULL,type="source")
 
 1.  `jupyter-lab --generate-config` 生成配置文件
 
-2.  生成密码：
+2. 生成密码：
 
    ```python
    from notebook.auth import passwd
-   passwd()
+   passwd():
    ```
 
 3. 修改配置文件：
@@ -1446,13 +1446,13 @@ install.packages("~/software/magick_2.7.3.tar.gz",repos=NULL,type="source")
    nohup jupyter-lab --no-browser --port 8889 > jupyter.log 2>&1 &
    ```
 
-接下来就可以使用 MobaXterm 进行端口转发，点击 Tunneling-New SHH tunnel:
+接下来就可以使用 MobaXterm 进行端口转发，点击 Tunneling-New SHH tunnel
 
-![image-20220329211156635](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220329211156635.png)
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220329211156635.png)
 
 为了防止断连，可以在设置里面设定 ssh keepalive:
 
-![image-20220329211307841](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220329211307841.png)
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220329211307841.png)
 
 此时在浏览器中输入 `http://localhost:8899/` 就可以访问服务器的 jupyter-lab 了。
 

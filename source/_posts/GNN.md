@@ -1040,7 +1040,7 @@ NLP 中的多头注意力机制也可以在这里面应用，可以训练多个�
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220328183136-79wpcja.png" alt="" style="zoom:50%;" />
 
-<img src="C:\Users\wutao\Downloads\新文档\新文档\assets\image-20220328183147-y12actw.png" style="zoom:50%;" />
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220328183147-y12actw.png" style="zoom:50%;" />
 
 （这里的 next layer 也可以表示在下一个 epoch 的操作）
 
