@@ -1,20 +1,37 @@
 .highlight
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
+    padding-left: 16px;
+    font-family: var(--b3-font-family-code);
+    background-size: 20px 20px;
+    background-image: none !important;
+    background: #fff;
+    border-radius: 0px 0px 4px 4px
+
+    &
       position: relative
       display: block
       border-radius: 4px
-      background: #e6ebf1 
+      background: #e6ebf1
       box-shadow:  0 0 0 1px #1e25351a
       padding-top: 32px !important
 
-
     &::after
-      content: ' '
-      position: absolute
       background: #fa625c
-      box-shadow: 23px 0 #fdbc40, 45px 0 #35cd4b
       border-radius: 50%
-      top:10px
-      left: 15px
-      height: 12px
+      box-shadow: 23px 0 #fdbc40, 45px 0 #35cd4b
+      content: ' '
+      top:10px;
+      left: 15px;
+      height: 12px;
+      position: absolute
       width: 12px
       z-index: 1
+   & .protyle-icons
+      background-color: transparent
+      border-radius: 4px
+   & .protyle-icons>span:hover
+      background-color: #cad8dd
+   & .protyle-icons .protyle-action__language, .code-block .protyle-icons>span
+      color: rgba(13, 56, 50, 0.719)
+      font-weight: 600
