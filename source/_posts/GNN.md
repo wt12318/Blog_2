@@ -17,7 +17,7 @@ categories:
 
 
 
-![图机器学习_backup_301789](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/%E5%9B%BE%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0_backup_301789.png)
+![图机器学习](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/%E5%9B%BE%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0_backup_301789.png)
 
 ## 第一课
 
