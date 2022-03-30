@@ -15,6 +15,10 @@ categories:
 
 [(4) CS224W: Machine Learning with Graphs | 2021 | Lecture 1.1 - Why Graphs - YouTube](https://www.youtube.com/watch?v=JAB_plj2rbA&list=PLoROMvodv4rPLKxIpqhjhPgdQy7imNkDn)
 
+
+
+![图机器学习_backup_301789](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/%E5%9B%BE%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0_backup_301789.png)
+
 ## 第一课
 
 **Graphs connect things**
