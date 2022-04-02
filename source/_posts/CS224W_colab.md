@@ -51,8 +51,7 @@ nx.draw(G, with_labels = True)
 ```
 
 
-​    
-![](D:/OneDrive - shanghaitech.edu.cn/图神经网络/colab/colab1_files/colab1_7_0.png)
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/colab1_7_0.png)
 ​    
 
 #### Question 1: karate club network 的平均自由度是多少？
@@ -1120,7 +1119,7 @@ visualize_emb(emb)
 ```
 
 
- 
+
 ![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/colab1_42_0.png)
     
 
