@@ -1147,3 +1147,64 @@ $$
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220328225156-30tniaq.png" alt="" style="zoom:50%;" />
 
+## 第九课
+
+这一课主要是讲 GNN 的表达能力，以及如何设计表达能力更强的 GNN 模型
+
+### GIN
+
+前面讲过 GNN 的通用架构就是使用神经网络从邻居节点收集信息：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220413224547-66zba1u.png" style="zoom:50%;" />
+
+不同的 GNN 的神经网络不一样，比如GCN是按元素的平均池化+线性层+ ReLu激活层，而GraphSAGE 是MLP + 按元素的最大池化操作。
+
+GNN 的表达能力指的是：对于局部邻接结构不同的节点，GNN 能否产生不同的 node embedding？通过前面的学习我们知道 GNN 是通过计算图的方式来收集邻居节点的信息从而得到节点的 embedding，因此**如果两个节点的计算图是完全一样的，那么GNN 就不能分辨这两个节点**，比如下图中的节点 1和2：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220413225417-jnoohoa.png" style="zoom:50%;" />
+
+节点颜色表示特征，这里所有节点的特征都是一样的。
+
+因此在这个限制下，如果 GNN 能将不同的有根子树映射到不同的 node embedding，那么这个GNN就是最具表现力的 GNN （也就是只要局部网络结构不同，GNN 就能分辨出来）：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220413230027-bo4m4qq.png" alt="" style="zoom:50%;" />
+
+这个想法和单射函数（injective）的概念类似，单射函数指的是将不同的输入映射到不同的输出，也就是这种函数保留了输入的全部信息：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220413230225-nqv5f8n.png" alt="" style="zoom:50%;" />
+
+因此**最具表现力的GNN应该将子树单射到node embedding**。
+
+GNN 是由多层构成的，在每一层中节点收集邻居节点的信息，如果GNN的每一层的汇聚步骤能够完全保留邻接信息，那么最终得到的 embedding也可以区分整个树结构：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220413230824-6twol7j.png" alt="" style="zoom:50%;" />
+
+也就是说每一层的**汇聚函数也要是单射的**，下面就来分析这个汇聚函数。
+
+汇聚函数可以看出一个输入是 multi-set 的函数（multi-set 也就是有重复元素的集合，比如在某一层有节点的特征是一样的），下面来看一下 GCN 和 GraphSAGE 的汇聚函数：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220413231318-dz8e50q.png" alt="" style="zoom:50%;" />
+
+GCN 使用的是平均池化，因此如果multi-set相同特征的节点的比例一样多，那么这个汇聚函数就不能分辨不同的multi-set，比如假设黄色绿色节点特征为 one-hot（黄色(1,0)，绿色(0,1)）:
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220413232159-pr3xfon.png" alt="" style="zoom:50%;" />
+
+GraphSAGE 的汇聚函数有多种选择，这里以最大池化为例，对于最大池化，如果multi-set 中相同特征的节点集合是一样的，那么也不能分辨：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220413232344-ncyoqnr.png" alt="" style="zoom:50%;" />
+
+因此 GCN 和GraphSAGE 的汇聚函数都不是单射函数，所以这两种 GNN 都不是最具表达力的 GNN。那么如何设计这样的 GNN 呢？一种好的解决方法是利用神经网络学习到这种单射的汇聚函数。
+
+我们可以将单射的 multi-set 函数表示为：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220414091431-ew3t2z9.png" alt="" style="zoom:50%;" />
+
+f 进行非线性转化（可以假设转化后的是 one-hot），sum操作可以保留转换后的输入信息，接着 $\phi$ 再进行一个非线性转化，而对 f 和 $\phi$ 则可以使用 MLP 进行近似（一层的MLP就可以逼近任何连续函数），这样得到了最具表现力的 GNN 模型：Graph Isomorphism Network (GIN)，通过 MLP + sum + MLP 学习单射汇聚函数。
+
+### GIN VS WL
+
+在第二课的图特征中讲过 WL 核，简要的步骤是：初始化每个节点的颜色；收集每个节点邻居节点的颜色并用预定义的 HASH 函数将收集的颜色映射到新的颜色；迭代收集-映射步骤，在 K步迭代后，每个节点就可以收集 K-hop 的邻居节点信息。在达到稳定状态后，如果两个图有个一样的节点颜色集合，那么这两个图就是同构的（isomorphic）。从这个描述我们可以看到 GIN 就是使用神经网络来学习这个 HASH 函数，WL 在收集信息时是将邻居的颜色和自己节点的颜色合并在一起，因此 GIN 也可以这么做：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220414093747-wtvl7k1.png" alt="" style="zoom:50%;" />
+
+由于 GIN 和 WL 的这种关联使得 GIN 和 WL 图核的表达能力是相似的，而WL已经被理论和实践证明可以区分大部分实践的图结构，因此 GIN 也具有区分大部分图结构的能力。
