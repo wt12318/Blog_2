@@ -58,7 +58,7 @@ data
 
 这个 `edge_index` 表示 0 和1有边相连，1和2有边相连，`x` 表示每个节点的特征，这里每个节点的特征只有一个元素，可以用下图来表示：
 
-![](C:\Users\wutao\Downloads\Pytorch geometric\Pytorch geometric\深度学习\笔记\图神经网络\assets\graph-20220422211728-1te7ub8.svg)
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/graph-20220422211728-1te7ub8.svg)
 
 注意除了使用这种在不同维度相应位置表示边的两个节点，也可以使用一个节点对构成的列表表示一个边，此时需要将上面的格式进行转置后再 `contiguous` 操作：
 
