@@ -24,7 +24,7 @@ print("PyTorch has version {}".format(torch.__version__))
 #PyTorch has version 1.10.1+cu102
 ```
 
-根据 Pytorch 和 cuda 的版本选择相应的 `torch-scatter` 和 `torch-sparse` 包：
+根据 Pytorch 和 cuda 的版本选择相应的 `torch-scatter` 和 `torch-sparse` 包 （网络原因安装不了，因此手动下载 whl 文件安装）：
 
 ```python
 !pip install torch_scatter-2.0.9-cp36-cp36m-linux_x86_64.whl #-f https://data.pyg.org/whl/torch-1.10.1+cu102.html
@@ -248,6 +248,6 @@ data.test_mask.sum().item()
 
 参考：
 
-- **Pytorch geometric** [文档]([Introduction by Example — pytorch_geometric 2.0.5 documentation (pytorch-geometric.readthedocs.io)](https://pytorch-geometric.readthedocs.io/en/latest/notes/introduction.html))
+- **Pytorch geometric** [文档](https://pytorch-geometric.readthedocs.io/en/latest/notes/introduction.html)
 - [GNN Project YouTube](https://www.youtube.com/watch?v=QLIkOtKS4os&list=PLV8yxwGOxvvoNkzPfCx2i8an--Tkt7O8Z&index=8)
 - [Google Colab](https://colab.research.google.com/drive/1DIQm9rOx2mT1bZETEeVUThxcrP1RKqAn)
