@@ -242,6 +242,162 @@ data.test_mask.sum().item()
 #1000
 ```
 
+### 小批量
+
+神经网络训练时一般是以批量作为单位，PyG 通过  `torch_geometric.loader.DataLoader` 将 `edge_index` ，特征和目标值连接在一起形成特定的批量大小：
+
+```python
+from torch_geometric.loader import DataLoader
+from torch_geometric.datasets import TUDataset
+TUDataset.url = 'https://gitee.com/wt12318/graphkerneldatasets/raw/master/'
+dataset = TUDataset(root='./', name='ENZYMES',use_node_attr=True)
+loader = DataLoader(dataset, batch_size=32, shuffle=True)
+
+for batch in loader:
+    print(batch)
+
+DataBatch(edge_index=[2, 3590], x=[904, 21], y=[32], batch=[904], ptr=[33])
+DataBatch(edge_index=[2, 4218], x=[1081, 21], y=[32], batch=[1081], ptr=[33])
+DataBatch(edge_index=[2, 3810], x=[962, 21], y=[32], batch=[962], ptr=[33])
+DataBatch(edge_index=[2, 4276], x=[1221, 21], y=[32], batch=[1221], ptr=[33])
+DataBatch(edge_index=[2, 3714], x=[952, 21], y=[32], batch=[952], ptr=[33])
+DataBatch(edge_index=[2, 3670], x=[933, 21], y=[32], batch=[933], ptr=[33])
+DataBatch(edge_index=[2, 4142], x=[1133, 21], y=[32], batch=[1133], ptr=[33])
+DataBatch(edge_index=[2, 4180], x=[1058, 21], y=[32], batch=[1058], ptr=[33])
+DataBatch(edge_index=[2, 3902], x=[1033, 21], y=[32], batch=[1033], ptr=[33])
+DataBatch(edge_index=[2, 4004], x=[1084, 21], y=[32], batch=[1084], ptr=[33])
+DataBatch(edge_index=[2, 4136], x=[1115, 21], y=[32], batch=[1115], ptr=[33])
+DataBatch(edge_index=[2, 3710], x=[938, 21], y=[32], batch=[938], ptr=[33])
+DataBatch(edge_index=[2, 3764], x=[1036, 21], y=[32], batch=[1036], ptr=[33])
+DataBatch(edge_index=[2, 3842], x=[982, 21], y=[32], batch=[982], ptr=[33])
+DataBatch(edge_index=[2, 4088], x=[1052, 21], y=[32], batch=[1052], ptr=[33])
+DataBatch(edge_index=[2, 4342], x=[1246, 21], y=[32], batch=[1246], ptr=[33])
+DataBatch(edge_index=[2, 4196], x=[1080, 21], y=[32], batch=[1080], ptr=[33])
+DataBatch(edge_index=[2, 3974], x=[1014, 21], y=[32], batch=[1014], ptr=[33])
+DataBatch(edge_index=[2, 3006], x=[756, 21], y=[24], batch=[756], ptr=[25])
+```
+
+`torch_geometric.data.Batch` 对象继承自 `Data` 对象，并且多了一个 `batch`  的属性，`batch` 是一个向量，和该批量中节点的大小是一致的，每一个元素表示相应的节点属于该批量中哪个图：
+
+```python
+batch["batch"]##最后一个批量大小为24，也就是有24个图
+
+tensor([ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+         1,  1,  1,  1,  1,  1,  1,  1,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,
+         2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  3,  3,  3,  3,  3,  3,  3,  3,
+         3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,
+         3,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,
+         4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,
+         4,  4,  4,  4,  4,  4,  4,  4,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,
+         5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,
+         5,  5,  5,  5,  5,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,
+         6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,
+         6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  7,  7,  7,  7,  7,  7,  7,
+         7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,
+         7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  8,  8,  8,  8,  8,  8,
+         8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,
+         8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,
+         8,  8,  8,  8,  8,  8,  8,  8,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,
+         9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9, 10,
+        10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+        10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 11, 11, 11,
+        11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11,
+        11, 11, 11, 11, 11, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
+        12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
+        12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 13, 13, 13, 13, 13, 13, 13, 13,
+        13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 14, 14, 14, 14, 14, 14, 14, 14,
+        14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14,
+        14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 15, 15, 15, 15,
+        15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
+        15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
+        15, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
+        16, 16, 16, 16, 16, 16, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17,
+        17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 18, 18,
+        18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18,
+        18, 18, 18, 18, 18, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19,
+        19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19,
+        19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 20, 20, 20, 20, 20, 20, 20,
+        20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
+        20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 21,
+        21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
+        21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
+        21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 22,
+        22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 23, 23, 23, 23, 23,
+        23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23])
+```
+
+比如我们可以根据这个特征来计算每个图中每个特征的均值：
+
+```python
+from torch_scatter import scatter_mean
+x = scatter_mean(batch.x, batch.batch, dim=0)
+x.size()
+#torch.Size([24, 21])
+```
+
+`scatter_mean` 就是对 batch 中相同的值（也就是每个图）计算 x 在维度 0 上的均值（也就是每个特征对所有节点的均值）。
+
+### GNN
+
+以 Cora 引用数据集作为例子，实现一个2层的图卷积神经网络（GCN）：
+
+```python
+from torch_geometric.datasets import Planetoid
+
+##载入数据
+Planetoid.url = "https://gitee.com/wt12318/graphkerneldatasets/raw/master/Planetoid/data/"
+dataset = Planetoid(root='./', name='Cora')
+
+import torch
+import torch.nn.functional as F
+from torch_geometric.nn import GCNConv
+
+##构建 GCN
+class GCN(torch.nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.conv1 = GCNConv(dataset.num_node_features, 16)
+        self.conv2 = GCNConv(16, dataset.num_classes)
+
+    def forward(self, data):
+        x, edge_index = data.x, data.edge_index
+
+        x = self.conv1(x, edge_index)
+        x = F.relu(x)
+        x = F.dropout(x, training=self.training)
+        x = self.conv2(x, edge_index)
+
+        return F.log_softmax(x, dim=1)
+```
+
+注意 GCN 和 CNN 不同，层数和表达能力并不一定相关，GCN 的层数只是指收集离节点多远的邻居节点的信息。并且图神经网络最终得到的是节点的 embedding，因此在构建GCN 的时候变化的 embedding 的维度（`num_node_features` , 16, `num_classes`），输入的是节点以及图的结构（`edge_index`）。接下来进行训练 200 个 epochs：
+
+```python
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+model = GCN().to(device)
+data = dataset[0].to(device)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.01, weight_decay=5e-4)
+
+model.train()
+for epoch in range(200):
+    optimizer.zero_grad()
+    out = model(data)
+    loss = F.nll_loss(out[data.train_mask], data.y[data.train_mask])
+    loss.backward()
+    optimizer.step()
+```
+
+在测试节点上进行评估模型：
+
+```python
+model.eval()
+pred = model(data).argmax(dim=1)
+correct = (pred[data.test_mask] == data.y[data.test_mask]).sum()
+acc = int(correct) / int(data.test_mask.sum())
+print(f'Accuracy: {acc:.4f}')
+##Accuracy: 0.7970
+```
+
 
 
 
