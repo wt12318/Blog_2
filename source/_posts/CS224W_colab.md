@@ -1123,3 +1123,1044 @@ visualize_emb(emb)
 ![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/colab1_42_0.png)
     
 
+## Colab 2
+
+在这个 colab 中，将会使用 PyTorch Geometric 构建简单的 GNN 进行两类问题的预测 : 1) 节点类别 2) 图类别，使用的数据集是 OGB 包中的两个数据集。
+
+查看 Pytorch 版本并安装相应的包：
+
+
+```python
+import torch
+import os
+print("PyTorch has version {}".format(torch.__version__))
+```
+
+    PyTorch has version 1.10.0+cu111
+
+
+```python
+!pip install torch-scatter -f https://data.pyg.org/whl/torch-1.10.0+cu111.html
+!pip install torch-sparse -f https://data.pyg.org/whl/torch-1.10.0+cu111.html
+!pip install torch-geometric
+```
+
+```python
+!pip install ogb
+```
+
+### 1) PyTorch Geometric (Datasets and Data)
+
+
+PyTorch Geometric 有两个类用来存储和转化图数据。一个是 `torch_geometric.datasets`, 含有一些常用的数据集，另一个是 `torch_geometric.data`, 提供了以 tensor 操作图数据的方法。
+
+#### PyG Datasets
+
+以 `ENZYMES` 数据集为例：
+
+
+```python
+from torch_geometric.datasets import TUDataset
+
+if 'IS_GRADESCOPE_ENV' not in os.environ:
+  root = './enzymes'
+  name = 'ENZYMES'
+
+  # The ENZYMES dataset
+  pyg_dataset= TUDataset(root, name)
+
+  # You will find that there are 600 graphs in this dataset
+  print(pyg_dataset)
+```
+
+    Downloading https://www.chrsmrrs.com/graphkerneldatasets/ENZYMES.zip
+    Extracting enzymes/ENZYMES/ENZYMES.zip
+    Processing...
+
+
+    ENZYMES(600)
+
+
+    Done!
+
+##### Question 1: 在 ENZYMES 数据集中有多少类别和特征？
+
+
+```python
+def get_num_classes(pyg_dataset):
+  # TODO: Implement a function that takes a PyG dataset object
+  # and returns the number of classes for that dataset.
+
+  num_classes = 0
+
+  ############# Your code here ############
+  ## (~1 line of code)
+  ## Note
+  ## 1. Colab autocomplete functionality might be useful.
+  num_classes = pyg_dataset.num_classes
+  #########################################
+
+  return num_classes
+
+def get_num_features(pyg_dataset):
+  # TODO: Implement a function that takes a PyG dataset object
+  # and returns the number of features for that dataset.
+
+  num_features = 0
+
+  ############# Your code here ############
+  ## (~1 line of code)
+  ## Note
+  ## 1. Colab autocomplete functionality might be useful.
+  num_features = pyg_dataset.num_node_features
+  #########################################
+
+  return num_features
+
+if 'IS_GRADESCOPE_ENV' not in os.environ:
+  num_classes = get_num_classes(pyg_dataset)
+  num_features = get_num_features(pyg_dataset)
+  print("{} dataset has {} classes".format(name, num_classes))
+  print("{} dataset has {} features".format(name, num_features))
+```
+
+    ENZYMES dataset has 6 classes
+    ENZYMES dataset has 3 features
+
+#### PyG Data
+
+##### Question 2: ENZYMES 中索引为 100 的图的标签是什么？
+
+
+```python
+def get_graph_class(pyg_dataset, idx):
+  # TODO: Implement a function that takes a PyG dataset object,
+  # an index of a graph within the dataset, and returns the class/label 
+  # of the graph (as an integer).
+
+  label = -1
+
+  ############# Your code here ############
+  ## (~1 line of code)
+  ##data.y å­˜å‚¨ lable
+  label = pyg_dataset[idx]["y"]
+  #########################################
+  return label
+
+# Here pyg_dataset is a dataset for graph classification
+if 'IS_GRADESCOPE_ENV' not in os.environ:
+  graph_0 = pyg_dataset[0]
+  print(graph_0)
+  idx = 100
+  label = get_graph_class(pyg_dataset, idx)
+  print('Graph with index {} has label {}'.format(idx, label))
+```
+
+    Data(edge_index=[2, 168], x=[37, 3], y=[1])
+    Graph with index 100 has label tensor([4])
+
+##### Question 3: 索引为 200 的图有多少个边？ 
+
+
+```python
+def get_graph_num_edges(pyg_dataset, idx):
+  # TODO: Implement a function that takes a PyG dataset object,
+  # the index of a graph in the dataset, and returns the number of 
+  # edges in the graph (as an integer). You should not count an edge 
+  # twice if the graph is undirected. For example, in an undirected 
+  # graph G, if two nodes v and u are connected by an edge, this edge
+  # should only be counted once.
+
+  num_edges = 0
+
+  ############# Your code here ############
+  ## Note:
+  ## 1. You can't return the data.num_edges directly
+  ## 2. We assume the graph is undirected
+  ## 3. Look at the PyG dataset built in functions
+  ## (~4 lines of code)
+  num_edges = pyg_dataset[200]["edge_index"].shape[1]/2
+  num_edges = int(num_edges)
+  #########################################
+
+  return num_edges
+
+if 'IS_GRADESCOPE_ENV' not in os.environ:
+  idx = 200
+  num_edges = get_graph_num_edges(pyg_dataset, idx)
+  print('Graph with index {} has {} edges'.format(idx, num_edges))
+```
+
+    Graph with index 200 has 53 edges
+
+#### OGB 数据
+
+以 OGB 中的 ogbn-arxiv 数据为例：
+
+
+```python
+import torch_geometric.transforms as T
+from ogb.nodeproppred import PygNodePropPredDataset
+
+if 'IS_GRADESCOPE_ENV' not in os.environ:
+  dataset_name = 'ogbn-arxiv'
+  # Load the dataset and transform it to sparse tensor
+  dataset = PygNodePropPredDataset(name=dataset_name,transform=T.ToSparseTensor())
+  print('The {} dataset has {} graph'.format(dataset_name, len(dataset)))
+
+  # Extract the graph
+  data = dataset[0]
+  print(data)
+```
+
+    Downloading http://snap.stanford.edu/ogb/data/nodeproppred/arxiv.zip
+
+
+    Downloaded 0.08 GB: 100%|â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆ| 81/81 [00:07<00:00, 10.16it/s]
+
+
+    Extracting dataset/arxiv.zip
+
+
+    Processing...
+
+
+    Loading necessary files...
+    This might take a while.
+    Processing graphs...
+
+
+    100%|â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆ| 1/1 [00:00<00:00, 8112.77it/s]
+
+
+    Converting graphs into PyG objects...
+
+
+    100%|â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆ| 1/1 [00:00<00:00, 5729.92it/s]
+    
+    Saving...
+
+    Done!
+
+
+    The ogbn-arxiv dataset has 1 graph
+    Data(num_nodes=169343, x=[169343, 128], node_year=[169343, 1], y=[169343, 1], adj_t=[169343, 169343, nnz=1166243])
+
+##### Question 4: ogbn-arxiv 图有多少特征？
+
+
+```python
+def graph_num_features(data):
+  # TODO: Implement a function that takes a PyG data object,
+  # and returns the number of features in the graph (as an integer).
+
+  num_features = 0
+
+  ############# Your code here ############
+  ## (~1 line of code)
+  num_features = data.num_node_features
+  #########################################
+
+  return num_features
+
+if 'IS_GRADESCOPE_ENV' not in os.environ:
+  num_features = graph_num_features(data)
+  print('The graph has {} features'.format(num_features))
+```
+
+    The graph has 128 features
+
+### GNN: 节点分类预测
+
+使用 PyG 的 `GCNConv` 层：
+
+
+```python
+import torch
+import pandas as pd
+import torch.nn.functional as F
+print(torch.__version__)
+
+# The PyG built-in GCNConv
+from torch_geometric.nn import GCNConv
+
+import torch_geometric.transforms as T
+from ogb.nodeproppred import PygNodePropPredDataset, Evaluator
+```
+
+    1.10.0+cu111
+
+```python
+data.adj_t
+```
+
+
+    SparseTensor(row=tensor([     0,      0,      0,  ..., 169341, 169341, 169341]),
+                 col=tensor([   411,    640,   1162,  ...,  30351,  35711, 103121]),
+                 size=(169343, 169343), nnz=1166243, density=0.00%)
+
+
+```python
+data.num_nodes
+```
+
+
+    169343
+
+
+```python
+data.adj_t.to_symmetric()
+```
+
+
+    SparseTensor(row=tensor([     0,      0,      0,  ..., 169341, 169342, 169342]),
+                 col=tensor([   411,    640,   1162,  ..., 163274,  27824, 158981]),
+                 size=(169343, 169343), nnz=2315598, density=0.01%)
+
+#### Load and Preprocess the Dataset
+
+
+```python
+if 'IS_GRADESCOPE_ENV' not in os.environ:
+  dataset_name = 'ogbn-arxiv'
+  dataset = PygNodePropPredDataset(name=dataset_name,transform=T.ToSparseTensor())
+  data = dataset[0]
+
+  # Make the adjacency matrix to symmetric
+  data.adj_t = data.adj_t.to_symmetric()
+
+  device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
+  # If you use GPU, the device should be cuda
+  print('Device: {}'.format(device))
+
+  data = data.to(device)
+  split_idx = dataset.get_idx_split()
+  train_idx = split_idx['train'].to(device)
+```
+
+    Device: cuda
+
+```python
+split_idx
+```
+
+
+    {'test': tensor([   346,    398,    451,  ..., 169340, 169341, 169342]),
+     'train': tensor([     0,      1,      2,  ..., 169145, 169148, 169251]),
+     'valid': tensor([   349,    357,    366,  ..., 169185, 169261, 169296])}
+
+#### GCN Model
+
+GNN 的架构如下：
+
+
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/aaa.png)
+
+
+```python
+class GCN(torch.nn.Module):
+    def __init__(self, input_dim, hidden_dim, output_dim, num_layers,
+                 dropout, return_embeds=False):
+        # TODO: Implement a function that initializes self.convs, 
+        # self.bns, and self.softmax.
+
+        super(GCN, self).__init__()
+
+        # A list of GCNConv layers
+        self.convs = None
+
+        # A list of 1D batch normalization layers
+        self.bns = None
+
+        # The log softmax layer
+        self.softmax = None
+
+        ############# Your code here ############
+        ## Note:
+        ## 1. You should use torch.nn.ModuleList for self.convs and self.bns
+        ## 2. self.convs has num_layers GCNConv layers
+        ## 3. self.bns has num_layers - 1 BatchNorm1d layers
+        ## 4. You should use torch.nn.LogSoftmax for self.softmax
+        ## 5. The parameters you can set for GCNConv include 'in_channels' and 
+        ## 'out_channels'. For more information please refer to the documentation:
+        ## https://pytorch-geometric.readthedocs.io/en/latest/modules/nn.html#torch_geometric.nn.conv.GCNConv
+        ## 6. The only parameter you need to set for BatchNorm1d is 'num_features'
+        ## For more information please refer to the documentation: 
+        ## https://pytorch.org/docs/stable/generated/torch.nn.BatchNorm1d.html
+        ## (~10 lines of code)
+        self.num_layers = num_layers
+        self.convs = torch.nn.ModuleList(
+            [GCNConv(input_dim,hidden_dim)] + 
+            [GCNConv(hidden_dim,hidden_dim) for i in range(self.num_layers-2)] +
+            [GCNConv(hidden_dim,output_dim)])
+
+        self.bns = torch.nn.ModuleList([torch.nn.BatchNorm1d(hidden_dim) for i in range(self.num_layers - 1)])
+        self.softmax = torch.nn.LogSoftmax()
+        #########################################
+
+        # Probability of an element getting zeroed
+        self.dropout = dropout
+
+        # Skip classification layer and return node embeddings
+        self.return_embeds = return_embeds
+
+    def reset_parameters(self):
+        for conv in self.convs:
+            conv.reset_parameters()
+        for bn in self.bns:
+            bn.reset_parameters()
+
+    def forward(self, x, adj_t):
+        # TODO: Implement a function that takes the feature tensor x and
+        # edge_index tensor adj_t and returns the output tensor as
+        # shown in the figure.
+
+        out = None
+
+        ############# Your code here ############
+        ## Note:
+        ## 1. Construct the network as shown in the figure
+        ## 2. torch.nn.functional.relu and torch.nn.functional.dropout are useful
+        ## For more information please refer to the documentation:
+        ## https://pytorch.org/docs/stable/nn.functional.html
+        ## 3. Don't forget to set F.dropout training to self.training
+        ## 4. If return_embeds is True, then skip the last softmax layer
+        ## (~7 lines of code)
+        for i in range(self.num_layers - 1):
+          x = self.convs[i](x, adj_t)
+          x = self.bns[i](x)
+          x = F.relu(x)
+          x = F.dropout(x,p=self.dropout,training=self.training)
+        x = self.convs[self.num_layers-1](x, adj_t)
+        if self.return_embeds :
+          out = x
+        else:
+          out = self.softmax(x)
+        #########################################
+
+        return out
+```
+
+
+```python
+def train(model, data, train_idx, optimizer, loss_fn):
+    # TODO: Implement a function that trains the model by 
+    # using the given optimizer and loss_fn.
+    model.train()
+    loss = 0
+
+    ############# Your code here ############
+    ## Note:
+    ## 1. Zero grad the optimizer
+    ## 2. Feed the data into the model
+    ## 3. Slice the model output and label by train_idx
+    ## 4. Feed the sliced output and label to loss_fn
+    ## (~4 lines of code)
+    optimizer.zero_grad()
+    out = model(data.x,data.adj_t)
+    loss = loss_fn(out[train_idx], data.y[train_idx].reshape(-1))
+    #########################################
+
+    loss.backward()
+    optimizer.step()
+
+    return loss.item()
+```
+
+
+```python
+# Test function here
+@torch.no_grad()
+def test(model, data, split_idx, evaluator, save_model_results=False):
+    # TODO: Implement a function that tests the model by 
+    # using the given split_idx and evaluator.
+    model.eval()
+
+    # The output of model on all data
+    out = None
+
+    ############# Your code here ############
+    ## (~1 line of code)
+    ## Note:
+    ## 1. No index slicing here
+    out = model(data.x,data.adj_t)
+    #########################################
+
+    y_pred = out.argmax(dim=-1, keepdim=True)
+
+    train_acc = evaluator.eval({
+        'y_true': data.y[split_idx['train']],
+        'y_pred': y_pred[split_idx['train']],
+    })['acc']
+    valid_acc = evaluator.eval({
+        'y_true': data.y[split_idx['valid']],
+        'y_pred': y_pred[split_idx['valid']],
+    })['acc']
+    test_acc = evaluator.eval({
+        'y_true': data.y[split_idx['test']],
+        'y_pred': y_pred[split_idx['test']],
+    })['acc']
+
+    if save_model_results:
+      print ("Saving Model Predictions")
+
+      data = {}
+      data['y_pred'] = y_pred.view(-1).cpu().detach().numpy()
+
+      df = pd.DataFrame(data=data)
+      # Save locally as csv
+      df.to_csv('ogbn-arxiv_node.csv', sep=',', index=False)
+
+
+    return train_acc, valid_acc, test_acc
+```
+
+
+```python
+# Please do not change the args
+if 'IS_GRADESCOPE_ENV' not in os.environ:
+  args = {
+      'device': device,
+      'num_layers': 3,
+      'hidden_dim': 256,
+      'dropout': 0.5,
+      'lr': 0.01,
+      'epochs': 100,
+  }
+  args
+```
+
+
+```python
+if 'IS_GRADESCOPE_ENV' not in os.environ:
+  model = GCN(data.num_features, args['hidden_dim'],
+              dataset.num_classes, args['num_layers'],
+              args['dropout']).to(device)
+  evaluator = Evaluator(name='ogbn-arxiv')
+```
+
+
+```python
+model.convs
+```
+
+
+    ModuleList(
+      (0): GCNConv(128, 256)
+      (1): GCNConv(256, 256)
+      (2): GCNConv(256, 40)
+    )
+
+
+```python
+import copy
+if 'IS_GRADESCOPE_ENV' not in os.environ:
+  # reset the parameters to initial random value
+  model.reset_parameters()
+
+  optimizer = torch.optim.Adam(model.parameters(), lr=args['lr'])
+  loss_fn = F.nll_loss
+
+  best_model = None
+  best_valid_acc = 0
+
+  for epoch in range(1, 1 + args["epochs"]):
+    loss = train(model, data, train_idx, optimizer, loss_fn)
+    result = test(model, data, split_idx, evaluator)
+    train_acc, valid_acc, test_acc = result
+    if valid_acc > best_valid_acc:
+        best_valid_acc = valid_acc
+        best_model = copy.deepcopy(model)
+    print(f'Epoch: {epoch:02d}, '
+          f'Loss: {loss:.4f}, '
+          f'Train: {100 * train_acc:.2f}%, '
+          f'Valid: {100 * valid_acc:.2f}% '
+          f'Test: {100 * test_acc:.2f}%')
+```
+
+    /usr/local/lib/python3.7/dist-packages/ipykernel_launcher.py:78: UserWarning: Implicit dimension choice for log_softmax has been deprecated. Change the call to include dim=X as an argument.
+
+
+    Epoch: 01, Loss: 4.1033, Train: 27.09%, Valid: 29.73% Test: 26.61%
+    Epoch: 02, Loss: 2.4399, Train: 26.64%, Valid: 24.23% Test: 28.44%
+    Epoch: 03, Loss: 1.9616, Train: 26.83%, Valid: 16.91% Test: 14.72%
+    Epoch: 04, Loss: 1.8343, Train: 28.58%, Valid: 15.74% Test: 12.46%
+    Epoch: 05, Loss: 1.6758, Train: 30.91%, Valid: 20.28% Test: 17.73%
+    Epoch: 06, Loss: 1.6027, Train: 33.16%, Valid: 27.19% Test: 25.46%
+    Epoch: 07, Loss: 1.5436, Train: 34.38%, Valid: 30.09% Test: 29.57%
+    Epoch: 08, Loss: 1.4816, Train: 36.40%, Valid: 33.96% Test: 35.30%
+    Epoch: 09, Loss: 1.4277, Train: 39.82%, Valid: 39.25% Test: 43.29%
+    Epoch: 10, Loss: 1.4086, Train: 43.05%, Valid: 42.01% Test: 46.15%
+    Epoch: 11, Loss: 1.3740, Train: 46.01%, Valid: 44.16% Test: 47.89%
+    Epoch: 12, Loss: 1.3430, Train: 49.18%, Valid: 47.97% Test: 51.24%
+    Epoch: 13, Loss: 1.3192, Train: 52.03%, Valid: 51.83% Test: 54.47%
+    Epoch: 14, Loss: 1.2995, Train: 54.05%, Valid: 54.74% Test: 57.26%
+    Epoch: 15, Loss: 1.2774, Train: 55.88%, Valid: 57.32% Test: 59.08%
+    Epoch: 16, Loss: 1.2582, Train: 57.55%, Valid: 59.13% Test: 60.06%
+    Epoch: 17, Loss: 1.2439, Train: 58.61%, Valid: 60.20% Test: 61.11%
+    Epoch: 18, Loss: 1.2282, Train: 59.16%, Valid: 60.52% Test: 61.89%
+    Epoch: 19, Loss: 1.2170, Train: 59.45%, Valid: 60.19% Test: 62.18%
+    Epoch: 20, Loss: 1.1986, Train: 60.01%, Valid: 60.50% Test: 62.57%
+    Epoch: 21, Loss: 1.1874, Train: 60.63%, Valid: 61.09% Test: 62.82%
+    Epoch: 22, Loss: 1.1724, Train: 61.08%, Valid: 61.48% Test: 63.07%
+    Epoch: 23, Loss: 1.1602, Train: 61.42%, Valid: 61.66% Test: 63.16%
+    Epoch: 24, Loss: 1.1519, Train: 62.03%, Valid: 62.16% Test: 63.46%
+    Epoch: 25, Loss: 1.1451, Train: 62.99%, Valid: 63.15% Test: 64.23%
+    Epoch: 26, Loss: 1.1398, Train: 64.04%, Valid: 64.03% Test: 64.89%
+    Epoch: 27, Loss: 1.1307, Train: 65.06%, Valid: 65.05% Test: 65.56%
+    Epoch: 28, Loss: 1.1206, Train: 65.98%, Valid: 65.64% Test: 65.73%
+    Epoch: 29, Loss: 1.1140, Train: 66.77%, Valid: 66.28% Test: 65.64%
+    Epoch: 30, Loss: 1.1101, Train: 67.40%, Valid: 66.95% Test: 66.20%
+    Epoch: 31, Loss: 1.1046, Train: 67.77%, Valid: 67.42% Test: 67.15%
+    Epoch: 32, Loss: 1.0961, Train: 67.67%, Valid: 67.28% Test: 67.73%
+    Epoch: 33, Loss: 1.0916, Train: 67.43%, Valid: 67.16% Test: 67.91%
+    Epoch: 34, Loss: 1.0865, Train: 67.36%, Valid: 67.18% Test: 67.91%
+    Epoch: 35, Loss: 1.0757, Train: 67.53%, Valid: 67.34% Test: 68.08%
+    Epoch: 36, Loss: 1.0746, Train: 68.01%, Valid: 67.87% Test: 68.27%
+    Epoch: 37, Loss: 1.0709, Train: 68.60%, Valid: 68.52% Test: 68.41%
+    Epoch: 38, Loss: 1.0660, Train: 69.08%, Valid: 68.87% Test: 68.58%
+    Epoch: 39, Loss: 1.0616, Train: 69.52%, Valid: 69.17% Test: 68.88%
+    Epoch: 40, Loss: 1.0581, Train: 69.80%, Valid: 69.42% Test: 69.12%
+    Epoch: 41, Loss: 1.0546, Train: 69.92%, Valid: 69.43% Test: 69.35%
+    Epoch: 42, Loss: 1.0500, Train: 69.99%, Valid: 69.57% Test: 69.40%
+    Epoch: 43, Loss: 1.0427, Train: 70.07%, Valid: 69.57% Test: 69.41%
+    Epoch: 44, Loss: 1.0425, Train: 70.27%, Valid: 69.71% Test: 69.46%
+    Epoch: 45, Loss: 1.0397, Train: 70.39%, Valid: 69.82% Test: 69.61%
+    Epoch: 46, Loss: 1.0344, Train: 70.50%, Valid: 69.98% Test: 69.68%
+    Epoch: 47, Loss: 1.0285, Train: 70.66%, Valid: 70.16% Test: 69.82%
+    Epoch: 48, Loss: 1.0244, Train: 70.80%, Valid: 70.35% Test: 70.00%
+    Epoch: 49, Loss: 1.0254, Train: 71.00%, Valid: 70.48% Test: 70.02%
+    Epoch: 50, Loss: 1.0170, Train: 71.11%, Valid: 70.49% Test: 69.76%
+    Epoch: 51, Loss: 1.0184, Train: 71.14%, Valid: 70.37% Test: 69.58%
+    Epoch: 52, Loss: 1.0163, Train: 71.09%, Valid: 70.43% Test: 69.59%
+    Epoch: 53, Loss: 1.0116, Train: 71.03%, Valid: 70.41% Test: 69.82%
+    Epoch: 54, Loss: 1.0086, Train: 71.12%, Valid: 70.52% Test: 69.89%
+    Epoch: 55, Loss: 1.0072, Train: 71.22%, Valid: 70.71% Test: 70.05%
+    Epoch: 56, Loss: 1.0051, Train: 71.36%, Valid: 70.88% Test: 69.98%
+    Epoch: 57, Loss: 1.0010, Train: 71.49%, Valid: 70.94% Test: 69.96%
+    Epoch: 58, Loss: 0.9991, Train: 71.66%, Valid: 70.75% Test: 69.87%
+    Epoch: 59, Loss: 0.9962, Train: 71.69%, Valid: 70.70% Test: 69.88%
+    Epoch: 60, Loss: 0.9930, Train: 71.71%, Valid: 70.77% Test: 70.09%
+    Epoch: 61, Loss: 0.9925, Train: 71.71%, Valid: 70.82% Test: 70.22%
+    Epoch: 62, Loss: 0.9894, Train: 71.81%, Valid: 70.88% Test: 70.22%
+    Epoch: 63, Loss: 0.9862, Train: 71.96%, Valid: 71.00% Test: 70.29%
+    Epoch: 64, Loss: 0.9880, Train: 72.08%, Valid: 71.11% Test: 70.29%
+    Epoch: 65, Loss: 0.9831, Train: 72.18%, Valid: 71.01% Test: 70.15%
+    Epoch: 66, Loss: 0.9821, Train: 72.24%, Valid: 71.01% Test: 70.09%
+    Epoch: 67, Loss: 0.9791, Train: 72.29%, Valid: 70.99% Test: 70.02%
+    Epoch: 68, Loss: 0.9775, Train: 72.35%, Valid: 71.07% Test: 70.08%
+    Epoch: 69, Loss: 0.9716, Train: 72.26%, Valid: 71.14% Test: 70.15%
+    Epoch: 70, Loss: 0.9716, Train: 72.30%, Valid: 71.01% Test: 70.05%
+    Epoch: 71, Loss: 0.9709, Train: 72.38%, Valid: 71.00% Test: 69.94%
+    Epoch: 72, Loss: 0.9719, Train: 72.46%, Valid: 70.86% Test: 69.75%
+    Epoch: 73, Loss: 0.9659, Train: 72.53%, Valid: 71.04% Test: 69.91%
+    Epoch: 74, Loss: 0.9669, Train: 72.58%, Valid: 71.24% Test: 70.23%
+    Epoch: 75, Loss: 0.9637, Train: 72.66%, Valid: 71.39% Test: 70.35%
+    Epoch: 76, Loss: 0.9607, Train: 72.71%, Valid: 71.13% Test: 69.67%
+    Epoch: 77, Loss: 0.9588, Train: 72.72%, Valid: 70.88% Test: 69.13%
+    Epoch: 78, Loss: 0.9592, Train: 72.85%, Valid: 71.09% Test: 69.73%
+    Epoch: 79, Loss: 0.9569, Train: 72.88%, Valid: 71.56% Test: 70.79%
+    Epoch: 80, Loss: 0.9550, Train: 72.81%, Valid: 71.50% Test: 70.85%
+    Epoch: 81, Loss: 0.9504, Train: 72.75%, Valid: 71.25% Test: 70.50%
+    Epoch: 82, Loss: 0.9495, Train: 72.78%, Valid: 71.20% Test: 70.13%
+    Epoch: 83, Loss: 0.9503, Train: 72.85%, Valid: 71.17% Test: 70.13%
+    Epoch: 84, Loss: 0.9459, Train: 72.95%, Valid: 71.17% Test: 69.93%
+    Epoch: 85, Loss: 0.9414, Train: 73.03%, Valid: 71.21% Test: 70.01%
+    Epoch: 86, Loss: 0.9431, Train: 73.12%, Valid: 71.48% Test: 70.46%
+    Epoch: 87, Loss: 0.9416, Train: 73.13%, Valid: 71.38% Test: 70.13%
+    Epoch: 88, Loss: 0.9403, Train: 73.22%, Valid: 71.48% Test: 70.44%
+    Epoch: 89, Loss: 0.9388, Train: 73.09%, Valid: 71.58% Test: 70.74%
+    Epoch: 90, Loss: 0.9381, Train: 72.96%, Valid: 71.49% Test: 70.93%
+    Epoch: 91, Loss: 0.9347, Train: 73.26%, Valid: 71.59% Test: 70.70%
+    Epoch: 92, Loss: 0.9320, Train: 73.25%, Valid: 71.31% Test: 70.03%
+    Epoch: 93, Loss: 0.9316, Train: 73.17%, Valid: 71.03% Test: 69.63%
+    Epoch: 94, Loss: 0.9325, Train: 73.39%, Valid: 71.52% Test: 70.41%
+    Epoch: 95, Loss: 0.9309, Train: 73.37%, Valid: 71.75% Test: 71.18%
+    Epoch: 96, Loss: 0.9268, Train: 73.21%, Valid: 71.80% Test: 71.35%
+    Epoch: 97, Loss: 0.9271, Train: 73.38%, Valid: 71.67% Test: 71.22%
+    Epoch: 98, Loss: 0.9239, Train: 73.50%, Valid: 71.62% Test: 71.12%
+    Epoch: 99, Loss: 0.9245, Train: 73.62%, Valid: 71.61% Test: 70.90%
+    Epoch: 100, Loss: 0.9250, Train: 73.64%, Valid: 71.55% Test: 70.65%
+
+##### Question 5: 验证和测试中最好的模型是什么？
+
+Run the cell below to see the results of your best of model and save your model's predictions to a file named *ogbn-arxiv_node.csv*. 
+
+You can view this file by clicking on the *Folder* icon on the left side pannel. As in Colab 1, when you sumbit your assignment, you will have to download this file and attatch it to your submission.
+
+
+```python
+if 'IS_GRADESCOPE_ENV' not in os.environ:
+  best_result = test(best_model, data, split_idx, evaluator, save_model_results=True)
+  train_acc, valid_acc, test_acc = best_result
+  print(f'Best model: '
+        f'Train: {100 * train_acc:.2f}%, '
+        f'Valid: {100 * valid_acc:.2f}% '
+        f'Test: {100 * test_acc:.2f}%')
+```
+
+    Saving Model Predictions
+    Best model: Train: 73.21%, Valid: 71.80% Test: 71.35%
+
+
+    /usr/local/lib/python3.7/dist-packages/ipykernel_launcher.py:78: UserWarning: Implicit dimension choice for log_softmax has been deprecated. Change the call to include dim=X as an argument.
+
+###  GNN: 图类别预测
+
+In this section we will create a graph neural network for graph property prediction (graph classification).
+
+#### Load and preprocess the dataset
+
+
+```python
+from ogb.graphproppred import PygGraphPropPredDataset, Evaluator
+from torch_geometric.data import DataLoader
+from tqdm.notebook import tqdm
+
+if 'IS_GRADESCOPE_ENV' not in os.environ:
+  # Load the dataset 
+  dataset = PygGraphPropPredDataset(name='ogbg-molhiv')
+
+  device = 'cuda' if torch.cuda.is_available() else 'cpu'
+  print('Device: {}'.format(device))
+
+  split_idx = dataset.get_idx_split()
+
+  # Check task type
+  print('Task type: {}'.format(dataset.task_type))
+```
+
+    Downloading http://snap.stanford.edu/ogb/data/graphproppred/csv_mol_download/hiv.zip
+
+
+    Downloaded 0.00 GB: 100%|â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆ| 3/3 [00:02<00:00,  1.33it/s]
+    Processing...
+
+
+    Extracting dataset/hiv.zip
+    Loading necessary files...
+    This might take a while.
+    Processing graphs...
+
+
+    100%|â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆ| 41127/41127 [00:00<00:00, 102734.99it/s]
+
+
+    Converting graphs into PyG objects...
+
+
+    100%|â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆ| 41127/41127 [00:00<00:00, 43779.36it/s]
+
+
+    Saving...
+    Device: cuda
+    Task type: binary classification
+
+
+    Done!
+
+```python
+# Load the dataset splits into corresponding dataloaders
+# We will train the graph classification task on a batch of 32 graphs
+# Shuffle the order of graphs for training set
+if 'IS_GRADESCOPE_ENV' not in os.environ:
+  train_loader = DataLoader(dataset[split_idx["train"]], batch_size=32, shuffle=True, num_workers=0)
+  valid_loader = DataLoader(dataset[split_idx["valid"]], batch_size=32, shuffle=False, num_workers=0)
+  test_loader = DataLoader(dataset[split_idx["test"]], batch_size=32, shuffle=False, num_workers=0)
+```
+
+    /usr/local/lib/python3.7/dist-packages/torch_geometric/deprecation.py:12: UserWarning: 'data.DataLoader' is deprecated, use 'loader.DataLoader' instead
+      warnings.warn(out)
+
+```python
+if 'IS_GRADESCOPE_ENV' not in os.environ:
+  # Please do not change the args
+  args = {
+      'device': device,
+      'num_layers': 5,
+      'hidden_dim': 256,
+      'dropout': 0.5,
+      'lr': 0.001,
+      'epochs': 30,
+  }
+  args
+```
+
+
+```python
+test = dataset[1:10]
+```
+
+
+```python
+test[1]
+```
+
+
+    Data(edge_index=[2, 48], edge_attr=[48, 3], x=[21, 9], y=[1, 1], num_nodes=21)
+
+#### Graph Prediction Model
+
+使用上面的 GCN 模型产生图中节点的 embedding，然后使用池化操作（这里是平均）得到每个图的 embedding（对每个节点的 embedding 进行按元素平均），`torch_geometric.data.Batch` 中的 batch 有利于我们做这个池化操作。
+
+
+```python
+model
+```
+
+
+    GCN_Graph(
+      (node_encoder): AtomEncoder(
+        (atom_embedding_list): ModuleList(
+          (0): Embedding(119, 256)
+          (1): Embedding(4, 256)
+          (2): Embedding(12, 256)
+          (3): Embedding(12, 256)
+          (4): Embedding(10, 256)
+          (5): Embedding(6, 256)
+          (6): Embedding(6, 256)
+          (7): Embedding(2, 256)
+          (8): Embedding(2, 256)
+        )
+      )
+      (gnn_node): GCN(
+        (convs): ModuleList(
+          (0): GCNConv(256, 256)
+          (1): GCNConv(256, 256)
+          (2): GCNConv(256, 256)
+          (3): GCNConv(256, 256)
+          (4): GCNConv(256, 256)
+        )
+        (bns): ModuleList(
+          (0): BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (1): BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (2): BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (3): BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+        (softmax): LogSoftmax(dim=None)
+      )
+      (linear): Linear(in_features=256, out_features=1, bias=True)
+    )
+
+
+```python
+from ogb.graphproppred.mol_encoder import AtomEncoder
+from torch_geometric.nn import global_add_pool, global_mean_pool
+
+### GCN to predict graph property
+class GCN_Graph(torch.nn.Module):
+    def __init__(self, hidden_dim, output_dim, num_layers, dropout):
+        super(GCN_Graph, self).__init__()
+
+        # Load encoders for Atoms in molecule graphs
+        self.node_encoder = AtomEncoder(hidden_dim)
+
+        # Node embedding model
+        # Note that the input_dim and output_dim are set to hidden_dim
+        self.gnn_node = GCN(hidden_dim, hidden_dim,
+            hidden_dim, num_layers, dropout, return_embeds=True)
+
+        self.pool = None
+
+        ############# Your code here ############
+        ## Note:
+        ## 1. Initialize self.pool as a global mean pooling layer
+        ## For more information please refer to the documentation:
+        ## https://pytorch-geometric.readthedocs.io/en/latest/modules/nn.html#global-pooling-layers
+        self.pool = global_mean_pool
+        #########################################
+
+        # Output layer
+        self.linear = torch.nn.Linear(hidden_dim, output_dim)
+
+
+    def reset_parameters(self):
+      self.gnn_node.reset_parameters()
+      self.linear.reset_parameters()
+
+    def forward(self, batched_data):
+        # TODO: Implement a function that takes as input a 
+        # mini-batch of graphs (torch_geometric.data.Batch) and 
+        # returns the predicted graph property for each graph. 
+        #
+        # NOTE: Since we are predicting graph level properties,
+        # your output will be a tensor with dimension equaling
+        # the number of graphs in the mini-batch
+
+    
+        # Extract important attributes of our mini-batch
+        x, edge_index, batch = batched_data.x, batched_data.edge_index, batched_data.batch
+        embed = self.node_encoder(x)
+
+        out = None
+
+        ############# Your code here ############
+        ## Note:
+        ## 1. Construct node embeddings using existing GCN model
+        ## 2. Use the global pooling layer to aggregate features for each individual graph
+        ## For more information please refer to the documentation:
+        ## https://pytorch-geometric.readthedocs.io/en/latest/modules/nn.html#global-pooling-layers
+        ## 3. Use a linear layer to predict each graph's property
+        ## (~3 lines of code)
+        x = self.gnn_node(embed,edge_index)
+        x = self.pool(x,batch)
+        out = self.linear(x)
+        #########################################
+
+        return out
+```
+
+
+```python
+def train(model, device, data_loader, optimizer, loss_fn):
+    # TODO: Implement a function that trains your model by 
+    # using the given optimizer and loss_fn.
+    model.train()
+    loss = 0
+
+    for step, batch in enumerate(tqdm(data_loader, desc="Iteration")):
+      batch = batch.to(device)
+
+      if batch.x.shape[0] == 1 or batch.batch[-1] == 0:##å�ªæœ‰ä¸€ä¸ªå›¾
+          pass
+      else:
+        ## ignore nan targets (unlabeled) when computing training loss.
+        is_labeled = batch.y == batch.y
+
+        ############# Your code here ############
+        ## Note:
+        ## 1. Zero grad the optimizer
+        ## 2. Feed the data into the model
+        ## 3. Use `is_labeled` mask to filter output and labels
+        ## 4. You may need to change the type of label to torch.float32
+        ## 5. Feed the output and label to the loss_fn
+        ## (~3 lines of code)
+        optimizer.zero_grad()
+        out = model(batch)
+        loss = loss_fn(out[is_labeled], batch.y[is_labeled].type(torch.float32).reshape(-1))
+        #########################################
+
+        loss.backward()
+        optimizer.step()
+
+    return loss.item()
+```
+
+
+```python
+# The evaluation function
+def eval(model, device, loader, evaluator, save_model_results=False, save_file=None):
+    model.eval()
+    y_true = []
+    y_pred = []
+
+    for step, batch in enumerate(tqdm(loader, desc="Iteration")):
+        batch = batch.to(device)
+
+        if batch.x.shape[0] == 1:
+            pass
+        else:
+            with torch.no_grad():
+                pred = model(batch)
+
+            y_true.append(batch.y.view(pred.shape).detach().cpu())
+            y_pred.append(pred.detach().cpu())
+
+    y_true = torch.cat(y_true, dim = 0).numpy()
+    y_pred = torch.cat(y_pred, dim = 0).numpy()
+
+    input_dict = {"y_true": y_true, "y_pred": y_pred}
+
+    if save_model_results:
+        print ("Saving Model Predictions")
+        
+        # Create a pandas dataframe with a two columns
+        # y_pred | y_true
+        data = {}
+        data['y_pred'] = y_pred.reshape(-1)
+        data['y_true'] = y_true.reshape(-1)
+
+        df = pd.DataFrame(data=data)
+        # Save to csv
+        df.to_csv('ogbg-molhiv_graph_' + save_file + '.csv', sep=',', index=False)
+
+    return evaluator.eval(input_dict)
+```
+
+
+```python
+if 'IS_GRADESCOPE_ENV' not in os.environ:
+  model = GCN_Graph(args['hidden_dim'],
+              dataset.num_tasks, args['num_layers'],
+              args['dropout']).to(device)
+  evaluator = Evaluator(name='ogbg-molhiv')
+```
+
+
+```python
+import copy
+
+if 'IS_GRADESCOPE_ENV' not in os.environ:
+  model.reset_parameters()
+
+  optimizer = torch.optim.Adam(model.parameters(), lr=args['lr'])
+  loss_fn = torch.nn.BCEWithLogitsLoss()
+
+  best_model = None
+  best_valid_acc = 0
+
+  for epoch in range(1, 1 + args["epochs"]):
+    print('Training...')
+    loss = train(model, device, train_loader, optimizer, loss_fn)
+
+    print('Evaluating...')
+    train_result = eval(model, device, train_loader, evaluator)
+    val_result = eval(model, device, valid_loader, evaluator)
+    test_result = eval(model, device, test_loader, evaluator)
+
+    train_acc, valid_acc, test_acc = train_result[dataset.eval_metric], val_result[dataset.eval_metric], test_result[dataset.eval_metric]
+    if valid_acc > best_valid_acc:
+        best_valid_acc = valid_acc
+        best_model = copy.deepcopy(model)
+    print(f'Epoch: {epoch:02d}, '
+          f'Loss: {loss:.4f}, '
+          f'Train: {100 * train_acc:.2f}%, '
+          f'Valid: {100 * valid_acc:.2f}% '
+          f'Test: {100 * test_acc:.2f}%')
+```
+
+    Training...
+
+
+    Epoch: 30, Loss: 0.0200, Train: 84.28%, Valid: 79.55% Test: 75.39%
+
+##### Question 6: 验证和测试集中 AUC 最高的模型是哪个？
+
+
+```python
+if 'IS_GRADESCOPE_ENV' not in os.environ:
+  train_acc = eval(best_model, device, train_loader, evaluator)[dataset.eval_metric]
+  valid_acc = eval(best_model, device, valid_loader, evaluator, save_model_results=True, save_file="valid")[dataset.eval_metric]
+  test_acc  = eval(best_model, device, test_loader, evaluator, save_model_results=True, save_file="test")[dataset.eval_metric]
+
+  print(f'Best model: '
+      f'Train: {100 * train_acc:.2f}%, '
+      f'Valid: {100 * valid_acc:.2f}% '
+      f'Test: {100 * test_acc:.2f}%')
+```
+
+
+    Iteration:   0%|          | 0/1029 [00:00<?, ?it/s]
+
+    Iteration:   0%|          | 0/129 [00:00<?, ?it/s]
+
+
+    Saving Model Predictions
+
+    Iteration:   0%|          | 0/129 [00:00<?, ?it/s]
+
+
+    Saving Model Predictions
+    Best model: Train: 84.10%, Valid: 80.21% Test: 74.61%
+
