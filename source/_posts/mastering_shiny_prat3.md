@@ -142,19 +142,173 @@ server <- function(input, output, session) {
 
 ## Shiny 模块
 
+shiny 模块和一般的 shiny 区别在于每一个模块都会构建一个命名空间（namespace），而不像普通的 app 那样是共享的（对于每个控件的 ID ，所有的 server 函数都可以通过该 ID 获取输入的内容）；只有具有相同命名空间的函数才可以共享这些变量，那么这些函数就构成了一个模块。因此模块就像一个一个隔离的黑盒子，在模块外面只能获取到模块的输入，下面是一个 app 的例子：
 
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220425162058363.png" style="zoom:50%;" />
 
+### 模块基础
 
+我们以一个非常简单的画直方图的 app 为例：
 
+```R
+ui <- fluidPage(
+  selectInput("var", "Variable", names(mtcars)),
+  numericInput("bins", "bins", 10, min = 1),
+  plotOutput("hist")
+)
+server <- function(input, output, session) {
+  data <- reactive(mtcars[[input$var]])
+  output$hist <- renderPlot({
+    hist(data(), breaks = input$bins, main = input$var)
+  }, res = 96)
+}
+```
 
+一个模块和一个 app 是类似的，由两部分构成：
 
+- 模块 UI 函数：产生 UI
+- 模块 server 函数：运行 server 函数内的代码
 
+这两个函数都是以 `id` 作为参数，并将其作为该模块的命名空间。
 
+#### 模块 UI
 
+构建模块 UI 函数需要两步：将 UI 代码放到一个接受 id 为参数的函数中；将之前的 ID 放到 `NS` (NameSpace) 的函数调用中，例如原来 ID 是 `var` ，现在就变成 `NS(id,"var")` ，将上面 app 的 UI 部分构建成模块 UI 为：
 
+```R
+histogramUI <- function(id) {
+  tagList(
+    selectInput(NS(id, "var"), "Variable", choices = names(mtcars)),
+    numericInput(NS(id, "bins"), "bins", value = 10, min = 1),
+    plotOutput(NS(id, "hist"))
+  )
+}
+```
 
+注意这里的 `tagList` 将多个 UI 控件放在一起，并没有指定布局是什么，我们可以在调用这个模块 UI 时选择合适的布局函数（比如 `fluidRow` , `fluidPage` 等）
 
+#### 模块 server
 
+模块的 server 函数是一个两层的函数，第一层和 UI 类似，以 `id` 作为输入；第二层是一个 `moduleServer` 函数，这个函数和 server 类似，但是需要有个 `id`：
 
+```R
+histogramServer <- function(id) {
+  moduleServer(id, function(input, output, session) {
+    data <- reactive(mtcars[[input$var]])
+    output$hist <- renderPlot({
+      hist(data(), breaks = input$bins, main = input$var)
+    }, res = 96)
+  })
+}
+```
 
+`moduleServer` 函数可以自动附加命名空间，比如在这个函数里面 `input$bins` 就会自动找命名空间为 `id` 的 `input$bins` 变量，不需要像 UI 里面一样加上 `NS`。
+
+现在可以把原来的 app 改写成模块的形式：
+
+```R
+histogramApp <- function() {
+  ui <- fluidPage(
+    histogramUI("hist1")
+  )
+  server <- function(input, output, session) {
+    histogramServer("hist1")
+  }
+  shinyApp(ui, server)  
+}
+```
+
+{% note warning %}
+注意和 shiny 控件一样，一个模块的 UI 和 server 的 `id` 要一样，不然变量无法获取
+{% endnote %}
+
+前面讲过模块就像一个黑盒子，从外面 “看不到” 里面的东西，比如下面这个 app：
+
+ ```R
+ ui <- fluidPage(
+   histogramUI("hist1"),
+   textOutput("out")
+ )
+ server <- function(input, output, session) {
+   histogramServer("hist1")
+   output$out <- renderText(paste0("Bins: ", input$bins))
+ }
+ ```
+
+`output$out` 不会依据 `input$bins` 的值进行更新，因为没有 `input$bins`，只有 `hist1` 模块可以看到见 `input$bins` 这个变量（相当于局部变量）。像函数一样，为了精简 `app.R` 文件，我们可以将这些模块函数放到一个单独的文件中，比如 `R/histogram.R`。
+
+------
+
+再举个例子，构建四个一样的控件，但是命名空间不一样，也就是四个模块：
+
+```R
+# module UI
+randomUI <- function(id) {
+  fluidRow(
+    column(width = 1,
+           textOutput(NS(id, "val"))),
+    column(width = 11,
+           actionButton(NS(id, "go"), "Go!"))
+  )
+}
+
+# module server
+randomServer <- function(id) {
+  moduleServer(id, function(input, output, session) {
+    rand <- eventReactive(input$go, sample(100, 1))
+    output$val <- renderText(rand())
+  })
+}
+
+```
+
+```R
+library(shiny)
+
+ui <- fluidPage(
+  randomUI("rand1"),
+  randomUI("rand2"),
+  randomUI("rand3"),
+  randomUI("rand4")
+)
+server <- function(input, output, session) {
+  randomServer("rand1")
+  randomServer("rand2")
+  randomServer("rand3")
+  randomServer("rand4")
+}
+shinyApp(ui, server)  
+```
+
+或者：
+
+```R
+library(shiny)
+
+# generate app
+randomApp <- function() {
+  ui <- fluidPage(
+    randomUI("rand1"),
+    randomUI("rand2"),
+    randomUI("rand3"),
+    randomUI("rand4")
+  )
+  server <- function(input, output, session) {
+    randomServer("rand1")
+    randomServer("rand2")
+    randomServer("rand3")
+    randomServer("rand4")
+  }
+  shinyApp(ui, server)  
+}
+
+# run app
+randomApp()
+```
+
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/%E5%8A%A8%E7%94%BB249.gif)
+
+------
+
+### 输入和输出
 
