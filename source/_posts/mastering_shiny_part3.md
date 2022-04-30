@@ -312,3 +312,214 @@ randomApp()
 
 ### 输入和输出
 
+对于模块的 UI 和 server 除了 id 参数外还可以输入其他参数，给模块 UI 其他的参数可以让我们使用同一个模块函数在不同的地方表现多样的 UI 外观，但是模型 UI 函数和普通的函数是一样，因此加上其他的参数并没有什么特殊的地方，而对于模块 server 函数来说更需要注意输入和输出是什么。
+
+#### UI 输入 + server 输出
+
+以一个选择数据集的模块为例：
+
+对模块 UI ，我们添加了一个 `filter` 参数（`is.data.frame` 或者 `is.matrix` 来筛选供选择的数据集）：
+
+```R
+datasetInput <- function(id, filter = NULL) {
+  names <- ls("package:datasets")
+  if (!is.null(filter)) {
+    data <- lapply(names, get, "package:datasets")
+    names <- names[vapply(data, filter, logical(1))]
+  }
+  
+  selectInput(NS(id, "dataset"), "Pick a dataset", choices = names)
+}
+```
+
+`vapply` 可以类型判断，返回的值必须和 `FUN.VALUE` (这里就是 logical(1)，也就是逻辑值) 的长度和数据类型一致，因此返回的是一个布尔型标量，依据这个值来选择数据集的名称。
+
+对于模块 server，我们只需要使用 `get` 来依据用户提供的名称提取数据就行了，但是要注意的是模块 server 函数更像一般的函数而不是 server 函数，也就是模块 server 需要返回一个**响应**值（函数最后一个代码的值会被自动返回，因此不需要 return）：
+
+```R
+datasetServer <- function(id) {
+  moduleServer(id, function(input, output, session) {
+    reactive(get(input$dataset, "package:datasets"))
+  })
+}
+```
+
+在 app 中使用模块 server 返回的值直接用赋值语句（`<-`）就可以了：
+
+```R
+datasetApp <- function(filter = NULL) {
+  ui <- fluidPage(
+    datasetInput("dataset", filter = filter),
+    tableOutput("data")
+  )
+  server <- function(input, output, session) {
+    data <- datasetServer("dataset")
+    output$data <- renderTable(head(data()))
+  }
+  shinyApp(ui, server)
+}
+```
+
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/%E5%8A%A8%E7%94%BB250.gif)
+
+我们再进一步：让用户基于已选择的数据集来选择列展示；这个 UI 很简单，就是一个 `selectInput` ，但是要注意由于刚开始用户没有选择数据集，因此启动 app 时需要将 `choices` 设定为 `NULL`:
+
+```R
+selectVarInput <- function(id) {
+  selectInput(NS(id, "var"), "Variable", choices = NULL) 
+}
+```
+
+模块 server 函数需要另外两个参数：`data` 用来选择变量的数据，这个需要是响应的，可以使用上面那个 `dataset` 模块的输出作为这个参数；`filter` ，用来控制什么样的变量可供用户选择，因此这个参数不需要响应（由开发者定义的），先将选择变量名的函数独立出来：
+
+```R
+find_vars <- function(data, filter) {
+  names(data)[vapply(data, filter, logical(1))]
+}
+```
+
+模块 server 中应该使用 `observeEvent` 来响应 `data` 的变化，从而更新 `inputSelect` ，并且返回的仍然是一个可响应的值：
+
+```R
+selectVarServer <- function(id, data, filter = is.numeric) {
+  moduleServer(id, function(input, output, session) {
+    observeEvent(data(), {
+      updateSelectInput(session, "var", choices = find_vars(data(), filter))
+    })
+    
+    reactive(data()[[input$var]])
+  })
+}
+```
+
+对于整个 app 来说，此时就有两个模块了，`dataset` 和 `var` 模块，并且 **`var` 模块接受 `dataset` 模块的输出作为输入**：
+
+```R
+selectVarApp <- function(filter = is.numeric) {
+  ui <- fluidPage(
+    datasetInput("data", is.data.frame),
+    selectVarInput("var"),
+    verbatimTextOutput("out")
+  )
+  server <- function(input, output, session) {
+    data <- datasetServer("data")
+    var <- selectVarServer("var", data, filter = filter)
+    output$out <- renderPrint(var())
+  }
+  
+  shinyApp(ui, server)
+}
+```
+
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/%E5%8A%A8%E7%94%BB251.gif)
+
+#### Server 输入
+
+从上面的例子也可以看出：我们设计一个模块 server 时需要考虑函数的每个参数是由谁提供的，如果是由其他开发者或者调用这个模块的人提供，那么这种参数就是在 app 的生命周期中不变的，也就是不需要响应（如上面的 `filter` 参数）；如果参数是由用户提供的，那么就需要是响应的（如上面的 `data` 参数）。除了在设计 server 时考虑好，还可以在模块中检查某个值是不是响应的：
+
+```R
+selectVarServer <- function(id, data, filter = is.numeric) {
+  stopifnot(is.reactive(data))
+  stopifnot(!is.reactive(filter))
+  
+  moduleServer(id, function(input, output, session) {
+    observeEvent(data(), {
+      updateSelectInput(session, "var", choices = find_vars(data(), filter))
+    })
+    
+    reactive(data()[[input$var]])
+  })
+}
+```
+
+#### 在模块内的模块
+
+模块是可以组合的，比如我们将上面两个模块 (`dataset` 和 `var` ) 组合成一个模块 `datavar` 来进行选择数据和变量：
+
+```R
+selectDataVarUI <- function(id) {
+  tagList(
+    datasetInput(NS(id, "data"), filter = is.data.frame),
+    selectVarInput(NS(id, "var"))
+  )
+}
+selectDataVarServer <- function(id, filter = is.numeric) {
+  moduleServer(id, function(input, output, session) {
+    data <- datasetServer("data")
+    var <- selectVarServer("var", data, filter = filter)
+    var
+  })
+}
+
+selectDataVarApp <- function(filter = is.numeric) {
+  ui <- fluidPage(
+    sidebarLayout(
+      sidebarPanel(selectDataVarUI("datavar")),
+      mainPanel(verbatimTextOutput("out"))
+    )
+  )
+  server <- function(input, output, session) {
+    var <- selectDataVarServer("datavar", filter)
+    output$out <- renderPrint(var(), width = 40)
+  }
+  shinyApp(ui, server)
+}
+```
+
+------
+
+再进一步，依据我们选择的变量可以绘制上面那个直方图，这里对于模块 server 提供两个额外的参数：`x` 需要绘制的变量和 `title` 直方图的标题，这两个参数都要是可响应的，因此对于标题来说开始需要用 `reavtive` 返回一个常数：
+
+```R
+histogramOutputBins <- function(id) {
+  numericInput(NS(id, "bins"), "bins", 10, min = 1, step = 1)
+}
+histogramOutputPlot <- function(id) {
+  plotOutput(NS(id, "hist"))
+}
+
+histogramServer <- function(id, x, title = reactive("Histogram")) {
+  stopifnot(is.reactive(x))
+  stopifnot(is.reactive(title))
+  
+  moduleServer(id, function(input, output, session) {
+    output$hist <- renderPlot({
+      req(is.numeric(x()))
+      main <- paste0(title(), " [", input$bins, "]")
+      hist(x(), breaks = input$bins, main = main)
+    }, res = 96)
+  })
+}
+
+histogramApp <- function() {
+  ui <- fluidPage(
+  sidebarLayout(
+    sidebarPanel(
+      datasetInput("data", is.data.frame),
+      selectVarInput("var"),
+      histogramOutputBins("hist")
+    ),
+    mainPanel(
+      histogramOutputPlot("hist")
+    )
+  )
+)
+  
+  server <- function(input, output, session) {
+    data <- datasetServer("data")
+    x <- selectVarServer("var", data)
+    histogramServer("hist", x)
+  }
+  shinyApp(ui, server)
+} 
+histogramApp()
+```
+
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/%E5%8A%A8%E7%94%BB252.gif)
+
+------
+
+#### 多输出
+
+
+
