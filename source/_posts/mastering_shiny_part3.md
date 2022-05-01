@@ -66,7 +66,7 @@ sliders <- map(vars, sliderInput01)
 ui <- fluidRow(sliders)
 ```
 
-`map` 对每一个 var 中的值都会调用 `sliderInput01` ，返回一个列表；当将列表传递给 `fluidRow` 时会自动将列表拆解，因此每个列表中的元素会成为 `fluidRow` 容器的一个子元素。更进一步，函数式编程可以使我们用数据框来存储函数变量：
+`map` 对每一个 var 中的值都会调用 `sliderInput01` ，返回一个列表；当将列表传递给 `fluidRow` 时会自动将列表拆解，因此每个列表中的元素会成为 `fluidRow` 容器的一个子元素。另外函数式编程也可以使用数据框来存储函数变量：
 
 ```R
 vars <- tibble::tribble(
@@ -142,7 +142,7 @@ server <- function(input, output, session) {
 
 ## Shiny 模块
 
-shiny 模块和一般的 shiny 区别在于每一个模块都会构建一个命名空间（namespace），而不像普通的 app 那样是共享的（对于每个控件的 ID ，所有的 server 函数都可以通过该 ID 获取输入的内容）；只有具有相同命名空间的函数才可以共享这些变量，那么这些函数就构成了一个模块。因此模块就像一个一个隔离的黑盒子，在模块外面只能获取到模块的输入，下面是一个 app 的例子：
+shiny 模块和一般的 shiny 区别在于每一个模块都会构建一个命名空间（namespace），而不像普通的 app 那样是共享的（对于每个控件的 ID ，所有的 server 函数都可以通过该 ID 获取输入的内容）；只有具有相同命名空间的函数才可以共享这些变量，那么这些函数就构成了一个模块。因此模块就像一个一个隔离的黑盒子，在模块外面只能获取到模块的输出，下面是一个 app 的例子：
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220425162058363.png" style="zoom:50%;" />
 
@@ -185,7 +185,7 @@ histogramUI <- function(id) {
 }
 ```
 
-注意这里的 `tagList` 将多个 UI 控件放在一起，并没有指定布局是什么，我们可以在调用这个模块 UI 时选择合适的布局函数（比如 `fluidRow` , `fluidPage` 等）
+注意这里的 `tagList` 将多个 UI 控件放在一起，并没有指定布局是什么，我们可以在调用这个模块 UI 时选择合适的布局函数（比如 `fluidRow` , `fluidPage` 等）。
 
 #### 模块 server
 
@@ -219,7 +219,7 @@ histogramApp <- function() {
 ```
 
 {% note warning %}
-注意和 shiny 控件一样，一个模块的 UI 和 server 的 `id` 要一样，不然变量无法获取
+注意和 shiny 控件一样，一个模块的 UI 和 server 的 `id` 要一样，不然变量无法共享
 {% endnote %}
 
 前面讲过模块就像一个黑盒子，从外面 “看不到” 里面的东西，比如下面这个 app：
@@ -312,7 +312,7 @@ randomApp()
 
 ### 输入和输出
 
-对于模块的 UI 和 server 除了 id 参数外还可以输入其他参数，给模块 UI 其他的参数可以让我们使用同一个模块函数在不同的地方表现多样的 UI 外观，但是模型 UI 函数和普通的函数是一样，因此加上其他的参数并没有什么特殊的地方，而对于模块 server 函数来说更需要注意输入和输出是什么。
+对于模块的 UI 和 server 除了 id 参数外还可以输入其他参数，通过模块 UI 其他的参数可以让我们使用同一个模块函数在不同的地方表现多样的 UI 外观，对于模块 UI 函数来说，其和普通的函数是一样，因此加上其他的参数并没有什么特殊的地方，而对于模块 server 函数来说更需要注意输入和输出是什么。
 
 #### UI 输入 + server 输出
 
@@ -466,9 +466,9 @@ selectDataVarApp <- function(filter = is.numeric) {
 }
 ```
 
-------
 
-再进一步，依据我们选择的变量可以绘制上面那个直方图，这里对于模块 server 提供两个额外的参数：`x` 需要绘制的变量和 `title` 直方图的标题，这两个参数都要是可响应的，因此对于标题来说开始需要用 `reavtive` 返回一个常数：
+
+可以对前面绘制直方图的 app 进行修改，依据我们选择的变量可以绘制直方图，这里对于模块 server 提供两个额外的参数：`x` 需要绘制的变量和 `title` 直方图的标题，这两个参数都要是可响应的，因此对于标题来说开始需要用 `reavtive` 返回一个常数：
 
 ```R
 histogramOutputBins <- function(id) {
@@ -517,9 +517,120 @@ histogramApp()
 
 ![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/%E5%8A%A8%E7%94%BB252.gif)
 
+我们想要直方图的标题显示用户选择的变量而不是 `Histogram` ，那么就需要在用户选择变量后不仅要返回变量的值，还要返回变量的名称。对于 server 函数而言，返回多个值就和普通的函数一样：需要返回一个包含多个值的列表，因此我们修改 `selectVarServer` 函数，使其返回值和名称：
+
+```R
+selectVarServer <- function(id, data, filter = is.numeric) {
+  stopifnot(is.reactive(data))
+  stopifnot(!is.reactive(filter))
+  
+  moduleServer(id, function(input, output, session) {
+    observeEvent(data(), {
+      updateSelectInput(session, "var", choices = find_vars(data(), filter))
+    })
+    
+    list(
+      name = reactive(input$var),
+      value = reactive(data()[[input$var]])
+    )
+  })
+}
+```
+
+然后修改 `histogramApp()` ：
+
+```R
+histogramApp <- function() {
+  ui <- fluidPage(...)## UI 和之前一样
+
+  server <- function(input, output, session) {
+    data <- datasetServer("data")
+    x <- selectVarServer("var", data)
+    histogramServer("hist", x$value, x$name)
+  }
+  shinyApp(ui, server)
+} 
+```
+
+主要的变化就是对 `histogramServer` 传入 `selectVarServer` 返回的列表中的两个值，注意这里传进去的是响应表达式（`x$value`）而不是值（`x$value()`），因为我们需要在 `histogramServer` 中对变量值以及名字进行响应。
+
 ------
 
-#### 多输出
+可以使用 `zeallot` 包中的 `%<-%` 函数进行方便的进行多变量赋值（和 python 中的类似）：
+
+```R
+c(value, name) %<-% selectVarServer("var", data)
+```
+
+------
+
+### 案例
+
+我们想要创建一个下面的 app：有多个界面构成，每个界面有一个用户输入和两个按钮，由用户控制是跳转下一个页面还是返回上个界面（第一个和最后一个除外）：
+
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/%E5%8A%A8%E7%94%BB255.gif)
+
+首先从最基本的开始，每个页面都有两个 button，一个导向下一个页面，另一个是返回上一个页面，因此先用两个辅助函数来创建 button：
+
+```R
+nextPage <- function(id, i) {
+  actionButton(NS(id, paste0("go_", i, "_", i + 1)), "next")
+}
+prevPage <- function(id, i) {
+  actionButton(NS(id, paste0("go_", i, "_", i - 1)), "prev")
+}
+```
+
+然后再为每个页面创建一个函数，函数的参数包括 `title` ，页面的名称（不会显示，用来标记要切换的界面）；`page`，页面的内容；两个 button：
+
+```R
+wrapPage <- function(title, page, button_left = NULL, button_right = NULL) {
+  tabPanel(
+    title = title, 
+    fluidRow(
+      column(12, page)
+    ), 
+    fluidRow(
+      column(6, button_left),
+      column(6, button_right)
+    )
+  )
+}
+```
+
+接下来需要将这些放到一起构成整个 UI，对不同页面构成的列表进行循环操作：创建 button，将含有 button 的页面包装进上面的 `tabPanel`；最后将 `tabPanel` 组合成 `tabsetPanel`。对于 button，有两个特别的点需要注意：
+
+- 第一个界面没有向前的 button，这里使用没有 else 的 if，那么在条件为 FALSE 时会返回 NULL
+- 最后一个页面可以提供一个输入，由用户决定完成整个操作后要干什么，比如弄一个 submit 按钮
+
+```R
+wizardUI <- function(id, pages, doneButton = NULL) {
+  stopifnot(is.list(pages))
+  n <- length(pages)
+  
+  wrapped <- vector("list", n)
+  for (i in seq_along(pages)) {
+    # First page only has next; last page only prev + done
+    lhs <- if (i > 1) prevPage(id, i)
+    rhs <- if (i < n) nextPage(id, i) else doneButton
+    wrapped[[i]] <- wrapPage(paste0("page_", i), pages[[i]], lhs, rhs)
+  }
+  
+  # Create tabsetPanel
+  # https://github.com/rstudio/shiny/issues/2927
+  wrapped$id <- NS(id, "wizard")
+  wrapped$type <- "hidden"
+  do.call("tabsetPanel", wrapped)
+}
+```
+
+
+
+
+
+
+
+
 
 
 
