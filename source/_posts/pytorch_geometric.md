@@ -398,6 +398,176 @@ print(f'Accuracy: {acc:.4f}')
 ##Accuracy: 0.7970
 ```
 
+## 创建信息传播网络
+
+网络中的信息传播可以类比于图像上的卷积操作，都是收集邻居节点（像素）的信息：
+$$
+\mathbf{x}_i^{(k)} = \gamma^{(k)} \left( \mathbf{x}_i^{(k-1)}, \square_{j \in \mathcal{N}(i)} \, \phi^{(k)}\left(\mathbf{x}_i^{(k-1)}, \mathbf{x}_j^{(k-1)},\mathbf{e}_{j,i}\right) \right),
+$$
+$\square$ 表示可微的置换不变函数（也就是打乱元素的次序不改变函数的输出，比如 sum，mean，max 等），$\gamma$ 和 $\phi$ 都表示可微的函数（比如用多层感知机拟合的函数）。
+
+### MessagePassing 基础类
+
+PyG 提供了 `MessagePassing` 基础类，通过自动的进行信息传播从而构建神经网络；用户只需要定义函数 $\phi$，也就是 `message()`，$\gamma$，也就是 `update()`，和聚合的方法，也就是上面的 $\square$，可以是：`aggr="add"`, `aggr="mean"` 或者 `aggr="max"`。这个过程在下面一些方法的帮助下完成：
+
+- `MessagePassing(aggr="add", flow="source_to_target", node_dim=-2)`：定义了聚合的方式（add，mean，max）和信息流动的方向（source_to_target 或者 target_to_source，中心节点也就是需要 embedding 的节点是 target，邻居节点为 source）以及 node_dim 为信息聚合的维度
+- `MessagePassing.propagate(edge_index, size=None, **kwargs)`：信息传播，在内部依次调用 `message`，`aggregate` 和 `update`
+- `MessagePassing.message(...)`：相当于 $\phi$ 函数，注意传递给 `propagate` 的张量会先先添加 i 和 j 的下标转化成相应的节点然后再传递给 `message` （i 表示中心节点，j 表示邻居节点）
+- `MessagePassing.update(aggr_out, ...)`：相当于 $\gamma$ ，接受 `aggregation` 的输出和其他传给 `propagate` 的参数
+
+下面看两个例子：
+
+#### GCN layer
+
+GCN 层可以定义为：
+$$
+\mathbf{x}_i^{(k)} = \sum_{j \in \mathcal{N}(i) \cup \{ i \}} \frac{1}{\sqrt{\deg(i)} \cdot \sqrt{\deg(j)}} \cdot \left( \mathbf{\Theta}^{\top} \cdot \mathbf{x}_j^{(k-1)} \right),
+$$
+邻居节点首先由 $\mathbf{\Theta}$ 转化，然后根据度进行标准化，接着使用求和作为汇聚函数，可以分成一下几个步骤：
+
+- 对邻接矩阵添加自身的边（source 和 target 都是自己，因为上面的式子中 j 包括了 $N(i)\cup{i}$）
+- 对节点的特征矩阵进行线性转化
+- 计算标准化系数
+- 依据标准化系数来标准化节点特征
+- 求和汇聚
+
+1-3 步是信息传播之前就可以计算好的：
+
+```python
+import torch
+from torch_geometric.nn import MessagePassing
+from torch_geometric.utils import add_self_loops, degree
+
+class GCNConv(MessagePassing):
+    def __init__(self, in_channels, out_channels):
+        super().__init__(aggr='add')  # "Add" aggregation (Step 5).
+        self.lin = torch.nn.Linear(in_channels, out_channels)
+
+    def forward(self, x, edge_index):
+        # x has shape [N, in_channels]
+        # edge_index has shape [2, E]
+
+        # Step 1: Add self-loops to the adjacency matrix.
+        edge_index, _ = add_self_loops(edge_index, num_nodes=x.size(0))
+
+        # Step 2: Linearly transform node feature matrix.
+        x = self.lin(x)
+
+        # Step 3: Compute normalization.
+        row, col = edge_index##将edge_index 拆分成 source (col) 和 target (row)
+        deg = degree(col, x.size(0), dtype=x.dtype)##x.size(0)就是节点的数量
+        deg_inv_sqrt = deg.pow(-0.5)
+        deg_inv_sqrt[deg_inv_sqrt == float('inf')] = 0
+        norm = deg_inv_sqrt[row] * deg_inv_sqrt[col]
+
+        # Step 4-5: Start propagating messages.
+        #print(x.shape)
+        #print(x)
+        return self.propagate(edge_index, x=x, norm=norm)
+
+    def message(self, x_j, norm):
+        # x_j has shape [E, out_channels]
+
+        # Step 4: Normalize node features.
+        #print(x_j.shape)
+        #print(x_j)
+        return norm.view(-1, 1) * x_j
+```
+
+```python
+edge_index = dataset[0]["edge_index"]
+edge_index
+tensor([[   0,    0,    0,  ..., 2707, 2707, 2707],
+        [ 633, 1862, 2582,  ...,  598, 1473, 2706]])
+        
+row, col = edge_index
+row,col
+(tensor([   0,    0,    0,  ..., 2707, 2707, 2707]),
+ tensor([ 633, 1862, 2582,  ...,  598, 1473, 2706]))
+```
+
+需要注意的是我们传入 `propagate` 的是 x ，也就是所有节点的 embedding，但是在其内部进行了一个 `lifted` 操作转化成了 `lifted` 张量 `x_j` ，这个张量包括每个节点的邻居节点的 embedding，便于进行信息传递，因此我们运行上面加了 `print` 的代码：
+
+```python
+conv = GCNConv(1433, 32)##实例化
+x = conv(dataset[0]["x"], dataset[0]["edge_index"])
+torch.Size([2708, 32])##图中有 2708 个节点
+tensor([[ 0.0352, -0.0465,  0.0304,  ..., -0.0498,  0.0052, -0.0351],
+        [ 0.0118, -0.0057, -0.0229,  ..., -0.0921,  0.0561, -0.0387],
+        [-0.1651, -0.0569, -0.0675,  ...,  0.0006,  0.0174, -0.1239],
+        ...,
+        [ 0.0200,  0.0012, -0.0240,  ..., -0.0073,  0.0137, -0.0065],
+        [ 0.0939,  0.0371, -0.0670,  ...,  0.0017, -0.0460,  0.0491],
+        [-0.0430, -0.0073,  0.0501,  ..., -0.0168,  0.0014, -0.0537]],
+       grad_fn=<AddmmBackward0>)
+torch.Size([13264, 32])
+tensor([[ 0.0352, -0.0465,  0.0304,  ..., -0.0498,  0.0052, -0.0351],
+        [ 0.0352, -0.0465,  0.0304,  ..., -0.0498,  0.0052, -0.0351],
+        [ 0.0352, -0.0465,  0.0304,  ..., -0.0498,  0.0052, -0.0351],
+        ...,
+        [ 0.0200,  0.0012, -0.0240,  ..., -0.0073,  0.0137, -0.0065],
+        [ 0.0939,  0.0371, -0.0670,  ...,  0.0017, -0.0460,  0.0491],
+        [-0.0430, -0.0073,  0.0501,  ..., -0.0168,  0.0014, -0.0537]],
+       grad_fn=<IndexSelectBackward0>)
+```
+
+#### Edge Convolution
+
+EdgeConv 的特点就是在每一层中节点的邻居都可能变化（动态图），也就是每一层都根据上一层更新的节点 embedding 利用 KNN 计算节点的邻居（embedding 距离而不是实际图的连接），除了这个动态图结构之外，EdgeConv 的信息传播和汇聚可以表示为：
+$$
+\mathbf{x}_i^{(k)} = \max_{j \in \mathcal{N}(i)} h_{\mathbf{\Theta}} \left( \mathbf{x}_i^{(k-1)}, \mathbf{x}_j^{(k-1)} - \mathbf{x}_i^{(k-1)} \right),
+$$
+$h_{\mathbf{\Theta}}$ 表示 MLP，汇聚函数使用 max：
+
+```python
+import torch
+from torch.nn import Sequential as Seq, Linear, ReLU
+from torch_geometric.nn import MessagePassing
+
+class EdgeConv(MessagePassing):
+    def __init__(self, in_channels, out_channels):
+        super().__init__(aggr='max') #  "Max" aggregation.
+        self.mlp = Seq(Linear(2 * in_channels, out_channels),
+                       ReLU(),
+                       Linear(out_channels, out_channels))
+
+    def forward(self, x, edge_index):
+        # x has shape [N, in_channels]
+        # edge_index has shape [2, E]
+
+        return self.propagate(edge_index, x=x)
+
+    def message(self, x_i, x_j):
+        # x_i has shape [E, in_channels]
+        # x_j has shape [E, in_channels]
+
+        tmp = torch.cat([x_i, x_j - x_i], dim=1)  # tmp has shape [E, 2 * in_channels]
+        return self.mlp(tmp)
+```
+
+上面讲过，EdgeConv 在每层都会利用 KNN 来选择邻居节点：
+
+```python
+from torch_geometric.nn import knn_graph
+
+class DynamicEdgeConv(EdgeConv):##继承上面的类
+    def __init__(self, in_channels, out_channels, k=6):
+        super().__init__(in_channels, out_channels)
+        self.k = k
+
+    def forward(self, x, batch=None):
+        edge_index = knn_graph(x, self.k, batch, loop=False, flow=self.flow)##选择邻居节点
+        return super().forward(x, edge_index)##调用EdgeConv 的forward
+```
+
+
+
+
+
+
+
+
+
 
 
 
@@ -407,3 +577,4 @@ print(f'Accuracy: {acc:.4f}')
 - **Pytorch geometric** [文档](https://pytorch-geometric.readthedocs.io/en/latest/notes/introduction.html)
 - [GNN Project YouTube](https://www.youtube.com/watch?v=QLIkOtKS4os&list=PLV8yxwGOxvvoNkzPfCx2i8an--Tkt7O8Z&index=8)
 - [Google Colab](https://colab.research.google.com/drive/1DIQm9rOx2mT1bZETEeVUThxcrP1RKqAn)
+- [AntonioLonga/PytorchGeometricTutorial: Pytorch Geometric Tutorials (github.com)](https://github.com/AntonioLonga/PytorchGeometricTutorial)
