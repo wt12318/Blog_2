@@ -402,7 +402,7 @@ print(f'Accuracy: {acc:.4f}')
 
 网络中的信息传播可以类比于图像上的卷积操作，都是收集邻居节点（像素）的信息：
 $$
-\mathbf{x}_i^{(k)} = \gamma^{(k)} \left( \mathbf{x}_i^{(k-1)}, \square_{j \in \mathcal{N}(i)} \, \phi^{(k)}\left(\mathbf{x}_i^{(k-1)}, \mathbf{x}_j^{(k-1)},\mathbf{e}_{j,i}\right) \right),
+x_i^{(k)} = \gamma^{(k)} ( x_i^{(k-1)}, \square_{j \in N(i)} \, \phi^{(k)}(x_i^{(k-1)}, x_j^{(k-1)},e_{j,i}) ),
 $$
 $\square$ 表示可微的置换不变函数（也就是打乱元素的次序不改变函数的输出，比如 sum，mean，max 等），$\gamma$ 和 $\phi$ 都表示可微的函数（比如用多层感知机拟合的函数）。
 
@@ -421,9 +421,9 @@ PyG 提供了 `MessagePassing` 基础类，通过自动的进行信息传播从�
 
 GCN 层可以定义为：
 $$
-\mathbf{x}_i^{(k)} = \sum_{j \in \mathcal{N}(i) \cup \{ i \}} \frac{1}{\sqrt{\deg(i)} \cdot \sqrt{\deg(j)}} \cdot \left( \mathbf{\Theta}^{\top} \cdot \mathbf{x}_j^{(k-1)} \right),
+x_i^{(k)} = \sum_{j \in N(i) \cup \{ i \}} \frac{1}{\sqrt{\deg(i)} \cdot \sqrt{\deg(j)}} \cdot ( \Theta^{\top} \cdot x_j^{(k-1)} ),
 $$
-邻居节点首先由 $\mathbf{\Theta}$ 转化，然后根据度进行标准化，接着使用求和作为汇聚函数，可以分成一下几个步骤：
+邻居节点首先由 $\Theta$ 转化，然后根据度进行标准化，接着使用求和作为汇聚函数，可以分成一下几个步骤：
 
 - 对邻接矩阵添加自身的边（source 和 target 都是自己，因为上面的式子中 j 包括了 $N(i)\cup{i}$）
 - 对节点的特征矩阵进行线性转化
@@ -515,7 +515,7 @@ tensor([[ 0.0352, -0.0465,  0.0304,  ..., -0.0498,  0.0052, -0.0351],
 
 EdgeConv 的特点就是在每一层中节点的邻居都可能变化（动态图），也就是每一层都根据上一层更新的节点 embedding 利用 KNN 计算节点的邻居（embedding 距离而不是实际图的连接），除了这个动态图结构之外，EdgeConv 的信息传播和汇聚可以表示为：
 $$
-\mathbf{x}_i^{(k)} = \max_{j \in \mathcal{N}(i)} h_{\mathbf{\Theta}} \left( \mathbf{x}_i^{(k-1)}, \mathbf{x}_j^{(k-1)} - \mathbf{x}_i^{(k-1)} \right),
+x_i^{(k)} = \max_{j \in {N}(i)} h_{\Theta} ( x_i^{(k-1)}, x_j^{(k-1)} - x_i^{(k-1)} )
 $$
 $h_{\mathbf{\Theta}}$ 表示 MLP，汇聚函数使用 max：
 
