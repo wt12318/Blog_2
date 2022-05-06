@@ -1208,3 +1208,176 @@ f 进行非线性转化（可以假设转化后的是 one-hot），sum操作可�
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220414093747-wtvl7k1.png" alt="" style="zoom:50%;" />
 
 由于 GIN 和 WL 的这种关联使得 GIN 和 WL 图核的表达能力是相似的，而WL已经被理论和实践证明可以区分大部分实践的图结构，因此 GIN 也具有区分大部分图结构的能力。
+
+## 第十课
+
+目前遇见的图的边都只有一种类型（虽然可以有权重），这一课主要是讲有着**多种边和节点类型的有向图**的处理方法，这种图也叫异质性图 (heterogeneous graphs)。
+
+### 异质性图和相关GCN（RGCN）
+
+异质性图定义为：
+
+$$
+G = (V,E,R,T)
+$$
+
+* V：节点，$v_i \in V$
+* E ：边（边类型 r），$(v_i,r,v_j) \in E$
+* T：节点类型
+* R：关系（边）类型
+
+现实世界有很多异质性图的例子，比如下面的生物医学知识图：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220502220107-1g02ryx.png" style="zoom:50%;" />
+
+不同的节点形状表示不同的节点类型，比如药物，疾病，蛋白等；边的类型也不一样，比如有 target，cause 等。
+
+我们可以将 GCN 拓展到有着不同边类型的异质性图上，先看单一边类型的有向图，假设我们想要得到下图 A 的 embedding：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220502221528-co4mlt1.png" style="zoom:50%;" />
+
+需要将之前的信息传递过程变成沿着图中边的方向的信息传递：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220502221743-myocld5.png" alt="" style="zoom:50%;" />
+
+接下来将其拓展到有着多种边类型的图：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220502221825-fa9ib8s.png" style="zoom: 67%;" />
+
+可以在每一个 GCN 层中对不同的边类型使用不同的权重（也就是一层中参数不是在所有节点中共享的）
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220502222038-3n215541-20220502222135-qgujyt9.png" style="zoom:50%;" />
+
+上图不同的颜色表示不同的权重矩阵，因此 RGCN 的信息传递和汇聚过程可以表示为：
+
+* 信息传递：分为两部分
+
+  * 一个是节点的边类型为 r 的邻居节点（$c_{u,r}$ 表示类型为 r 的边所定义的自由度）：
+
+    $$
+    m_{u,r}^{(l)}=\frac{1}{c_{v,r}}W_r^{(l)}h_u^{(l)}
+    $$
+
+  * 一个是节点自身：
+
+    $$
+    m_v^{(l)} = W_0^{(l)}h_v^{(l)}
+    $$
+
+* 信息汇聚：求和，再进行激活函数操作
+
+#### RGCN regularize the weights
+
+但是这样的拓展会带来一种问题：如果一层中边的类型非常多，那么就需要**不同的权重矩阵**，造成参数的激增；有两种方法来缓解这种问题：
+
+* 使用分块对角矩阵
+* 基本学习或者叫字典学习
+
+原本对每个边类型在每一层都会有一个矩阵，每个矩阵的大小是 $d^{(l+1)} * d^{(l)}$，而使用分块对角矩阵可以使得权重矩阵稀疏化，因此减少参数（*没有明白*）：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220502223658-0zwaq74.png" alt="" style="zoom:50%;" />
+
+而字典学习则是将不同边类型的矩阵转化为基本矩阵 ($V_b$) 的不同线性组合（$\sum_{b=1}^Ba_{rb}$），而这个 V 则是对于不同的边类型是相同的，所以这个 $a_{rb}$ 可以看出基本矩阵的重要性（权重），因此我们只需要学习这个权重就行了，大大减少了参数量。
+
+#### RGCN example
+
+对于节点标签的预测和之前没有什么区别，都是用最后一层的 embedding 连接一个 softmax，得到 k 类的概率。
+
+对于边预测任务的数据集划分在第八课中讲过了，这里每个边又有不同的类型，这个类型是独立于在第八课中的 Transductive 划分方法中的四类边的（Training message, Traning supervision, validation 和 test）(这里不使用 Inductive ，因为如果随机划分的话，不同类型的边的 message 和 supervision 可能不一样多)。因此对于不同类型的边，分别划分四类边，最后将不同类型的边相应的划分合并：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220503200409-plb1fpf1-20220503200518-708kzka.png" style="zoom: 50%;" />
+
+下面来看一个例子：
+
+* 在训练步骤，假设合并后使用 $(E,r_3,A)$ 作为 supervision 边，其他的都是 message 边：
+
+  <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220503201208-5h36fg3.png" alt="" style="zoom:50%;" />
+
+  1. 使用 RGCN 对 supervision 边打分（取最后一层的 E 和 A 的 embedding，传给某个打分函数，比如直接 $h_E^T W_{r_1}h_A$）
+  2. 通过对 supervision 边的打乱 （比如取 $(E,r_3,B)$）构建负例边，注意负例边不能是 supervision 或者 message 边（比如 C）
+  3. 使用 RGCN 对负例边进行打分
+  4. 通过交叉熵 loss 优化模型参数（最大化supervision边，最小化负例边）
+
+* 在评估步骤（validation 或者 test）validation 边为 $(E,r_3,D)$  
+
+  <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220503203346-kxqvpf8.png" style="zoom:50%;" />
+
+  1. 使用上一步训练的模型计算边 $(E,r_3,D)$ （使用 supervision 和 message 进行 RGCN 计算，然后预测 ED）
+  2. 计算所有负例边的值，负例边不能是 supervision 或者 message 边，因此是 EB 和 EF
+  3. 计算 validation  边的 Rank
+  4. 计算评估指标，可以有两个选择：
+
+     1. Hits：validation 边有多少比例在 top k 的边里面
+     2. $\frac{1}{Rank}$：validation 边的 rank 越高，这个值就越大
+
+### 知识图：KG completion with embeddings
+
+知识图是异质性图的一种，节点是实体（entities），节点有类别标签，连接两个节点之间的边代表着节点之间的关系（relationships）：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220503222508-5krntw4.png" alt="" style="zoom:50%;" />
+
+比如一个书目网络，节点的类型是文章，标题，作者，会议，年份等；而节点之间的边可以表示文章发表在哪里，发表的年份，有什么样的标题，作者是谁这些关系：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220503223140-lybzw0e.png" style="zoom:50%;" />
+
+现在已经有很多的知识图的数据，特点是数据量比较大；另外信息不是很完整，比如很多真实的边是丢失的，因此一个重要的任务就是对这些缺失边的填补（**Knowledge Graph Completion**）：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220503223407-t39ysfi.png" style="zoom:50%;" />
+
+KG 补全和边预测任务还不是一样的，KG补全是给定一个起始节点（head）和边的类型，预测终止节点（tail），比如下图中给定作者 J.K. Rowling 和边 genre (体裁) 预测尾节点 Science Fiction:
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220504212618-79vdsnd.png" style="zoom:50%;" />
+
+在知识图谱中的边可以表示成三元组 $(h,r,t)$ ，h 表示 head，t 表示 tail，r 表示 relation；在这个任务中我们使用的是最开始讲过的 shallow embedding，也就是对每个节点学习一个 embedding，而不是使用 GNN（GNN 是对一层所有节点共享参数，而 shallow embedding 是每个节点都有系列参数）。主要想法就是对于一个实际存在的 $(h,r,t)$，$(h,r)$ 的 embedding 应该和 t 的 embedding 接近，问题就是如何得到 $(h,r)$ 的 embedding 以及怎么定义“接近”
+
+#### TransE
+
+一个想法就是如果能从 h 节点沿着边 r 移动到 t 节点，那么说明 h 和 t 之间就是有这样的连接的：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220506222440-rgvk0g4.png" style="zoom:50%;" />
+
+因此我们可以使用这样的打分函数：
+
+$$
+f_r(h,t)=-||h+r-t||
+$$
+
+TransE 的学习算法：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220506222750-81bp56g.png" alt="" style="zoom:50%;" />
+
+关键有 3 步：
+
+* 节点（实体）和边（关系）首先初始化和标准化
+* 进行负采样，产生一些不在 KG 中的三元组（比如可以固定 head 随机定义没有边连接的 tail）
+* 依据上面蓝色方框中的 loss 进行更新 embedding -- 最小化这个 loss 就是需要前面的正例样本的距离比较小，后面的负例样本的距离比较大
+
+在异质性的 KG 中关系有着不同的模式：
+
+* 对称（反对称）关系：$r(h,t) \Rightarrow r(t,h)$ 或者 $r(h,t) \Rightarrow \lnot r(t,h)$；比如同桌关系，A 是 B 的同桌，B 肯定也是 A 的同桌，反对称关系比如上位词和下位词对应
+* 相反关系：两个节点之间当边的方向相反，关系也会颠倒，$r_2(h,t) \Rightarrow r_1(t,h)$ ；比如导师和学生指导和被指导的关系
+* 可传递的关系：$r_1(x,y) \land r_2(y,z) \Rightarrow r_3(x,z)$ ，比如我的母亲的丈夫是我的父亲
+* 1 对 N 关系，从一个节点有连接多个节点的关系，$r(h,t_1),r(h,t_2)$，比如一个老师和班里的所有学生
+
+先来看 TransE 可以处理上述关系中的哪些。
+
+1. 反对称关系 ✅，h 可以经过 r 移动到 t，但是 t 不能继续移动 r 到 h：
+
+   <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220506225639-q5vbz92.png" style="zoom:50%;" />
+
+2. 相反关系 ✅，h 可以通过 r2 移动到 t，我们可以将 r1 设成负的 r2，这样 t 就能通过 r1 回到 h（下面的图画反了）：
+
+   <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220506225934-6dyppt9.png" style="zoom: 67%;" />
+
+3. 可传递关系 ✅，x 可以通过 r1 到达 y，然后再通过 r2 到达 z，根据向量的加法我们可以将 r3 设为 r1 + r2，那么就可以通过 x 直接从 r3 到 z：
+
+   <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220506230209-axr16dq.png" alt="image.png" style="zoom:50%;" />
+
+4. 对称 ❎，如果对于 h，t 要同时满足 $r(h,t),r(t,h)$ 都存在，那么 $||h+r-t|| =0$ 并且 $||t+r-h|| =0$，因此 r = 0 并且 h = t ，但是 h 和 t 是两个不同的节点，所以 TransE 不能对对称关系建模
+
+5. 一对多关系 ❎ 因为 t1 和 t2 会映射到同一个节点，但实际上并不是，所以 TransE 不能对一对多关系建模：
+
+   <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220506231759-vdgnnd3.png" style="zoom: 50%;" />
+
+#### TransR
+
