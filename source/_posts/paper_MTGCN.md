@@ -1,7 +1,7 @@
 ---
 title: 使用多任务图卷积神经网络改进癌症驱动基因识别
 date: 2022-05-07 19:14:18
-tags: 深度学习
+tags: paper
 index_img: img/BIF.jpg
 categories:
   - 深度学习
