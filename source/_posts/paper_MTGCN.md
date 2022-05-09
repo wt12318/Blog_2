@@ -160,3 +160,252 @@ pip install torch-geometric==1.7.0
 
 conda install ipykernel##使环境可以被jupyter-lab识别
 ```
+
+先进行 Deepwork 提取节点的 embedding:
+
+```python
+import numpy as np
+import pandas as pd
+import time
+import pickle
+
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import torch_geometric.transforms as T
+
+from torch_geometric.nn import Node2Vec
+from torch_geometric.data import Data, DataLoader
+from torch_geometric.utils import dropout_adj, negative_sampling, remove_self_loops,add_self_loops
+
+
+##读入数据
+data = torch.load("./data/CPDB_data.pkl")
+```
+
+我们可以看一下数据：
+
+```python
+data
+Data(edge_index=[2, 504378], mask=[False False False ... False False False], mask_te=[False False False ... False False False], node_names=[['ENSG00000167323' 'STIM1']
+ ['ENSG00000144935' 'TRPC1']
+ ['ENSG00000089250' 'NOS1']
+ ...
+ ['ENSG00000183117' 'CSMD1']
+ ['ENSG00000180828' 'BHLHE22']
+ ['ENSG00000169618' 'PROKR1']], x=[13627, 64], y=[[False]
+ [False]
+ [False]
+ ...
+ [False]
+ [False]
+ [False]], y_te=[[False]
+ [False]
+ [False]
+ ...
+ [False]
+ [False]
+ [False]])
+```
+
+`mask` 表示是否为训练数据，`mask_te` 表示是否为测试数据，可以看到训练数据和测试数据加起来和前面的正例样本（driver）和负例样本一样多：
+
+```python
+data["mask"].sum()
+2237
+
+data["mask_te"].sum()
+746
+```
+
+下面就可以训练模型：
+
+```python
+##DeepWork 就是 p=q=1 的 node2vec
+model =  Node2Vec(data.edge_index, embedding_dim=16, walk_length=80,
+                     context_size=5,  walks_per_node=10,
+                     num_negative_samples=1, p=1, q=1, sparse=True).to(device)
+loader = model.loader(batch_size=128, shuffle=True)
+optimizer = torch.optim.SparseAdam(list(model.parameters()), lr=0.001) 
+```
+
+DeepWork 就是 p=q=1 的 node2vec；`context_size` 相当于窗口，比如现在 `walk_length` 为 4：{u, s1, s2 ,s3}，`context_size` 为 2，那么可以得到的正例样本为：{u: s1,s2}；{s1: s2, s3}，使用梯度下降来优化 loss：
+
+```python
+def train():
+    model.train()
+    total_loss = 0
+    for pos_rw, neg_rw in loader:
+        optimizer.zero_grad()
+        loss = model.loss(pos_rw.to(device), neg_rw.to(device))
+        loss.backward()
+        optimizer.step()
+        total_loss += loss.item()
+    return total_loss / len(loader)
+
+for epoch in range(1, 501):
+    loss = train()
+    print (loss)
+
+model.eval()
+str_fearures = model()
+
+torch.save(str_fearures, 'str_fearures.pkl')
+```
+
+接着就可以实现上面的两个任务的 GCN 了：
+
+```python
+import numpy as np
+import pandas as pd
+import time
+import pickle
+
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torch.nn import Linear
+
+import torch_geometric.transforms as T
+from torch_geometric.nn import ChebConv
+from torch_geometric.data import Data, DataLoader
+from torch_geometric.utils import dropout_adj, negative_sampling, remove_self_loops, add_self_loops
+
+from sklearn import metrics
+
+EPOCH = 2500
+
+data = torch.load("./data/CPDB_data.pkl")
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+data = data.to(device)
+Y = torch.tensor(np.logical_or(data.y, data.y_te)).type(torch.FloatTensor).to(device)##只保留训练和测试的数据
+y_all = np.logical_or(data.y, data.y_te)
+mask_all = np.logical_or(data.mask, data.mask_te)
+data.x = data.x[:, :48]##三个生物学特征
+
+datas = torch.load("./data/str_fearures.pkl", map_location=torch.device('cpu'))#deepwork 的 embedding
+datas.shape
+##torch.Size([13627, 16])
+data.x = torch.cat((data.x, datas), 1)#合并两个特征
+data = data.to(device)
+
+with open("./data/k_sets.pkl", 'rb') as handle:
+    k_sets = pickle.load(handle)
+
+#pb, _ = remove_self_loops(data.edge_index)
+pb, _ = add_self_loops(pb)
+E = data.edge_index
+
+##网络结构
+class Net(torch.nn.Module):
+    def __init__(self):
+        super(Net, self).__init__()
+        self.conv1 = ChebConv(64, 300, K=2, normalization="sym")
+        self.conv2 = ChebConv(300, 100, K=2, normalization="sym")
+        self.conv3 = ChebConv(100, 1, K=2, normalization="sym")
+
+        self.lin1 = Linear(64, 100)
+        self.lin2 = Linear(64, 100)
+
+        self.c1 = torch.nn.Parameter(torch.Tensor([0.5]))
+        self.c2 = torch.nn.Parameter(torch.Tensor([0.5]))
+
+    def forward(self):
+        edge_index, _ = dropout_adj(data.edge_index, p=0.5,
+                                    force_undirected=True,
+                                    num_nodes=data.x.size()[0],
+                                    training=self.training)
+
+        x0 = F.dropout(data.x, training=self.training)
+        x = torch.relu(self.conv1(x0, edge_index))
+        x = F.dropout(x, training=self.training)
+        x1 = torch.relu(self.conv2(x, edge_index))
+
+        x = x1 + torch.relu(self.lin1(x0))##节点预测
+        z = x1 + torch.relu(self.lin2(x0))##边预测
+
+        pos_loss = -torch.log(torch.sigmoid((z[E[0]] * z[E[1]]).sum(dim=1)) + 1e-15).mean()
+
+        neg_edge_index = negative_sampling(pb, 13627, 504378)
+
+        neg_loss = -torch.log(
+            1 - torch.sigmoid((z[neg_edge_index[0]] * z[neg_edge_index[1]]).sum(dim=1)) + 1e-15).mean()
+
+        r_loss = pos_loss + neg_loss ##边预测的 loss
+
+
+        x = F.dropout(x, training=self.training)
+        x = self.conv3(x, edge_index)
+
+        return x, r_loss, self.c1, self.c2
+
+def train(mask):
+    model.train()
+    optimizer.zero_grad()
+
+    pred, rl, c1, c2 = model()
+
+    loss = F.binary_cross_entropy_with_logits(pred[mask], Y[mask]) / (c1 * c1) + rl / (c2 * c2) + 2 * torch.log(c2 * c1)##上面的 L_total c1是 α，c2 是 β
+    loss.backward()
+    optimizer.step()
+
+
+@torch.no_grad()
+def test(mask):
+    model.eval()
+    x, _, _, _ = model()
+
+    pred = torch.sigmoid(x[mask]).cpu().detach().numpy()
+    Yn = Y[mask].cpu().numpy()
+    precision, recall, _thresholds = metrics.precision_recall_curve(Yn, pred)
+    area = metrics.auc(recall, precision)
+
+    return metrics.roc_auc_score(Yn, pred), area
+
+##训练
+time_start = time.time()
+#ten five-fold cross-validations
+AUC = np.zeros(shape=(10, 5))
+AUPR = np.zeros(shape=(10, 5))
+
+for i in range(10):
+    print(i)
+    for cv_run in range(5):
+        _, _, tr_mask, te_mask = k_sets[i][cv_run]
+        model = Net().to(device)
+        # optimizer = torch.optim.Adam(model.parameters(), lr=0.001,weight_decay=0.005)
+        optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+
+        for epoch in range(1, EPOCH):
+            train(tr_mask)
+
+        AUC[i][cv_run], AUPR[i][cv_run] = test(te_mask)
+
+
+    print(time.time() - time_start)
+
+
+print(AUC.mean())
+print(AUC.var())
+print(AUPR.mean())
+print(AUPR.var())
+
+
+model= Net().to(device)
+#optimizer = torch.optim.Adam(model.parameters(), lr=0.001,weight_decay=0.0005)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+
+for epoch in range(1,EPOCH):
+    print(epoch )
+    train(mask_all)
+
+
+x,_,_,_= model()
+pred = torch.sigmoid(x[~mask_all]).cpu().detach().numpy()
+torch.save(pred, 'pred.pkl')
+```
+
+
+
