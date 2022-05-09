@@ -539,9 +539,11 @@ shinyApp(ui, server)
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220309103028686.png" alt="" style="zoom:50%;" />
 
+
+
 `renderImage` 需要输入的是一个列表，必须参数是 `src` 表示图片的路径，其他可选参数有：
 
-- `contentType` ：图片的 MIME 格式（[Multipurpose Internet Mail Extensions]([What Is MIME Type? (metadata2go.com)](https://www.metadata2go.com/file-info/mime-type#:~:text=MIME Types are structured in a certain way%2C,(%2F) is used to separate type from subtype.)），如果有后缀就无需提供
+- `contentType` ：图片的 MIME 格式（[Multipurpose Internet Mail Extensions](https://www.metadata2go.com/file-info/mime-type#:~:text=MIME Types are structured in a certain way%2C,(%2F) is used to separate type from subtype.)，如果有后缀就无需提供
 - `width` 和 `height` ：图片的宽高
 - 其他的 HTML `<img>` 标签参数，如 `class` , `alt` 等
 
