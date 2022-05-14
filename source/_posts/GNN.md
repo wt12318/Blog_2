@@ -1381,3 +1381,87 @@ TransE 的学习算法：
 
 #### TransR
 
+对 TransE 而言，实体和关系在同一个 embedding 空间中，TransR 则是将关系映射到一个不同的“关系空间”中：实体在 $R^d$ 的实体空间中，而关系在 $R^k$ 的关系空间中，通过一个投射矩阵（projection matrix）将实体从 $R^d$ 投射到 $R^k$ ，然后在关系空间中应用与 TransE 类似的打分函数:
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220511211945-nup2w9c1-20220511212047-p4pu6hs.png" style="zoom:50%;" />
+
+然后我们再来看 TransR 可以解决上述的哪些关系：
+
+1. 对称关系，我们可以将 t 和 h 映射到关系空间的相同一点，那么此时 r = 0：
+
+   <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220511212427-wxqfzma.png" style="zoom:50%;" />
+
+2. 反对称关系，可以，和上面类似：
+
+   <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220511212619-z16n9yn.png" style="zoom:50%;" />
+
+3. 1-N 关系，可以将 t1 和 t2 映射到关系空间中的同一点上：
+
+   <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220511213517-yb004bx.png" style="zoom:50%;" />
+
+4. 相反关系，可以使两个关系的映射矩阵相同，也就是映射到同一个空间中，然后设两个关系是相反的：
+
+   <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220511213923-g9tyskw.png" style="zoom:50%;" />
+
+5. 可传递关系 可以，但是看不懂
+
+#### DistMult
+
+TransE 和 TransR 的打分函数都是基于距离的，而 DistMult 则不是使用距离，而是使用向量的乘积（类似于内积）：按元素相乘再相加：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220511223359-ukjb5n9.png" style="zoom:50%;" />
+
+直觉上可以将这个打分函数理解为 $h\cdot r$ （定义为 h 和 r 的逐元素相乘）与 t 的 **cosine 相似性**（这个打分函数相当于 cosine 相似性的分子，但是分母是一个标量，相当于标准化因子，对于优化没啥用）；那么这个$h\cdot r$ 就可以定义一个超平面，如果 t 与 $h\cdot r$ 在超平面的两侧，打分函数就是负的，如果在同侧就是正的：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220514161617-7h1a2z8.png" style="zoom:50%;" />
+
+1. 1 对 N 关系：可以，因为可以找到使得 $<h,r,t_1>=<h,r,t_2>$ 的两个不同的关系：
+
+   <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220514163331-r2fmmrt.png" style="zoom:50%;" />
+
+2. 对称关系：可以，因为三者对调不影响最后的结果
+
+3. 反对称关系：不可以，还是因为对调 h 和 t 并不影响最终的结果，得到的是同一个值
+
+4. 相反关系：不可以，如果相反关系成立，那么就有：$f_{r_2}(h,t)=<h,r_2,t>=<t,r_1,h>=f_{r_1}(t,h)$ ，这说明 $r_2=r_1$，但是两个相反关系的 embedding 不应该相等，比如导师和学生这两个关系
+
+5. 可传递关系：不可以，可传递关系可以表示为：$r_1(x,y)\land r_2(y,z) \Rightarrow r_3(x,z)$ ，前面说过 DistMult 通过起始节点和关系定义了一个超平面，但是两个超平面的并集并不能表述为另一个单独的超平面
+
+#### ComplEx
+
+ComplEx 是基于 Distmult，但是将实体和关系映射到复数向量空间 $C^k$；和 Distmult 类似，使用三个向量相乘求和的方式作为打分函数：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220514195544-l61utzh.png" style="zoom:50%;" />
+
+这里需要注意的是 tail 节点使用的是共轭复数（原来的复数的虚部取负值）；另外最后求和的结果是取最终结果的实部。下面来看这种方法处理常见的关系的能力：
+
+1. 反对称关系：可以，因为采取的是共轭复数，将 h 和 t 调换位置得到的值不一样
+
+2. 对称关系：可以，当 r 的虚部为 0 时有：
+
+   $$
+   f_r(h,t)=Re(\sum_ih_i\cdot r_i\cdot \bar{t_i})=\sum_iRe(r_i\cdot h_i\cdot \bar{t_i})
+   $$
+
+   $$
+   =\sum_ir_i\cdot Re(h_i\cdot \bar{t_i})=\sum_ir_i\cdot Re(\bar{h_i}\cdot t_i)=\sum_i Re(r_i\cdot \bar{h_i}\cdot t_i)=f_r(t,h)
+   $$
+
+这里要注意 $Re(h_i \cdot \bar{t_i})=Re(\bar{h_i}\cdot t_i)$，可以设  h 为 a + bi, 设 t 为 c + di，因此：
+
+$$
+left = (a+bi)(c-di)=ac-adi+bci-bd,(i^2 = 1) \\
+right = (a-bi)(c+di)=ac+adi-bdi-bd
+$$
+
+所以取实部之后两边是一样的。
+
+3. 相反关系：可以，取两个关系向量为共轭的就行
+4. 可传递关系：不可以，和 DistMult 一样
+5. 1 对 N 关系：可以， 和 DistMult 一样
+
+总结上面几种方法的特点：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220514214258-5cuh94h.png" style="zoom:50%;" />
+
+在实践中我们可以使用这张表来帮助我们选择合适的 embedding 方法。
