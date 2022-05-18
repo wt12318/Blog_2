@@ -1470,7 +1470,7 @@ install.packages("~/software/magick_2.7.3.tar.gz",repos=NULL,type="source")
 Error in `.rowNamesDF<-`(x, value = value) : 'row.names'的长度不对
 ```
 
-根据 Github 上的解决方法：https://github.com/seandavi/GEOquery/issues/114，在运行这句代码之前加上：
+根据 Github 上的解决方法：[Github issue](https://github.com/seandavi/GEOquery/issues/114)，在运行这句代码之前加上：
 
 ```R
 readr::local_edition(1)
@@ -1489,7 +1489,7 @@ Error in nchar(alldb$CDR3_a) : invalid multibyte string, element 1741
 [1] "LGTGNQFYF<a0>"
 ```
 
-可以看到这个字符末尾有一个 `<a0>` ，在 Stackoverflow 上找到一个方法：https://stackoverflow.com/questions/4993837/r-invalid-multibyte-string：
+可以看到这个字符末尾有一个 `<a0>` ，在 Stackoverflow 上找到一个方法 [issue](https://stackoverflow.com/questions/4993837/r-invalid-multibyte-string)：
 
 ```R
 > iconv(alldb$CDR3_a[1741],from="UTF-8", to="UTF-8", sub="")
