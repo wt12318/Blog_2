@@ -1462,3 +1462,44 @@ install.packages("~/software/magick_2.7.3.tar.gz",repos=NULL,type="source")
 
 [Deleting a Specific Line From a Text File in Command Line in Linux - SysTutorials](https://www.systutorials.com/how-to-delete-a-specific-line-from-a-text-file-in-command-line-on-linux/#:~:text=Deleting a Specific Line From a Text File in Command Line in Linux,-Posted on Mar&text=You can use the “stream,filtering and transforming text” sed.&text=Here%2C -i means edit the,%3B immediately start next cycle”.)
 
+## GEOquery 报错
+
+在运行 `getGEO` 下载 GEO 数据集时报错：
+
+```R
+Error in `.rowNamesDF<-`(x, value = value) : 'row.names'的长度不对
+```
+
+根据 Github 上的解决方法：https://github.com/seandavi/GEOquery/issues/114，在运行这句代码之前加上：
+
+```R
+readr::local_edition(1)
+```
+
+原因是 readr 的版本问题。
+
+## 获取字符串长度时报错：invalid multibyte string
+
+```R
+> nchar(alldb$CDR3_a)
+Error in nchar(alldb$CDR3_a) : invalid multibyte string, element 1741
+> alldb$CDR3_a[1741]
+[1] "LGTGNQFYF<a0>"
+> gsub("[<a0>]","",alldb$CDR3_a[1741]) 
+[1] "LGTGNQFYF<a0>"
+```
+
+可以看到这个字符末尾有一个 `<a0>` ，在 Stackoverflow 上找到一个方法：https://stackoverflow.com/questions/4993837/r-invalid-multibyte-string：
+
+```R
+> iconv(alldb$CDR3_a[1741],from="UTF-8", to="UTF-8", sub="")
+[1] "LGTGNQFYF"
+```
+
+iconv 可以在不同的编码方式间进行转化，sub 参数就是将那些无法转化的字符转化成 sub 参数中的字符：
+
+```R
+> iconv(alldb$CDR3_a[1741],from="UTF-8", to="UTF-8", sub="++")
+[1] "LGTGNQFYF++"
+```
+
