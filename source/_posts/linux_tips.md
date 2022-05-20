@@ -1503,3 +1503,76 @@ iconv 可以在不同的编码方式间进行转化，sub 参数就是将那些�
 [1] "LGTGNQFYF++"
 ```
 
+## 获取指定版本的 Ensembl gene ID 和 symbol ID 的对应关系
+
+比如想要获取 Ensembl V75 版本的对应关系来转化 ENST 的 gene ID 到 gene symbol：
+
+- 进入 Ensembl 官网，在右边选择指定的版本：
+
+  ![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220520221329570.png)
+
+- 选择下载
+
+  ![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220520221709122.png)
+
+- 接着点击 `Customise your download` 就可以进入 Biomart 的界面：
+
+  ![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220520221813333.png)
+
+- 根据需要选择：
+
+  ![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220520221859751.png)
+
+  ![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220520221946118.png)
+
+- 点击 result 输出 tsv 文件就行了
+
+## 展示好看的模型汇总表
+
+使用 `gtsummary` 的 `tbl_regression` 的函数：
+
+ ```R
+ ibrary(gtsummary)
+ m1 <- glm(response ~ age + stage, trial, family = binomial)
+ tbl_regression(m1, exponentiate = TRUE)
+ ```
+
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220520222338550.png)
+
+更多可以参考[文档](https://www.danieldsjoberg.com/gtsummary/articles/tbl_regression.html)。
+
+## 展示混淆矩阵
+
+使用 [cvms](https://cran.r-project.org/web/packages/cvms/vignettes/Creating_a_confusion_matrix.html) R 包：
+
+```R
+library(cvms)
+d_binomial <- tibble("target" = rbinom(100, 1, 0.7),
+                     "prediction" = rbinom(100, 1, 0.6))
+basic_table <- table(d_binomial)##虽然用 table 也可以展示
+basic_table
+
+      prediction
+target  0  1
+     0 14 13
+     1 29 44
+
+cfm <- as_tibble(basic_table)
+cfm
+
+# A tibble: 4 × 3
+  target prediction     n
+  <chr>  <chr>      <int>
+1 0      0             14
+2 1      0             29
+3 0      1             13
+4 1      1             44
+
+plot_confusion_matrix(cfm, 
+                      target_col = "target", 
+                      prediction_col = "prediction",
+                      counts_col = "n")
+```
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220520222808732.png" style="zoom:50%;" />
+
