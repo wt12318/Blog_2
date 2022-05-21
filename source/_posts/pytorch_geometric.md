@@ -560,6 +560,254 @@ class DynamicEdgeConv(EdgeConv):##继承上面的类
         return super().forward(x, edge_index)##调用EdgeConv 的forward
 ```
 
+## 创建数据集
+
+PyG 提供了两个类可以用来创建自己的数据集：`torch_geometric.data.Dataset` 和 `torch_geometric.data.InMemoryDataset`，`InMemoryDataset` 继承 `Dataset` 类，我们可以在数据集能够完全载入内存的情况下使用这个类（比较小）。`Dataset` 需要传入一个 root 参数，表示数据集的存储位置，`root` 文件夹需要拆分成两个子文件夹：`raw` 和 `processed`，前者存储原始数据或者数据下载的位置，后者存储处理后的数据。除此之外还可以三个数据处理的函数：`transform` , `pre_transform` 和 `pre_filter` ，这些函数默认为 None；`transform` 函数在获取数据之前对数据进行处理（第一步），因此适合用来进行数据增强的操作，`pre_transform` 在数据存储之前对数据进行操作，因此适用于只需要进行一次的大型运算，`pre_filter` 也是在数据存储之前对数据进行筛选。
+
+#### InMemoryDataset
+
+创建 `InMemoryDataset` 类需要实现下面四个方法：
+
+- `raw_file_name()` ：返回文件名列表，如果这些文件可以在 `raw_dir` 中找到，就跳过下载步骤
+- `processed_file_names()`：返回文件名列表，如果这些文件可以在 `processed_dir` 中找到，就跳过处理步骤
+- `download()`：下载原始数据到 `raw_dir`
+- `process()`：处理原始步骤，将其存储到 `processed_dir` 里面
+
+关键是 `process()` 方法，在这里我们需要读取数据并创建 `Data` 对象的列表（包括节点特征 x，edge index 等），然后存储到 `processed_dir` 中；因为存储大的 python 列表比较慢，所以在 pyg 中使用 `InMemoryDataset.collate` 方法将列表整合成一个大的 Data 对象，并额外返回一个 `slices` 字典：
+
+```python
+import torch
+from torch_geometric.data import InMemoryDataset, download_url
+
+
+class MyOwnDataset(InMemoryDataset):
+    def __init__(self, root, transform=None, pre_transform=None, pre_filter=None):
+        super().__init__(root, transform, pre_transform, pre_filter)
+        self.data, self.slices = torch.load(self.processed_paths[0])
+
+    @property
+    def raw_file_names(self):
+        return ['some_file_1', 'some_file_2', ...]
+
+    @property
+    def processed_file_names(self):
+        return ['data.pt']
+
+    def download(self):
+        # Download to `self.raw_dir`.
+        download_url(url, self.raw_dir)
+        ...
+
+    def process(self):
+        # Read data into huge `Data` list.
+        data_list = [...]
+
+        if self.pre_filter is not None:
+            data_list = [data for data in data_list if self.pre_filter(data)]
+
+        if self.pre_transform is not None:
+            data_list = [self.pre_transform(data) for data in data_list]
+
+        data, slices = self.collate(data_list)
+        torch.save((data, slices), self.processed_paths[0])
+```
+
+Larger Dataset
+
+更一般的情形是创建的数据集并不能全部一次性读入内存，这个时候就需要 `Dataset` 类，创建该类除了上面几个方法外还需要实现以下两个方法：
+
+- `len()`：返回数据集中样本的数量
+- `get()`：读取单个图
+
+下面是一个从分子数据创建一个 Dataset 数据集的[例子](https://github.com/deepfindr/gnn-project/blob/main/dataset.py)：
+
+```python
+class MoleculeDataset(Dataset):
+    def __init__(self, root, filename, transform=None, pre_transform=None):
+        """
+        root = Where the dataset should be stored. This folder is split
+        into raw_dir (downloaded dataset) and processed_dir (processed data). 
+        """
+        self.filename = filename
+        super(MoleculeDataset, self).__init__(root, transform, pre_transform)
+        
+    @property
+    def raw_file_names(self):
+        """ If this file exists in raw_dir, the download is not triggered.
+            (The download func. is not implemented here)  
+        """
+        return self.filename
+
+    @property
+    def processed_file_names(self):
+        """ If these files are found in processed_dir, processing is skipped"""
+        self.data = pd.read_csv(self.raw_paths[0]).reset_index()
+
+        return [f'data_{i}.pt' for i in list(self.data.index)]
+
+    def download(self):
+        pass##不需要下载
+
+    def process(self):
+        self.data = pd.read_csv(self.raw_paths[0])
+        for index, mol in tqdm(self.data.iterrows(), total=self.data.shape[0]):#tqdm可以显示运行进程
+            mol_obj = Chem.MolFromSmiles(mol["smiles"])
+            # Get node features
+            node_feats = self._get_node_features(mol_obj)
+            # Get edge features
+            edge_feats = self._get_edge_features(mol_obj)
+            # Get adjacency info
+            edge_index = self._get_adjacency_info(mol_obj)
+            # Get labels info
+            label = self._get_labels(mol["HIV_active"])
+
+            # Create data object
+            data = Data(x=node_feats, 
+                        edge_index=edge_index,
+                        edge_attr=edge_feats,
+                        y=label,
+                        smiles=mol["smiles"]
+                        ) 
+            torch.save(data, 
+                    os.path.join(self.processed_dir, 
+                                 f'data_{index}.pt'))
+
+    def _get_node_features(self, mol):
+        """ 
+        This will return a matrix / 2d array of the shape
+        [Number of Nodes, Node Feature size]
+        """
+        all_node_feats = []
+
+        for atom in mol.GetAtoms():
+            node_feats = []
+            # Feature 1: Atomic number        
+            node_feats.append(atom.GetAtomicNum())
+            # Feature 2: Atom degree
+            node_feats.append(atom.GetDegree())
+            # Feature 3: Formal charge
+            node_feats.append(atom.GetFormalCharge())
+            # Feature 4: Hybridization
+            node_feats.append(atom.GetHybridization())
+            # Feature 5: Aromaticity
+            node_feats.append(atom.GetIsAromatic())
+            # Feature 6: Total Num Hs
+            node_feats.append(atom.GetTotalNumHs())
+            # Feature 7: Radical Electrons
+            node_feats.append(atom.GetNumRadicalElectrons())
+            # Feature 8: In Ring
+            node_feats.append(atom.IsInRing())
+            # Feature 9: Chirality
+            node_feats.append(atom.GetChiralTag())
+
+            # Append node features to matrix
+            all_node_feats.append(node_feats)
+
+        all_node_feats = np.asarray(all_node_feats)
+        return torch.tensor(all_node_feats, dtype=torch.float)
+
+    def _get_edge_features(self, mol):
+        """ 
+        This will return a matrix / 2d array of the shape
+        [Number of edges, Edge Feature size]
+        """
+        all_edge_feats = []
+
+        for bond in mol.GetBonds():
+            edge_feats = []
+            # Feature 1: Bond type (as double)
+            edge_feats.append(bond.GetBondTypeAsDouble())
+            # Feature 2: Rings
+            edge_feats.append(bond.IsInRing())
+            # Append node features to matrix (twice, per direction)
+            all_edge_feats += [edge_feats, edge_feats]
+
+        all_edge_feats = np.asarray(all_edge_feats)
+        return torch.tensor(all_edge_feats, dtype=torch.float)
+
+    def _get_adjacency_info(self, mol):
+        """
+        We could also use rdmolops.GetAdjacencyMatrix(mol)
+        but we want to be sure that the order of the indices
+        matches the order of the edge features
+        """
+        edge_indices = []
+        for bond in mol.GetBonds():
+            i = bond.GetBeginAtomIdx()
+            j = bond.GetEndAtomIdx()
+            edge_indices += [[i, j], [j, i]]
+
+        edge_indices = torch.tensor(edge_indices)
+        edge_indices = edge_indices.t().to(torch.long).view(2, -1)
+        return edge_indices
+
+    def _get_labels(self, label):
+        label = np.asarray([label])
+        return torch.tensor(label, dtype=torch.int64)
+
+    def len(self):
+        return self.data.shape[0]
+
+    def get(self, idx):
+        """ - Equivalent to __getitem__ in pytorch
+            - Is not needed for PyG's InMemoryDataset
+        """
+        data = torch.load(os.path.join(self.processed_dir, 
+                                 f'data_{idx}.pt'))
+        return data
+```
+
+```python
+##目录结构
+!ls -R HIV_data/
+HIV_data/:
+raw
+
+HIV_data/raw:
+HIV_train.csv
+
+dataset = MoleculeDataset(root="HIV_data",filename="HIV_train.csv")
+
+Processing...
+ 84%|████████▎ | 31078/37128 [00:38<00:09, 618.98it/s]RDKit WARNING: [23:10:37] WARNING: not removing hydrogen atom without neighbors
+RDKit WARNING: [23:10:37] WARNING: not removing hydrogen atom without neighbors
+100%|██████████| 37128/37128 [00:46<00:00, 798.75it/s]
+Done!
+
+print(dataset[0].edge_index)
+tensor([[ 0,  1,  1,  2,  2,  3,  3,  4,  4,  5,  4,  6,  6,  7,  7,  8,  7,  9,
+          9, 10, 10, 11, 11, 12, 12, 13, 12, 14, 14, 15, 15, 16, 16, 17, 17, 18,
+         18, 19, 11,  1, 19, 14,  9,  2],
+        [ 1,  0,  2,  1,  3,  2,  4,  3,  5,  4,  6,  4,  7,  6,  8,  7,  9,  7,
+         10,  9, 11, 10, 12, 11, 13, 12, 14, 12, 15, 14, 16, 15, 17, 16, 18, 17,
+         19, 18,  1, 11, 14, 19,  2,  9]])
+
+print(dataset[0].x)
+tensor([[6., 1., 0., 4., 0., 3., 0., 0., 0.],
+        [6., 3., 0., 4., 0., 1., 0., 1., 0.],
+        [6., 3., 0., 3., 1., 0., 0., 1., 0.],
+        [7., 2., 0., 3., 1., 0., 0., 1., 0.],
+        [6., 3., 0., 3., 1., 0., 0., 1., 0.],
+        [7., 1., 0., 3., 0., 2., 0., 0., 0.],
+        [7., 2., 0., 3., 1., 0., 0., 1., 0.],
+        [6., 3., 0., 3., 1., 0., 0., 1., 0.],
+        [7., 1., 0., 3., 0., 2., 0., 0., 0.],
+        [6., 3., 0., 3., 1., 0., 0., 1., 0.],
+        [6., 2., 0., 4., 0., 2., 0., 1., 0.],
+        [7., 3., 0., 3., 0., 0., 0., 1., 0.],
+        [6., 3., 0., 3., 0., 0., 0., 0., 0.],
+        [8., 1., 0., 3., 0., 0., 0., 0., 0.],
+        [6., 3., 0., 3., 1., 0., 0., 1., 0.],
+        [6., 2., 0., 3., 1., 1., 0., 1., 0.],
+        [6., 2., 0., 3., 1., 1., 0., 1., 0.],
+        [6., 2., 0., 3., 1., 1., 0., 1., 0.],
+        [6., 2., 0., 3., 1., 1., 0., 1., 0.],
+        [6., 2., 0., 3., 1., 1., 0., 1., 0.]])
+
+print(dataset[0].y)
+tensor([0])
+```
+
 
 
 
