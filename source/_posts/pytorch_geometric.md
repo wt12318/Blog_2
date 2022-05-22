@@ -568,12 +568,12 @@ PyG 提供了两个类可以用来创建自己的数据集：`torch_geometric.da
 
 创建 `InMemoryDataset` 类需要实现下面四个方法：
 
-- `raw_file_name()` ：返回文件名列表，如果这些文件可以在 `raw_dir` 中找到，就跳过下载步骤
-- `processed_file_names()`：返回文件名列表，如果这些文件可以在 `processed_dir` 中找到，就跳过处理步骤
-- `download()`：下载原始数据到 `raw_dir`
-- `process()`：处理原始步骤，将其存储到 `processed_dir` 里面
+- `raw_file_name()` ：返回文件名列表，如果这些文件可以在 `raw` 中找到，就跳过下载步骤
+- `processed_file_names()`：返回文件名列表，如果这些文件可以在 `processed` 中找到，就跳过处理步骤
+- `download()`：下载原始数据到 `raw`
+- `process()`：处理原始步骤，将其存储到 `processed` 里面
 
-关键是 `process()` 方法，在这里我们需要读取数据并创建 `Data` 对象的列表（包括节点特征 x，edge index 等），然后存储到 `processed_dir` 中；因为存储大的 python 列表比较慢，所以在 pyg 中使用 `InMemoryDataset.collate` 方法将列表整合成一个大的 Data 对象，并额外返回一个 `slices` 字典：
+关键是 `process()` 方法，在这里我们需要读取数据并创建 `Data` 对象的列表（包括节点特征 x，edge index 等），然后存储到 `processed` 中；因为存储大的 python 列表比较慢，所以在 pyg 中使用 `InMemoryDataset.collate` 方法将列表整合成一个大的 Data 对象，并额外返回一个 `slices` 字典：
 
 ```python
 import torch
@@ -612,7 +612,7 @@ class MyOwnDataset(InMemoryDataset):
         torch.save((data, slices), self.processed_paths[0])
 ```
 
-Larger Dataset
+#### Larger Dataset
 
 更一般的情形是创建的数据集并不能全部一次性读入内存，这个时候就需要 `Dataset` 类，创建该类除了上面几个方法外还需要实现以下两个方法：
 
@@ -678,7 +678,7 @@ class MoleculeDataset(Dataset):
         [Number of Nodes, Node Feature size]
         """
         all_node_feats = []
-
+        ##每个分子生成一个图，节点的特征
         for atom in mol.GetAtoms():
             node_feats = []
             # Feature 1: Atomic number        
@@ -701,6 +701,7 @@ class MoleculeDataset(Dataset):
             node_feats.append(atom.GetChiralTag())
 
             # Append node features to matrix
+            ##list of li
             all_node_feats.append(node_feats)
 
         all_node_feats = np.asarray(all_node_feats)
