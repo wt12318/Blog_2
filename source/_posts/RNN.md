@@ -11,7 +11,7 @@ categories:
 
 <!-- more -->
 
-## 循环神经网络 RNN
+## 循环神经网络
 
 对于表格数据和图像来说，我们都是假设数据是独立同分布的，当实际上数据并不都是如此的，比如文本中的单词，视频的帧，对话的声音信息，这些数据都是有序列特征的，也就是数据之间并不是独立的，因此我们需要一种特殊的模型去描述这类数据。
 
@@ -365,7 +365,7 @@ $$
 $$
 
 $$
-\hat{P}(x’’ \mid x,x’)  = \frac{n(x, x’,x’’) + \epsilon_3 \hat{P}(x’’)}{n(x, x’) + \epsilon_3}
+\hat{P}(x’’ \mid x,x’)  = \frac{n(x, x’,x’’) + \epsilon_3 \hat{P}(x’’)}{n(x, x’) + \epsilon_3}
 $$
 
 
@@ -968,9 +968,9 @@ d2l.train_ch8(net, train_iter, vocab, lr, num_epochs, device)
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220528185452-pk22g58.png" style="zoom:67%;" />
 
-### 经典循环神经网络
+## 经典循环神经网络
 
-#### GRU
+### GRU
 
 前面的 RNN 在计算每个输入时都会考虑包含之前所有输入的隐状态，但是对于一个序列而已不是每一个部分都是同等重要的，有些时候需要更关注某些观测值，有时则需要跳过某些观测值。GRU 通过在 RNN 的基础上引入两个门控单元：重置门（reset gate ，**R**）和更新门（update gate，**Z**）来决定**当前的隐状态的更新是否和当前的输入相关**：
 
@@ -994,7 +994,7 @@ d2l.train_ch8(net, train_iter, vocab, lr, num_epochs, device)
 
 因此这个 Z 决定了如何去更新当前的隐状态：如果 Z 为 0，则候选隐状态为当前的隐状态，如果 Z 为 1，则完全不考虑当前的输入。R 是对之前信息的遗忘程度，Z 是对当前信息的关注程度。
 
-##### GRU 实现
+#### GRU 实现
 
 读入数据：
 
@@ -1077,9 +1077,7 @@ d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, device)
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220528214618-m3fy1kp.png" style="zoom:67%;" />
 
-
-
-#### LSTM
+### LSTM
 
 LSTM 和 GRU 的很多设计类似，但是比 GRU 早了 20 年，LSTM 引入了记忆单元（memory cell），和隐状态的大小一样，也可以看作是另一种隐状态。LSTM 使用了 3 个门控单元：
 
@@ -1107,7 +1105,7 @@ LSTM 和 GRU 的很多设计类似，但是比 GRU 早了 20 年，LSTM 引入�
 
 tanh 的目的是对 C 进行缩放，因为从上面计算记忆单元的式子来看，得到的结果不一定处于 -1~1 之间。如果这个输出门为 1，那么隐状态就包含了前一个记忆，前一个隐状态，以及当前的输入，如果为 0，则重置隐状态。总结一下：遗忘门控制着对之前记忆的保留程度，输入门控制着当前记忆的保留程度，输出门则控制着对前两个门的计算结果的输出
 
-##### LSTM 的实现
+#### LSTM 的实现
 
 导入数据：
 
@@ -1196,7 +1194,7 @@ d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, device)
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220528230544-s3plklg.png" style="zoom:67%;" />
 
-#### 深度循环神经网络
+### 深度循环神经网络
 
 深度循环神经网络就是使用更多的隐藏层，每个隐藏层接受上一个隐藏层的输入，输出是新的隐状态，这个新的隐状态一方面向下一步传递，另一方面向该步的下一个隐藏层传递：
 
@@ -1228,7 +1226,7 @@ num_epochs, lr = 500, 2
 d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, device)
 ```
 
-#### 双向循环神经网络
+### 双向循环神经网络
 
 双向循环神经网络通过加入隐状态的反向传递，从而利用 "未来" 的信息（因此不适宜做推理任务，因为在推理预测任务中模型看不到未来的观测）：
 
