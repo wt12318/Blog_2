@@ -243,7 +243,7 @@ for i in range(11):
 ['twinkled', 'and', 'his', 'usually', 'pale', 'face', 'was', 'flushed', 'and', 'animated', 'the']
 ```
 
-接下来就要创建一个词汇表将 token 映射到数字索引：先计算文本中唯一 token 的频率表，叫做语料（corpus），然后根据其频率赋予索引（从大到小，从0开始），有些出现较少的 token 可以去掉以减少复杂性，另外还可以添加一些特殊的token，比如在语料中不存在或者被移除的 token 可以用 <unk> 来表示，开始的token 用 <bos>，结束的 token 用 <eos> 表示，padding 可以使用 <pad> 表示等：
+接下来就要创建一个词汇表将 token 映射到数字索引：先计算文本中唯一 token 的频率表，叫做语料（corpus），然后根据其频率赋予索引（从大到小，从0开始），有些出现较少的 token 可以去掉以减少复杂性，另外还可以添加一些特殊的token，比如在语料中不存在或者被移除的 token 可以用` <unk>` 来表示，开始的token 用 `<bos>`，结束的 token 用 `<eos>` 表示，padding 可以使用 `<pad>` 表示等：
 
 ```python
 def count_corpus(tokens):  #@save
