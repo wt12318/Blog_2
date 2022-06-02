@@ -36,7 +36,11 @@ $$
 
 2. 将过去的观测整合成一个变量 $h_t$ 这样的模型也叫做隐自回归模型，因为这里的 ht 是一个隐变量
 
+   
+   
    <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220411211540-nljbhay.png" style="zoom:67%;" />
+
+
 
 隐变量实际是存在的，观测不到，潜变量可以是不存在的，人为设定的，比如聚类的类信息
 
@@ -130,6 +134,8 @@ d2l.plot([time, time[tau:]], [x.detach().numpy(), onestep_preds.detach().numpy()
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220411223707-iy3hgos.png" style="zoom:67%;" />
 
+
+
 这个只是前进一步的预测，如果我们要预测 604 个之后的就只能根据我们的预测来预测（因为上面训练的数据也就是观测的数据只到600），现在来看这些预测怎么样：
 
 ```python
@@ -147,6 +153,8 @@ d2l.plot([time, time[tau:], time[n_train + tau:]],
 ```
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220411224245-dlctp7g.png" style="zoom:67%;" />
+
+
 
 可以看到在离 604 不久后预测就飞了，原因是误差的不断累积，比较不同窗口的区别：
 
@@ -349,12 +357,18 @@ $$
 因此要计算这个语言模型，我们需要计算词的概率和给定前面的词的条件概率，对于一些大型的文本可以使用词的频率来估计这种概率，但是这有一个问题：对于一些词的组合，可能出现的次数比较少（越比如对于固定的有3个词的词组，可能就不会出现几次），对于这个问题通常的策略是 *Laplace smoothing*，也就是加上一个小的常数：
 
 $$
-\begin{split}\begin{aligned}
-    \hat{P}(x) & = \frac{n(x) + \epsilon_1/m}{n + \epsilon_1}, \\
-    \hat{P}(x' \mid x) & = \frac{n(x, x') + \epsilon_2 \hat{P}(x')}{n(x) + \epsilon_2}, \\
-    \hat{P}(x'' \mid x,x') & = \frac{n(x, x',x'') + \epsilon_3 \hat{P}(x'')}{n(x, x') + \epsilon_3}.
-\end{aligned}\end{split}
+\hat{P}(x)  = \frac{n(x) + \epsilon_1/m}{n + \epsilon_1}
 $$
+
+$$
+\hat{P}(x' \mid x) = \frac{n(x, x') + \epsilon_2 \hat{P}(x')}{n(x) + \epsilon_2}
+$$
+
+$$
+\hat{P}(x’’ \mid x,x’)  = \frac{n(x, x’,x’’) + \epsilon_3 \hat{P}(x’’)}{n(x, x’) + \epsilon_3}
+$$
+
+
 
 但是这样近似还是会存在一些问题：
 
@@ -365,11 +379,15 @@ $$
 我们还可以将前面讲过的马尔可夫假设引进语言模型，可以得到不同 gram 的模型估计（对应着一阶，二阶，三阶马尔可夫假设）：
 
 $$
-\begin{split}\begin{aligned}
-P(x_1, x_2, x_3, x_4) &=  P(x_1) P(x_2) P(x_3) P(x_4),\\
-P(x_1, x_2, x_3, x_4) &=  P(x_1) P(x_2  \mid  x_1) P(x_3  \mid  x_2) P(x_4  \mid  x_3),\\
-P(x_1, x_2, x_3, x_4) &=  P(x_1) P(x_2  \mid  x_1) P(x_3  \mid  x_1, x_2) P(x_4  \mid  x_2, x_3).
-\end{aligned}\end{split}
+P(x_1, x_2, x_3, x_4) =  P(x_1) P(x_2) P(x_3) P(x_4)
+$$
+
+$$
+P(x_1, x_2, x_3, x_4) =  P(x_1) P(x_2  \mid  x_1) P(x_3  \mid  x_2) P(x_4  \mid  x_3)
+$$
+
+$$
+P(x_1, x_2, x_3, x_4) =  P(x_1) P(x_2  \mid  x_1) P(x_3  \mid  x_1, x_2) P(x_4  \mid  x_2, x_3)
 $$
 
 #### 读取长序列数据
@@ -379,6 +397,8 @@ $$
 如果短序列长度是5，那么可以有如下的选择：
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220414105111-jube13u.png" style="zoom:67%;" />
+
+
 
 对于开始的 offset 我们一般是随机的选择 offset 的大小，从而使得所有可能的子序列的覆盖度比较大，并且增加随机性；选择子序列的方法有两种：随机抽样和顺序分割，随机抽样中两个相邻的 minibatch 在原始序列中不一定相邻，而顺序分割则是相邻的。
 
@@ -511,25 +531,30 @@ $$
 这个 f 可以由神经网络来估计：
 
 $$
-\mathbf{H}_t = \phi(\mathbf{X}_t \mathbf{W}_{xh} + \mathbf{H}_{t-1} \mathbf{W}_{hh}  + \mathbf{b}_h).
+{H}_t = \phi({X}_t {W}_{xh} + {H}_{t-1} {W}_{hh}  + {b}_h).
 $$
 
 在每个时间步，可以根据 Ht 得到该时间步的输出：
 
 $$
-\mathbf{O}_t = \mathbf{H}_t \mathbf{W}_{hq} + \mathbf{b}_q.
+{O}_t = {H}_t {W}_{hq} +{b}_q.
 $$
 
 因此一个 RNN 的结构为：
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/Whiteboard-20220417113658-2bzy5b5.png" style="zoom:50%;" />
 
+
+
 下面以一个单词分割成字符预测为例：
+
+
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220417114034-k39nglx.png" style="zoom:50%;" />
 
-在预测中使用类似交叉熵误差的loss，叫做 *perplexity* （困惑度）：
 
+
+在预测中使用类似交叉熵误差的loss，叫做 *perplexity* （困惑度）：
 $$
 \exp\left(-\frac{1}{n} \sum_{t=1}^n \log P(x_t \mid x_{t-1}, \ldots, x_1)\right).
 $$
@@ -879,6 +904,8 @@ tensor(True)
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220528120925-bqsgwri.png" style="zoom:67%;" />
 
+
+
 定义整个的 RNN 类：
 
 ```python
@@ -949,15 +976,21 @@ d2l.train_ch8(net, train_iter, vocab, lr, num_epochs, device)
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220528212128-ujzx5w5.png" style="zoom:67%;" />
 
+
+
 这两个门其实就是有着 sigmoid 激活函数的全连接层，接着通过重置门我们可以得到候选隐状态：
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220528212419-og1vwiw.png" style="zoom:67%;" />
+
+
 
 这个 $\odot$ 表示按元素相乘，因为这两个门的结果都是经过  sigmoid 函数的，也就是在 0 到 1 之间，如果 R 为 0，那么这个候选隐状态就没有考虑之前的隐状态，相当于将当前输入输进一个 MLP 得到的结果；如果 R 为 1，那么这个候选隐状态就和之前 RNN 得到的结果是一样的了。
 
 接着基于候选隐状态和更新门得到最终的隐状态：
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220528212906-0l3b8h1.png" style="zoom:67%;" />
+
+
 
 因此这个 Z 决定了如何去更新当前的隐状态：如果 Z 为 0，则候选隐状态为当前的隐状态，如果 Z 为 1，则完全不考虑当前的输入。R 是对之前信息的遗忘程度，Z 是对当前信息的关注程度。
 
@@ -1044,23 +1077,33 @@ d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, device)
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220528214618-m3fy1kp.png" style="zoom:67%;" />
 
+
+
 #### LSTM
 
 LSTM 和 GRU 的很多设计类似，但是比 GRU 早了 20 年，LSTM 引入了记忆单元（memory cell），和隐状态的大小一样，也可以看作是另一种隐状态。LSTM 使用了 3 个门控单元：
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220528223937-9r308oa.png" style="zoom:50%;" />
 
+
+
 这些门和 GRU 里面的一样，都是由 sigmoid 激活函数的全连接网络；LSTM 还有一个候选记忆单元：
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220528224149-bz5bc3g.png" style="zoom:50%;" />
+
+
 
 这个所谓的候选记忆单元和之前的 RNN 里面的隐状态的计算方式是一样的，没有用到门控，因此这个候选记忆单元相当于储存了当前的记忆。除了隐状态之外，LSTM 还有记忆单元 C：
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220528224353-sf5ih2j.png" style="zoom:50%;" />
 
+
+
 当前的记忆单元的计算涉及到上一个记忆单元，候选记忆单元以及当前的两个门控单元，注意这里的两个门控单元是独立的，而不像前面 GRU 中一个是 Z 另一个就是 1-Z，也就是说可以同时用到前一个记忆单元和当前的记忆单元，也可以都不用（相当于重置了记忆），接着就是隐状态的更新：
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220528224849-i85438t.png" style="zoom:50%;" />
+
+
 
 tanh 的目的是对 C 进行缩放，因为从上面计算记忆单元的式子来看，得到的结果不一定处于 -1~1 之间。如果这个输出门为 1，那么隐状态就包含了前一个记忆，前一个隐状态，以及当前的输入，如果为 0，则重置隐状态。总结一下：遗忘门控制着对之前记忆的保留程度，输入门控制着当前记忆的保留程度，输出门则控制着对前两个门的计算结果的输出
 
@@ -1159,6 +1202,8 @@ d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, device)
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220529083050-v2y45ji.png" style="zoom:50%;" />
 
+
+
 代码：
 
 ```python
@@ -1188,6 +1233,8 @@ d2l.train_ch8(model, train_iter, vocab, lr, num_epochs, device)
 双向循环神经网络通过加入隐状态的反向传递，从而利用 "未来" 的信息（因此不适宜做推理任务，因为在推理预测任务中模型看不到未来的观测）：
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220529120831-5709iik.png" style="zoom:67%;" />
+
+
 
 代码：
 
@@ -1389,6 +1436,8 @@ valid lengths for Y: tensor([4, 4])
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220601160137-mx947ou.png" style="zoom:67%;" />
 
+
+
 第一个组件是编码器（encoder）：输入是可变长度的序列，输出是固定性状的中间状态；第二个组件是解码器（edcoder）：输入是 encoder 生成的状态，输出是可变长度的序列，这个架构就是编码-解码架构。
 
 代码（架构，不涉及具体实现）：
@@ -1446,9 +1495,13 @@ Seq2seq 模型就是上面说的编码-解码架构的一个实例：encoder 和
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220601183741-iewypl2.png" style="zoom: 50%;" />
 
+
+
 Encoder 是一个常规的 RNN，将隐状态输入进 Decoder 中（如果是多层 RNN 则将最后一层的 RNN 最后一个时刻的隐状态的输出作为 Decoder 的输入），也就是将输入的序列信息编码进这个隐状态中；Decoder 的设计可以有几种选择，比如上面图所示的，第一个时刻接受 encoder 的隐状态和 `<bos>` token，然后后面和一般的 RNN 差不多，另外一种就是在每个时刻都将 Decoder 输出的隐状态和每个时刻的序列同时作为输入，如下图：
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220601185525-2kz5uix.png" style="zoom:67%;" />
+
+
 
 Decoder 预测就是将上一个时刻的输出作为下一个时刻的输入来生成序列。注意，由于 Encoder 可以看到整个序列，所以也可以使用之前讲过的双向 RNN 作为 Encoder（Encoder 起到一个特征提取的作用）。
 
