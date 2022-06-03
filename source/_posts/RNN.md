@@ -1568,7 +1568,7 @@ output.shape,state.shape
 
 输出的维度（**也就是最后一层的所有时间步的隐状态**）为（时间步*批量大小\*隐藏单元的数量），输出的隐藏状态的维度（**也就是所有层最后一个时间步的隐藏状态**）为（隐藏层数\*批量大小\*隐藏单元数量）。
 
-#### Decoder
+##### Decoder
 
 对于 decoder，这里使用的是第二种方法，也就是在每个时间步都将 encoder 的输出 context 变量和当前的输入 concatenated 起来：
 
@@ -1622,9 +1622,7 @@ output.shape, state.shape
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220603165016-m2hgj66.png" style="zoom:50%;" />
 
-
-
-#### Loss 函数
+##### Loss 函数
 
 由于之前为了使得一个批量中的序列长度一样，在较短序列的末尾添加了`<pad>` token，但是在计算 loss 的时候这些 `<pad>` 应该被排除（依据之前保留的 `valid_length` 参数）：
 
@@ -1747,7 +1745,7 @@ tensor([[2.3026, 2.3026, 2.3026, 2.3026],
 tensor([2.3026, 1.1513, 0.0000])
 ```
 
-#### 训练
+##### 训练
 
 训练使用的方法：
 
@@ -1813,7 +1811,7 @@ train_seq2seq(net, train_iter, lr, num_epochs, tgt_vocab, device)
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220603183828-43ixgq6.png" alt="" style="zoom:50%;" />
 
-#### 预测
+##### 预测
 
 预测的架构如下，和 Decoder 训练时不同的地方在于：除了第一个时间步输入是 `<bos>` 的token 外，其他的时间步的输入是前一个时间步的输出（取概率最大的）：
 
@@ -1856,7 +1854,7 @@ def predict_seq2seq(net, src_sentence, src_vocab, tgt_vocab, num_steps,
     return ' '.join(tgt_vocab.to_tokens(output_seq)), attention_weight_seq
 ```
 
-### 评估函数
+#### 评估函数
 
 在机器翻译中广泛使用的评估函数为 BLUE（Bilingual Evaluation Understudy）：
 
