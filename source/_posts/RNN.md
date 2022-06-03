@@ -1503,6 +1503,412 @@ Encoder 是一个常规的 RNN，将隐状态输入进 Decoder 中（如果是�
 
 Decoder 预测就是将上一个时刻的输出作为下一个时刻的输入来生成序列。注意，由于 Encoder 可以看到整个序列，所以也可以使用之前讲过的双向 RNN 作为 Encoder（Encoder 起到一个特征提取的作用）。
 
+#### seq2seq 实现
+
+##### Encoder
+
+在每个时间步中，Encoder 都是将输入 token 的特征向量 $x_t$ 和之前一个时间步的隐藏状态$h_{t-1}$ 转化为当前的隐藏状态 $h_t$ ，可以使用一个函数来表示：
+
+$$
+h_t = f(x_t,h_{t-1})
+$$
+
+一般来讲，encoder 通过一个自定义的函数将所有时间步的隐藏状态转化为一个 context 变量：
+
+$$
+c=q(h_1,...,h_T)
+$$
+
+如果 $q(h_1,...,h_T)=h_T$ ，那么就是上面说的那种情况，context 变量为最后一层最后一个时间步的隐藏状态。
+
+Encoder 和一般的 RNN 不同的地方在于，其输入序列先要进入一个 **embedding** 层，得到每个特征新的 embedding 向量，这个操作的目的是减少特征的维度（常规的 RNN 输入的token 的特征向量是一个 onehot 向量，其长度是词汇表的长度，如果不是以字符作为 token 的话，有些时候数据集中的词汇可能很多），这个 embedding 层学习的权重矩阵的大小为：（输入的词汇表长度，`vocab_size`*每个token的特征向量长度`embed_size`），其余的和 RNN 一样，这里使用 GRU 来实现 Encoder：
+
+```python
+import collections
+import math
+import torch
+from torch import nn
+from d2l import torch as d2l
+
+#@save
+class Seq2SeqEncoder(d2l.Encoder):
+    """The RNN encoder for sequence to sequence learning."""
+    def __init__(self, vocab_size, embed_size, num_hiddens, num_layers,
+                 dropout=0, **kwargs):
+        super(Seq2SeqEncoder, self).__init__(**kwargs)
+        # Embedding layer
+        self.embedding = nn.Embedding(vocab_size, embed_size)
+        self.rnn = nn.GRU(embed_size, num_hiddens, num_layers,
+                          dropout=dropout)
+
+    def forward(self, X, *args):
+        # The output `X` shape: (`batch_size`, `num_steps`, `embed_size`)
+        X = self.embedding(X)
+        # In RNN models, the first axis corresponds to time steps
+        X = X.permute(1, 0, 2)
+        # When state is not mentioned, it defaults to zeros
+        output, state = self.rnn(X)
+        # `output` shape: (`num_steps`, `batch_size`, `num_hiddens`)
+        # `state` shape: (`num_layers`, `batch_size`, `num_hiddens`)
+        return output, state
+```
+
+`torch.permute` 返回按照指定维度重新排列的原始 tensor 的 view，这里的操作就是将第0个维度（batch_size）和第一个维度（num_steps）对调，保证时间步在第一个维度；验证一下输出：
+
+```python
+encoder = Seq2SeqEncoder(vocab_size=10, embed_size=8, num_hiddens=16,
+                         num_layers=2)
+encoder.eval()
+X = torch.zeros((4, 7), dtype=torch.long)##batch size 为 4，时间步为 7
+output, state = encoder(X)
+output.shape,state.shape
+
+(torch.Size([7, 4, 16]), torch.Size([2, 4, 16]))
+```
+
+输出的维度（**也就是最后一层的所有时间步的隐状态**）为（时间步*批量大小\*隐藏单元的数量），输出的隐藏状态的维度（**也就是所有层最后一个时间步的隐藏状态**）为（隐藏层数\*批量大小\*隐藏单元数量）。
+
+#### Decoder
+
+对于 decoder，这里使用的是第二种方法，也就是在每个时间步都将 encoder 的输出 context 变量和当前的输入 concatenated 起来：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220601185525-2kz5uix.png" style="zoom:50%;" />
+
+
+
+需要注意，由于使用 encoder 的最后一个时间步的隐藏状态来初始化 decoder 的隐藏状态，所以 encoder 和 decoder 的隐藏层数量和隐藏层大小应该是一样的；最后使用一个全连接层来转化输出的隐藏状态得到最终的输出：
+
+```python
+class Seq2SeqDecoder(d2l.Decoder):
+    """The RNN decoder for sequence to sequence learning."""
+    def __init__(self, vocab_size, embed_size, num_hiddens, num_layers,
+                 dropout=0, **kwargs):
+        super(Seq2SeqDecoder, self).__init__(**kwargs)
+        self.embedding = nn.Embedding(vocab_size, embed_size)
+        self.rnn = nn.GRU(embed_size + num_hiddens, num_hiddens, num_layers,
+                          dropout=dropout)
+        self.dense = nn.Linear(num_hiddens, vocab_size)
+
+    def init_state(self, enc_outputs, *args):
+        return enc_outputs[1]
+
+    def forward(self, X, state):
+        # The output `X` shape: (`num_steps`, `batch_size`, `embed_size`)
+        X = self.embedding(X).permute(1, 0, 2)
+        # Broadcast `context` so it has the same `num_steps` as `X`
+        context = state[-1].repeat(X.shape[0], 1, 1)
+        X_and_context = torch.cat((X, context), 2)
+        output, state = self.rnn(X_and_context, state)
+        output = self.dense(output).permute(1, 0, 2)##重新将batch size 放到第二个维度
+        # `output` shape: (`batch_size`, `num_steps`, `vocab_size`)
+        # `state` shape: (`num_layers`, `batch_size`, `num_hiddens`)
+        return output, state
+```
+
+`state[-1].repeat(X.shape[0], 1, 1)` 就是取 `state` 的最后一个（最后一个时间步的最后一层的隐藏状态），然后重复 decoder 输入的时间步长度的次数，以便于直接和 decoder 的输入连接。
+
+```python
+decoder = Seq2SeqDecoder(vocab_size=10, embed_size=8, num_hiddens=16,
+                         num_layers=2)
+decoder.eval()
+state = decoder.init_state(encoder(X))
+output, state = decoder(X, state)
+output.shape, state.shape
+
+(torch.Size([4, 7, 10]), torch.Size([2, 4, 16]))
+```
+
+目前的 Seq2seq 的架构为：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220603165016-m2hgj66.png" style="zoom:50%;" />
+
+
+
+#### Loss 函数
+
+由于之前为了使得一个批量中的序列长度一样，在较短序列的末尾添加了`<pad>` token，但是在计算 loss 的时候这些 `<pad>` 应该被排除（依据之前保留的 `valid_length` 参数）：
+
+```python
+#@save
+def sequence_mask(X, valid_len, value=0):
+    """Mask irrelevant entries in sequences."""
+    maxlen = X.size(1)
+    mask = torch.arange((maxlen), dtype=torch.float32,
+                        device=X.device)[None, :] < valid_len[:, None]
+    X[~mask] = value
+    return X
+
+X = torch.tensor([[1, 2, 3, 4], [5, 6, 7, 8]])
+sequence_mask(X, torch.tensor([1, 2]))
+
+tensor([[1, 0, 0, 0],
+        [5, 6, 0, 0]])
+```
+
+`[None, :]` 表示增加一个 0 维度，`[:, None]` 表示增加一个 1 维度：
+
+```python
+torch.tensor([1, 2]).shape,torch.tensor([1, 2])[:, None].shape
+(torch.Size([2]), torch.Size([2, 1]))
+
+torch.tensor([1, 2])[:, None]
+tensor([[1],
+        [2]])
+
+torch.arange(4).shape,torch.arange(4)[None, :].shape
+(torch.Size([4]), torch.Size([1, 4]))
+
+torch.arange(4)[None, :]
+tensor([[0, 1, 2, 3]])
+
+##将torch.arange(4)[None, :]的第一个维度广播成2维，从而与torch.tensor([1, 2])[:, None]进行逻辑运算
+torch.arange(4)[None, :] < torch.tensor([1, 2])[:, None]
+tensor([[ True, False, False, False],
+        [ True,  True, False, False]])
+
+a = torch.arange(4)[None, :] < torch.tensor([1, 2])[:, None]
+X = torch.tensor([[0, 9, 3, 4], [5, 6, 7, 8]])
+X
+tensor([[0, 9, 3, 4],
+        [5, 6, 7, 8]])
+
+X[~a]##哪些是False ~ 是取反操作
+tensor([9, 3, 4, 7, 8])
+
+~a
+tensor([[False,  True,  True,  True],
+        [False, False,  True,  True]])
+```
+
+接下来就可以更改之前的交叉熵 loss 来考虑这些 padding 的影响：
+
+```python
+#@save
+class MaskedSoftmaxCELoss(nn.CrossEntropyLoss):#继承CrossEntropyLoss
+    """The softmax cross-entropy loss with masks."""
+    # `pred` shape: (`batch_size`, `num_steps`, `vocab_size`)
+    # `label` shape: (`batch_size`, `num_steps`)
+    # `valid_len` shape: (`batch_size`,)
+    def forward(self, pred, label, valid_len):
+        weights = torch.ones_like(label)
+        weights = sequence_mask(weights, valid_len)
+        self.reduction='none'
+        unweighted_loss = super().forward(pred.permute(0, 2, 1), label)
+        weighted_loss = (unweighted_loss * weights).mean(dim=1)
+        return weighted_loss
+
+pred = torch.ones(3, 4, 10)
+pred
+tensor([[[1., 1., 1., 1., 1., 1., 1., 1., 1., 1.],
+         [1., 1., 1., 1., 1., 1., 1., 1., 1., 1.],
+         [1., 1., 1., 1., 1., 1., 1., 1., 1., 1.],
+         [1., 1., 1., 1., 1., 1., 1., 1., 1., 1.]],
+
+        [[1., 1., 1., 1., 1., 1., 1., 1., 1., 1.],
+         [1., 1., 1., 1., 1., 1., 1., 1., 1., 1.],
+         [1., 1., 1., 1., 1., 1., 1., 1., 1., 1.],
+         [1., 1., 1., 1., 1., 1., 1., 1., 1., 1.]],
+
+        [[1., 1., 1., 1., 1., 1., 1., 1., 1., 1.],
+         [1., 1., 1., 1., 1., 1., 1., 1., 1., 1.],
+         [1., 1., 1., 1., 1., 1., 1., 1., 1., 1.],
+         [1., 1., 1., 1., 1., 1., 1., 1., 1., 1.]]])
+
+label = torch.ones((3, 4), dtype=torch.long)
+label
+tensor([[1, 1, 1, 1],
+        [1, 1, 1, 1],
+        [1, 1, 1, 1]])
+
+valid_len = torch.tensor([4, 2, 0])
+valid_len
+tensor([4, 2, 0])
+
+weights = torch.ones_like(label)
+weights = sequence_mask(weights, valid_len)
+weights
+tensor([[1, 1, 1, 1],
+        [1, 1, 0, 0],
+        [0, 0, 0, 0]])
+
+loss = nn.CrossEntropyLoss(reduction = "none")
+unweighted_loss = loss(pred.permute(0, 2, 1), label)
+unweighted_loss
+tensor([[2.3026, 2.3026, 2.3026, 2.3026],
+        [2.3026, 2.3026, 2.3026, 2.3026],
+        [2.3026, 2.3026, 2.3026, 2.3026]])
+
+unweighted_loss * weights
+tensor([[2.3026, 2.3026, 2.3026, 2.3026],
+        [2.3026, 2.3026, 0.0000, 0.0000],
+        [0.0000, 0.0000, 0.0000, 0.0000]])
+
+(unweighted_loss * weights).mean(dim=1)
+tensor([2.3026, 1.1513, 0.0000])
+```
+
+#### 训练
+
+训练使用的方法：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220601185525-2kz5uix.png" style="zoom:50%;" />
+
+
+
+这个过程叫做 *teacher forcing*，也就是每次不使用上一个时间步的输出作为下一个时间步的输入，而是直接使用训练数据中相应的输入，这样即使在某一步预测错误也不影响下一步的输入：
+
+```python
+#@save
+def train_seq2seq(net, data_iter, lr, num_epochs, tgt_vocab, device):
+    """Train a model for sequence to sequence."""
+    def xavier_init_weights(m):
+        if type(m) == nn.Linear:
+            nn.init.xavier_uniform_(m.weight)
+        if type(m) == nn.GRU:
+            for param in m._flat_weights_names:
+                if "weight" in param:
+                    nn.init.xavier_uniform_(m._parameters[param])
+    net.apply(xavier_init_weights)
+    net.to(device)
+    optimizer = torch.optim.Adam(net.parameters(), lr=lr)
+    loss = MaskedSoftmaxCELoss()
+    net.train()
+    animator = d2l.Animator(xlabel='epoch', ylabel='loss',
+                            xlim=[10, num_epochs])
+    for epoch in range(num_epochs):
+        timer = d2l.Timer()
+        metric = d2l.Accumulator(2)  # Sum of training loss, no. of tokens
+        for batch in data_iter:
+            optimizer.zero_grad()
+            X, X_valid_len, Y, Y_valid_len = [x.to(device) for x in batch]
+            bos = torch.tensor([tgt_vocab['<bos>']] * Y.shape[0],
+                               device=device).reshape(-1, 1)
+            dec_input = torch.cat([bos, Y[:, :-1]], 1)  # Teacher forcing
+            Y_hat, _ = net(X, dec_input, X_valid_len)
+            l = loss(Y_hat, Y, Y_valid_len)
+            l.sum().backward()  # Make the loss scalar for `backward`
+            d2l.grad_clipping(net, 1)
+            num_tokens = Y_valid_len.sum()
+            optimizer.step()
+            with torch.no_grad():
+                metric.add(l.sum(), num_tokens)
+        if (epoch + 1) % 10 == 0:
+            animator.add(epoch + 1, (metric[0] / metric[1],))
+    print(f'loss {metric[0] / metric[1]:.3f}, {metric[1] / timer.stop():.1f} '
+          f'tokens/sec on {str(device)}')
+
+embed_size, num_hiddens, num_layers, dropout = 32, 32, 2, 0.1
+batch_size, num_steps = 64, 10
+lr, num_epochs, device = 0.005, 300, d2l.try_gpu()
+
+torch.set_num_threads(30)#限制线程
+train_iter, src_vocab, tgt_vocab = d2l.load_data_nmt(batch_size, num_steps)
+encoder = Seq2SeqEncoder(
+    len(src_vocab), embed_size, num_hiddens, num_layers, dropout)
+decoder = Seq2SeqDecoder(
+    len(tgt_vocab), embed_size, num_hiddens, num_layers, dropout)
+net = d2l.EncoderDecoder(encoder, decoder)
+train_seq2seq(net, train_iter, lr, num_epochs, tgt_vocab, device)
+```
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220603183828-43ixgq6.png" alt="" style="zoom:50%;" />
+
+#### 预测
+
+预测的架构如下，和 Decoder 训练时不同的地方在于：除了第一个时间步输入是 `<bos>` 的token 外，其他的时间步的输入是前一个时间步的输出（取概率最大的）：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220603183910-cz3hxrq.png" style="zoom: 67%;" />
+
+```python
+#@save
+def predict_seq2seq(net, src_sentence, src_vocab, tgt_vocab, num_steps,
+                    device, save_attention_weights=False):
+    """Predict for sequence to sequence."""
+    # Set `net` to eval mode for inference
+    net.eval()
+    src_tokens = src_vocab[src_sentence.lower().split(' ')] + [
+        src_vocab['<eos>']]
+    enc_valid_len = torch.tensor([len(src_tokens)], device=device)
+    src_tokens = d2l.truncate_pad(src_tokens, num_steps, src_vocab['<pad>'])
+    # Add the batch axis
+    enc_X = torch.unsqueeze(
+        torch.tensor(src_tokens, dtype=torch.long, device=device), dim=0)
+    enc_outputs = net.encoder(enc_X, enc_valid_len)
+    dec_state = net.decoder.init_state(enc_outputs, enc_valid_len)
+    # Add the batch axis
+    dec_X = torch.unsqueeze(torch.tensor(
+        [tgt_vocab['<bos>']], dtype=torch.long, device=device), dim=0)
+    output_seq, attention_weight_seq = [], []
+    for _ in range(num_steps):
+        Y, dec_state = net.decoder(dec_X, dec_state)
+        # We use the token with the highest prediction likelihood as the input
+        # of the decoder at the next time step
+        dec_X = Y.argmax(dim=2)
+        pred = dec_X.squeeze(dim=0).type(torch.int32).item()
+        # Save attention weights (to be covered later)
+        if save_attention_weights:
+            attention_weight_seq.append(net.decoder.attention_weights)
+        # Once the end-of-sequence token is predicted, the generation of the
+        # output sequence is complete
+        if pred == tgt_vocab['<eos>']:
+            break
+        output_seq.append(pred)
+    return ' '.join(tgt_vocab.to_tokens(output_seq)), attention_weight_seq
+```
+
+### 评估函数
+
+在机器翻译中广泛使用的评估函数为 BLUE（Bilingual Evaluation Understudy）：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220603185940-n4rj7s1.png" style="zoom:50%;" />
+
+对于预测序列中的任意 n-gram（gram 表示词汇），BLEU 评估是否这个 n-gram 出现在标签序列中；设 $p_n$ 为 n-gram 的精度，也就是在预测和标签序列中匹配的 n-gram 的数量处于预测序列中的 n-gram 的数量，比如上面那张图里面的例子：1-gram 有 A, B, C, D, E, F 这些 1-gram 中和标签序列匹配的有 A, B, C, D 一共 4 个，预测序列的长度为 5 ，因此 p1 为 4/5；同样的 2-gram 有 AB, BC, CD, DE, EF，和标签序列匹配的有 AB, BC, CD 一共 3 个，因此 p2 为 3/4，同理 3-gram 只有 BCD 是匹配的，所以为 1/3 。
+
+由于更长的 gram 匹配的难度越大，因此 BLEU 给与大的 n-gram 比较高的权重（$p_n^{1/2^n}$，由于 $p_n$ 是小于1 的，所以 n 越大，$1/2^n$ 又是小于1的，$1/2^n$ 越小，整体就越大）:
+
+```r
+> tt <- function(x){0.2^(1/(2^x))}
+> s <- tt(c(1:6))
+> s
+[1] 0.4472136 0.6687403 0.8177654 0.9043038 0.9509489 0.9751661
+```
+
+同时由于短的 gram 比较好匹配，会得到较高的 $p_n$ 值，因此 BLEU 给短的预测有个惩罚（前面的 min 项，当预测的比较短，会使得 min 项小于0 ，因此 exp 后的值也会比较小），比如：标签序列是 A, B, C, D, E 但是预测序列是 A, B，那么得到的 p1 = p2 = 1，但是计算前面的项时得到的惩罚因子为 exp(1-6/2)=0.14。代码：
+
+```python
+def bleu(pred_seq, label_seq, k):  #@save
+    """Compute the BLEU."""
+    pred_tokens, label_tokens = pred_seq.split(' '), label_seq.split(' ')
+    len_pred, len_label = len(pred_tokens), len(label_tokens)
+    score = math.exp(min(0, 1 - len_label / len_pred))
+    for n in range(1, k + 1):
+        num_matches, label_subs = 0, collections.defaultdict(int)
+        for i in range(len_label - n + 1):
+            label_subs[' '.join(label_tokens[i: i + n])] += 1
+        for i in range(len_pred - n + 1):
+            if label_subs[' '.join(pred_tokens[i: i + n])] > 0:
+                num_matches += 1
+                label_subs[' '.join(pred_tokens[i: i + n])] -= 1
+        score *= math.pow(num_matches / (len_pred - n + 1), math.pow(0.5, n))
+    return score
+```
+
+计算 BLEU ：
+
+```python
+engs = ['go .', "i lost .", 'he\'s calm .', 'i\'m home .']
+fras = ['va !', 'j\'ai perdu .', 'il est calme .', 'je suis chez moi .']
+for eng, fra in zip(engs, fras):
+    translation, attention_weight_seq = predict_seq2seq(
+        net, eng, src_vocab, tgt_vocab, num_steps, device)
+    print(f'{eng} => {translation}, bleu {bleu(translation, fra, k=2):.3f}')
+
+go . => va !, bleu 1.000
+i lost . => j'ai perdu ., bleu 1.000
+he's calm . => il est riche paresseux, bleu 0.537
+i'm home . => je suis chez moi ., bleu 1.000
+```
+
 
 
 参考资料：
