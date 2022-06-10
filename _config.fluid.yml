@@ -799,7 +799,6 @@ waline:
   requiredMeta: ['nick']
   lang: 'zh-CN'
   emoji: ['https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo']
-  dark: 'html[data-user-color-scheme="light"]'
   wordLimit: 0
   pageSize: 10
 
