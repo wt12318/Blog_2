@@ -64,7 +64,6 @@ code:
       # Select a style in the link
       # See: https://highlightjs.org/static/demo/
       style: "Stackoverflow Light"
-      style_dark: "light"
 
 
     prismjs:
