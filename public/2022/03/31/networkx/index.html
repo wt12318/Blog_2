@@ -1,0 +1,1010 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=light>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/DNA.png">
+  <link rel="icon" href="/img/DNA.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Wu Tao">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="NetworkX 入门 Tutorial — NetworkX 2.7.1 documentation">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NetworkX 网络分析">
+<meta property="og:url" content="http://example.com/2022/03/31/networkx/index.html">
+<meta property="og:site_name" content="wutao&#39;s blog">
+<meta property="og:description" content="NetworkX 入门 Tutorial — NetworkX 2.7.1 documentation">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/networkx.png">
+<meta property="article:published_time" content="2022-03-31T11:14:18.000Z">
+<meta property="article:modified_time" content="2022-03-31T14:24:37.884Z">
+<meta property="article:author" content="Wu Tao">
+<meta property="article:tag" content="网络分析">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/img/networkx.png">
+  
+  
+  
+  <title>NetworkX 网络分析 - wutao&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.1","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"R","line_number":true,"lib":"highlightjs","highlightjs":{"style":"Stackoverflow Light","style_dark":"light"},"prismjs":{"style":"default","preprocess":true}},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"A5lchRnum84Yumu5pVOSoVN8-MdYXbMMI","app_key":"runF3Mxw7648v64CISxiqMs8","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>wutao&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="NetworkX 网络分析"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        Wu Tao
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-03-31 19:14" pubdate>
+          2022年3月31日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          11k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          91 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">NetworkX 网络分析</h1>
+            
+            <div class="markdown-body">
+              
+              <p>NetworkX 入门 <a target="_blank" rel="noopener" href="https://networkx.org/documentation/stable/tutorial.html">Tutorial — NetworkX 2.7.1 documentation</a></p>
+<span id="more"></span>
+
+<p>NetworkX 是 python 中一个进行网络分析的包；该包提供了图形图对象的类、创建标准网络图的生成器、读取现有数据集、网络分析的算法和一些基本的可视化工具，这篇文章提供了 NetworkX 的基本介绍。</p>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p>NetworkX 需要 python 3.8 以上的版本，使用 pip 安装：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash">pip install networkx[default]<br><br><span class="hljs-comment">##如果不想要安装依赖，如numpy，scipy等可以使用</span><br>pip install networkx<br><br><span class="hljs-comment">##安装最新的开发版：</span><br>git <span class="hljs-built_in">clone</span> https://github.com/networkx/networkx.git<br><span class="hljs-built_in">cd</span> networkx<br>pip install -e .[default]<br></code></pre></td></tr></table></figure>
+
+<h3 id="创建图"><a href="#创建图" class="headerlink" title="创建图"></a>创建图</h3><p>创建一个没有节点和边的空图：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> networkx <span class="hljs-keyword">as</span> nx<br>G = nx.Graph()<br></code></pre></td></tr></table></figure>
+
+<p>图是节点和节点对之间关系（边&#x2F;连接）的集合，在 NetworkX 中节点可以是任何可哈希的对象（不可变数据类型），如字符串，图片，甚至是另一个图。</p>
+<h3 id="节点"><a href="#节点" class="headerlink" title="节点"></a>节点</h3><p>可以使用 <code>add_node</code> 方法来添加节点：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">G.add_node(<span class="hljs-number">1</span>)<br><span class="hljs-built_in">print</span>(G)<br>&gt;&gt; Graph <span class="hljs-keyword">with</span> <span class="hljs-number">1</span> nodes <span class="hljs-keyword">and</span> <span class="hljs-number">0</span> edges<br></code></pre></td></tr></table></figure>
+
+<p>或者使用 <code>add_nodes_from</code> 从一个可迭代容器中获取数据添加节点：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs python">G.add_nodes_from([<span class="hljs-number">2</span>, <span class="hljs-number">3</span>])<br><span class="hljs-built_in">print</span>(G)<br>&gt;&gt; Graph <span class="hljs-keyword">with</span> <span class="hljs-number">3</span> nodes <span class="hljs-keyword">and</span> <span class="hljs-number">0</span> edges<br>G.add_nodes_from((<span class="hljs-number">4</span>,<span class="hljs-number">5</span>))<br><span class="hljs-built_in">print</span>(G)<br>&gt;&gt; Graph <span class="hljs-keyword">with</span> <span class="hljs-number">5</span> nodes <span class="hljs-keyword">and</span> <span class="hljs-number">0</span> edges<br></code></pre></td></tr></table></figure>
+
+<p>我们也可以在添加节点时给节点附加属性，此时节点要以元组的形式添加：<code>(节点，表示节点属性的字典)</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs python">G.add_nodes_from([<br>  (<span class="hljs-string">&quot;n6&quot;</span>,&#123;<span class="hljs-string">&quot;color&quot;</span>:<span class="hljs-string">&quot;red&quot;</span>&#125;),<br>  (<span class="hljs-number">7</span>,&#123;<span class="hljs-string">&quot;color&quot;</span>:<span class="hljs-string">&quot;green&quot;</span>&#125;)<br>])<br><span class="hljs-built_in">print</span>(G)<br>&gt;&gt; Graph <span class="hljs-keyword">with</span> <span class="hljs-number">7</span> nodes <span class="hljs-keyword">and</span> <span class="hljs-number">0</span> edges<br></code></pre></td></tr></table></figure>
+
+<p>也可以将另一个图中节点全部添加到现有的图中：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs python">H = nx.path_graph(<span class="hljs-number">10</span>) <span class="hljs-comment">##10个节点的线性图</span><br><span class="hljs-built_in">print</span>(H)<br>&gt;&gt; Graph <span class="hljs-keyword">with</span> <span class="hljs-number">10</span> nodes <span class="hljs-keyword">and</span> <span class="hljs-number">9</span> edges<br>G.add_nodes_from(H)<br><span class="hljs-built_in">print</span>(G)<br>&gt;&gt; Graph <span class="hljs-keyword">with</span> <span class="hljs-number">11</span> nodes <span class="hljs-keyword">and</span> <span class="hljs-number">0</span> edges<br></code></pre></td></tr></table></figure>
+
+<p>可以看到 G 的节点只增加了 4 个，这是因为之前 G 就有 <code>1,2,3,4,5,7</code> 的节点了，而 H 里面节点是 1-10，所以不一样的节点只有 4 个了。前面说过可以使用整个图作为另一个图的节点，所以我们可以把 H 作为一个节点添加到 G 里面：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">G.add_node(H)<br><span class="hljs-built_in">print</span>(G)<br>&gt;&gt; Graph <span class="hljs-keyword">with</span> <span class="hljs-number">12</span> nodes <span class="hljs-keyword">and</span> <span class="hljs-number">0</span> edges<br></code></pre></td></tr></table></figure>
+
+<h3 id="边"><a href="#边" class="headerlink" title="边"></a>边</h3><p>使用 <code>add_edge</code> 往图里面添加边，参数是：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">G.add_edge(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>)<br>e = (<span class="hljs-number">2</span>, <span class="hljs-number">3</span>)<br>G.add_edge(*e)<span class="hljs-comment">##元组需要拆开</span><br></code></pre></td></tr></table></figure>
+
+<p>添加多个边需要用列表：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">G.add_edges_from([(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>), (<span class="hljs-number">1</span>, <span class="hljs-number">3</span>)])<br><span class="hljs-built_in">print</span>(G)<br>&gt;&gt; Graph <span class="hljs-keyword">with</span> <span class="hljs-number">12</span> nodes <span class="hljs-keyword">and</span> <span class="hljs-number">3</span> edges<br></code></pre></td></tr></table></figure>
+
+<p>边可以像节点一样添加属性：<code>(node1,node2,&#123;属性字典&#125;)</code>:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">G.add_edges_from([<br>  (<span class="hljs-number">3</span>,<span class="hljs-number">4</span>,&#123;<span class="hljs-string">&quot;weight&quot;</span>:<span class="hljs-number">3</span>&#125;)<br>])<br></code></pre></td></tr></table></figure>
+
+<p>也可以直接使用其他图中的边：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">G.add_edges_from(H.edges)<br><span class="hljs-built_in">print</span>(G)<br>&gt;&gt; Graph <span class="hljs-keyword">with</span> <span class="hljs-number">12</span> nodes <span class="hljs-keyword">and</span> <span class="hljs-number">10</span> edges<br></code></pre></td></tr></table></figure>
+
+<h3 id="检查图中的元素"><a href="#检查图中的元素" class="headerlink" title="检查图中的元素"></a>检查图中的元素</h3><p>有四种基本的图属性：<code>G.nodes</code>, <code>G.edges</code>, <code>G.adj</code>, <code>G.degree</code>:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs python">G.nodes<br>&gt;&gt; NodeView((<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-string">&#x27;n6&#x27;</span>, <span class="hljs-number">7</span>, <span class="hljs-number">0</span>, <span class="hljs-number">6</span>, <span class="hljs-number">8</span>, <span class="hljs-number">9</span>, &lt;networkx.classes.graph.Graph <span class="hljs-built_in">object</span> at <span class="hljs-number">0x0000022A0F0C62E0</span>&gt;))<br>G.edges<br>&gt;&gt; EdgeView([(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>), (<span class="hljs-number">1</span>, <span class="hljs-number">3</span>), (<span class="hljs-number">1</span>, <span class="hljs-number">0</span>), (<span class="hljs-number">2</span>, <span class="hljs-number">3</span>), (<span class="hljs-number">3</span>, <span class="hljs-number">4</span>), (<span class="hljs-number">4</span>, <span class="hljs-number">5</span>), (<span class="hljs-number">5</span>, <span class="hljs-number">6</span>), (<span class="hljs-number">7</span>, <span class="hljs-number">6</span>), (<span class="hljs-number">7</span>, <span class="hljs-number">8</span>), (<span class="hljs-number">8</span>, <span class="hljs-number">9</span>)])<br>G.adj<span class="hljs-comment">##每个节点的邻居节点及其属性</span><br>&gt;&gt; AdjacencyView(&#123;<span class="hljs-number">1</span>: &#123;<span class="hljs-number">2</span>: &#123;&#125;, <span class="hljs-number">3</span>: &#123;&#125;, <span class="hljs-number">0</span>: &#123;&#125;&#125;, <span class="hljs-number">2</span>: &#123;<span class="hljs-number">1</span>: &#123;&#125;, <span class="hljs-number">3</span>: &#123;&#125;&#125;, <span class="hljs-number">3</span>: &#123;<span class="hljs-number">2</span>: &#123;&#125;, <span class="hljs-number">1</span>: &#123;&#125;, <span class="hljs-number">4</span>: &#123;<span class="hljs-string">&#x27;weight&#x27;</span>: <span class="hljs-number">3</span>&#125;&#125;, <span class="hljs-number">4</span>: &#123;<span class="hljs-number">3</span>: &#123;<span class="hljs-string">&#x27;weight&#x27;</span>: <span class="hljs-number">3</span>&#125;, <span class="hljs-number">5</span>: &#123;&#125;&#125;, <span class="hljs-number">5</span>: &#123;<span class="hljs-number">4</span>: &#123;&#125;, <span class="hljs-number">6</span>: &#123;&#125;&#125;, <span class="hljs-string">&#x27;n6&#x27;</span>: &#123;&#125;, <span class="hljs-number">7</span>: &#123;<span class="hljs-number">6</span>: &#123;&#125;, <span class="hljs-number">8</span>: &#123;&#125;&#125;, <span class="hljs-number">0</span>: &#123;<span class="hljs-number">1</span>: &#123;&#125;&#125;, <span class="hljs-number">6</span>: &#123;<span class="hljs-number">5</span>: &#123;&#125;, <span class="hljs-number">7</span>: &#123;&#125;&#125;, <span class="hljs-number">8</span>: &#123;<span class="hljs-number">7</span>: &#123;&#125;, <span class="hljs-number">9</span>: &#123;&#125;&#125;, <span class="hljs-number">9</span>: &#123;<span class="hljs-number">8</span>: &#123;&#125;&#125;, &lt;networkx.classes.graph.Graph <span class="hljs-built_in">object</span> at <span class="hljs-number">0x0000022A0F0C62E0</span>&gt;: &#123;&#125;&#125;)<br>G.degree<span class="hljs-comment">##每个节点的度</span><br>&gt;&gt; DegreeView(&#123;<span class="hljs-number">1</span>: <span class="hljs-number">3</span>, <span class="hljs-number">2</span>: <span class="hljs-number">2</span>, <span class="hljs-number">3</span>: <span class="hljs-number">3</span>, <span class="hljs-number">4</span>: <span class="hljs-number">2</span>, <span class="hljs-number">5</span>: <span class="hljs-number">2</span>, <span class="hljs-string">&#x27;n6&#x27;</span>: <span class="hljs-number">0</span>, <span class="hljs-number">7</span>: <span class="hljs-number">2</span>, <span class="hljs-number">0</span>: <span class="hljs-number">1</span>, <span class="hljs-number">6</span>: <span class="hljs-number">2</span>, <span class="hljs-number">8</span>: <span class="hljs-number">2</span>, <span class="hljs-number">9</span>: <span class="hljs-number">1</span>, &lt;networkx.classes.graph.Graph <span class="hljs-built_in">object</span> at <span class="hljs-number">0x0000022A0F0C62E0</span>&gt;: <span class="hljs-number">0</span>&#125;)<br></code></pre></td></tr></table></figure>
+
+<p>可以看到这些都是一种 <code>view</code> 的数据格式，我们可以将其转化为列表，字典或者其他的容器数据类型：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-built_in">list</span>(G.nodes)<br>&gt;&gt; [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-string">&#x27;n6&#x27;</span>, <span class="hljs-number">7</span>, <span class="hljs-number">0</span>, <span class="hljs-number">6</span>, <span class="hljs-number">8</span>, <span class="hljs-number">9</span>, &lt;networkx.classes.graph.Graph <span class="hljs-built_in">object</span> at <span class="hljs-number">0x0000022A0F0C62E0</span>&gt;]<br><span class="hljs-built_in">list</span>(G.edges)<br>&gt;&gt; [(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>), (<span class="hljs-number">1</span>, <span class="hljs-number">3</span>), (<span class="hljs-number">1</span>, <span class="hljs-number">0</span>), (<span class="hljs-number">2</span>, <span class="hljs-number">3</span>), (<span class="hljs-number">3</span>, <span class="hljs-number">4</span>), (<span class="hljs-number">4</span>, <span class="hljs-number">5</span>), (<span class="hljs-number">5</span>, <span class="hljs-number">6</span>), (<span class="hljs-number">7</span>, <span class="hljs-number">6</span>), (<span class="hljs-number">7</span>, <span class="hljs-number">8</span>), (<span class="hljs-number">8</span>, <span class="hljs-number">9</span>)]<br></code></pre></td></tr></table></figure>
+
+<p>我们也可以将其视作字典来根据键选择值：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-built_in">list</span>(G.adj)<span class="hljs-comment">##只是把类似字典的值给拿出来了</span><br>&gt;&gt; [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-string">&#x27;n6&#x27;</span>, <span class="hljs-number">7</span>, <span class="hljs-number">0</span>, <span class="hljs-number">6</span>, <span class="hljs-number">8</span>, <span class="hljs-number">9</span>, &lt;networkx.classes.graph.Graph <span class="hljs-built_in">object</span> at <span class="hljs-number">0x0000022A0F0C62E0</span>&gt;]<br><span class="hljs-built_in">list</span>(G.adj)[<span class="hljs-number">1</span>]<br>&gt;&gt; <span class="hljs-number">2</span><br><span class="hljs-built_in">list</span>(G.adj[<span class="hljs-number">1</span>])<span class="hljs-comment">##注意，这才是我们想要的第二个节点的邻居节点</span><br>&gt;&gt; [<span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">0</span>]<br></code></pre></td></tr></table></figure>
+
+<p>还可以展示一部分节点的边和度：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python">G.edges([<span class="hljs-number">2</span>, <span class="hljs-number">3</span>])<span class="hljs-comment">##和节点2 3 有连接的边</span><br>&gt;&gt; EdgeDataView([(<span class="hljs-number">2</span>, <span class="hljs-number">1</span>), (<span class="hljs-number">2</span>, <span class="hljs-number">3</span>), (<span class="hljs-number">3</span>, <span class="hljs-number">1</span>), (<span class="hljs-number">3</span>, <span class="hljs-number">4</span>)])<br>G.degree([<span class="hljs-number">2</span>, <span class="hljs-number">3</span>])<br>&gt;&gt; DegreeView(&#123;<span class="hljs-number">2</span>: <span class="hljs-number">2</span>, <span class="hljs-number">3</span>: <span class="hljs-number">3</span>&#125;)<br></code></pre></td></tr></table></figure>
+
+<h3 id="从图中移除元素"><a href="#从图中移除元素" class="headerlink" title="从图中移除元素"></a>从图中移除元素</h3><p>移除元素和添加元素的方法类似，使用 <code>remove_node</code>, <code>remove_nodes_from</code>, <code>remove_edge</code>, <code>remove_edges_from</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-built_in">list</span>(G.nodes)<br>&gt;&gt; [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-string">&#x27;n6&#x27;</span>, <span class="hljs-number">7</span>, <span class="hljs-number">0</span>, <span class="hljs-number">6</span>, <span class="hljs-number">8</span>, <span class="hljs-number">9</span>, &lt;networkx.classes.graph.Graph <span class="hljs-built_in">object</span> at <span class="hljs-number">0x0000022A0F0C62E0</span>&gt;]<br>G.remove_node(<span class="hljs-number">2</span>)<br>G.add_nodes_from([<span class="hljs-string">&quot;q&quot;</span>,<span class="hljs-string">&quot;m&quot;</span>])<br><span class="hljs-built_in">list</span>(G.nodes)<br>&gt;&gt; [<span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-string">&#x27;n6&#x27;</span>, <span class="hljs-number">7</span>, <span class="hljs-number">0</span>, <span class="hljs-number">6</span>, <span class="hljs-number">8</span>, <span class="hljs-number">9</span>, &lt;networkx.classes.graph.Graph <span class="hljs-built_in">object</span> at <span class="hljs-number">0x0000022A0F0C62E0</span>&gt;, <span class="hljs-string">&#x27;q&#x27;</span>, <span class="hljs-string">&#x27;m&#x27;</span>]<br>G.remove_nodes_from(<span class="hljs-string">&quot;qm&quot;</span>)<br><span class="hljs-built_in">list</span>(G.nodes)<br>&gt;&gt; [<span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-string">&#x27;n6&#x27;</span>, <span class="hljs-number">7</span>, <span class="hljs-number">0</span>, <span class="hljs-number">6</span>, <span class="hljs-number">8</span>, <span class="hljs-number">9</span>, &lt;networkx.classes.graph.Graph <span class="hljs-built_in">object</span> at <span class="hljs-number">0x0000022A0F0C62E0</span>&gt;]<br><span class="hljs-built_in">list</span>(G.edges)<br>&gt;&gt; [(<span class="hljs-number">1</span>, <span class="hljs-number">3</span>), (<span class="hljs-number">1</span>, <span class="hljs-number">0</span>), (<span class="hljs-number">3</span>, <span class="hljs-number">4</span>), (<span class="hljs-number">4</span>, <span class="hljs-number">5</span>), (<span class="hljs-number">5</span>, <span class="hljs-number">6</span>), (<span class="hljs-number">7</span>, <span class="hljs-number">6</span>), (<span class="hljs-number">7</span>, <span class="hljs-number">8</span>), (<span class="hljs-number">8</span>, <span class="hljs-number">9</span>)]<br>G.remove_edge(<span class="hljs-number">1</span>, <span class="hljs-number">3</span>)<br><span class="hljs-built_in">list</span>(G.edges)<br>&gt;&gt; [(<span class="hljs-number">1</span>, <span class="hljs-number">0</span>), (<span class="hljs-number">3</span>, <span class="hljs-number">4</span>), (<span class="hljs-number">4</span>, <span class="hljs-number">5</span>), (<span class="hljs-number">5</span>, <span class="hljs-number">6</span>), (<span class="hljs-number">7</span>, <span class="hljs-number">6</span>), (<span class="hljs-number">7</span>, <span class="hljs-number">8</span>), (<span class="hljs-number">8</span>, <span class="hljs-number">9</span>)]<br></code></pre></td></tr></table></figure>
+
+<h3 id="使用图构造器"><a href="#使用图构造器" class="headerlink" title="使用图构造器"></a>使用图构造器</h3><p>创建图不一定需要像上面那么逐步的加入点和边，我们可以先创建图的结构然后使用特定图类型的构造器来基于这些预先创建的结构来生成图：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs python">G.clear()<span class="hljs-comment">##清空图</span><br><span class="hljs-built_in">print</span>(G)<br>&gt;&gt; Graph <span class="hljs-keyword">with</span> <span class="hljs-number">0</span> nodes <span class="hljs-keyword">and</span> <span class="hljs-number">0</span> edges<br>G.add_edge(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>)<br>H = nx.DiGraph(G) <span class="hljs-comment">##基于已有的图创建一个有向图</span><br><span class="hljs-built_in">list</span>(H.edges())<br>&gt;&gt; [(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>), (<span class="hljs-number">2</span>, <span class="hljs-number">1</span>)]<br>edgelist = [(<span class="hljs-number">0</span>, <span class="hljs-number">1</span>), (<span class="hljs-number">1</span>, <span class="hljs-number">2</span>), (<span class="hljs-number">2</span>, <span class="hljs-number">3</span>)]<br>H = nx.Graph(edgelist)<br><span class="hljs-built_in">list</span>(H.edges())<br>&gt;&gt; [(<span class="hljs-number">0</span>, <span class="hljs-number">1</span>), (<span class="hljs-number">1</span>, <span class="hljs-number">2</span>), (<span class="hljs-number">2</span>, <span class="hljs-number">3</span>)]<br>adjacency_dict = &#123;<span class="hljs-number">0</span>: (<span class="hljs-number">1</span>, <span class="hljs-number">2</span>), <span class="hljs-number">1</span>: (<span class="hljs-number">0</span>, <span class="hljs-number">2</span>), <span class="hljs-number">2</span>: (<span class="hljs-number">0</span>, <span class="hljs-number">1</span>)&#125;<span class="hljs-comment">##基于邻接关系创建图</span><br>H = nx.Graph(adjacency_dict)<br><span class="hljs-built_in">list</span>(H.edges())<br>&gt;&gt; [(<span class="hljs-number">0</span>, <span class="hljs-number">1</span>), (<span class="hljs-number">0</span>, <span class="hljs-number">2</span>), (<span class="hljs-number">1</span>, <span class="hljs-number">2</span>)]<br></code></pre></td></tr></table></figure>
+
+<h3 id="获取边和邻居节点"><a href="#获取边和邻居节点" class="headerlink" title="获取边和邻居节点"></a>获取边和邻居节点</h3><p>除了使用上面的 view 方法（Graph.edges, Graph.adj）来查看节点和邻居，也可以使用类似下标的方法：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs python">G = nx.Graph([(<span class="hljs-number">1</span>, <span class="hljs-number">5</span>, &#123;<span class="hljs-string">&quot;color&quot;</span>: <span class="hljs-string">&quot;yellow&quot;</span>&#125;)])<br>G.adj<br>&gt;&gt; AdjacencyView(&#123;<span class="hljs-number">1</span>: &#123;<span class="hljs-number">5</span>: &#123;<span class="hljs-string">&#x27;color&#x27;</span>: <span class="hljs-string">&#x27;yellow&#x27;</span>&#125;&#125;, <span class="hljs-number">5</span>: &#123;<span class="hljs-number">1</span>: &#123;<span class="hljs-string">&#x27;color&#x27;</span>: <span class="hljs-string">&#x27;yellow&#x27;</span>&#125;&#125;&#125;)<br>G.adj[<span class="hljs-number">5</span>]<br>&gt;&gt; AtlasView(&#123;<span class="hljs-number">1</span>: &#123;<span class="hljs-string">&#x27;color&#x27;</span>: <span class="hljs-string">&#x27;yellow&#x27;</span>&#125;&#125;)<br>G[<span class="hljs-number">5</span>]<span class="hljs-comment">##即把与节点5连接的边拿出来</span><br>&gt;&gt; AtlasView(&#123;<span class="hljs-number">1</span>: &#123;<span class="hljs-string">&#x27;color&#x27;</span>: <span class="hljs-string">&#x27;yellow&#x27;</span>&#125;&#125;)<br>G.edges[<span class="hljs-number">1</span>,<span class="hljs-number">5</span>]<br>&gt;&gt; &#123;<span class="hljs-string">&#x27;color&#x27;</span>: <span class="hljs-string">&#x27;yellow&#x27;</span>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>我们也可以通过这种方法来改变边的属性：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python">G.add_edge(<span class="hljs-number">1</span>, <span class="hljs-number">3</span>)<br>G[<span class="hljs-number">1</span>][<span class="hljs-number">3</span>][<span class="hljs-string">&#x27;color&#x27;</span>] = <span class="hljs-string">&quot;blue&quot;</span><br>G.edges[<span class="hljs-number">1</span>, <span class="hljs-number">5</span>][<span class="hljs-string">&#x27;color&#x27;</span>] = <span class="hljs-string">&quot;red&quot;</span><br>G.adj<br>&gt;&gt; AdjacencyView(&#123;<span class="hljs-number">1</span>: &#123;<span class="hljs-number">5</span>: &#123;<span class="hljs-string">&#x27;color&#x27;</span>: <span class="hljs-string">&#x27;red&#x27;</span>&#125;, <span class="hljs-number">3</span>: &#123;<span class="hljs-string">&#x27;color&#x27;</span>: <span class="hljs-string">&#x27;blue&#x27;</span>&#125;&#125;, <span class="hljs-number">5</span>: &#123;<span class="hljs-number">1</span>: &#123;<span class="hljs-string">&#x27;color&#x27;</span>: <span class="hljs-string">&#x27;red&#x27;</span>&#125;&#125;, <span class="hljs-number">3</span>: &#123;<span class="hljs-number">1</span>: &#123;<span class="hljs-string">&#x27;color&#x27;</span>: <span class="hljs-string">&#x27;blue&#x27;</span>&#125;&#125;&#125;)<br></code></pre></td></tr></table></figure>
+
+<p>可以通过 <code>G.adjacency</code> 或者 <code>G.adj.items</code> 来遍历节点对：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs python">FG = nx.Graph()<br>FG.add_weighted_edges_from([(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">0.125</span>), (<span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">0.75</span>), (<span class="hljs-number">2</span>, <span class="hljs-number">4</span>, <span class="hljs-number">1.2</span>), (<span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">0.375</span>)])<br><br><span class="hljs-keyword">for</span> n, nbrs <span class="hljs-keyword">in</span> FG.adj.items():<br>  <span class="hljs-keyword">for</span> nbr, eattr <span class="hljs-keyword">in</span> nbrs.items():<br>    wt = eattr[<span class="hljs-string">&#x27;weight&#x27;</span>]<br>    <span class="hljs-keyword">if</span> wt &lt; <span class="hljs-number">0.5</span>: <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;(<span class="hljs-subst">&#123;n&#125;</span>, <span class="hljs-subst">&#123;nbr&#125;</span>, <span class="hljs-subst">&#123;wt:<span class="hljs-number">.3</span>&#125;</span>)&quot;</span>)<br>&gt;&gt; (<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">0.125</span>)<br>&gt;&gt; (<span class="hljs-number">2</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0.125</span>)<br>&gt;&gt; (<span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">0.375</span>)<br>&gt;&gt; (<span class="hljs-number">4</span>, <span class="hljs-number">3</span>, <span class="hljs-number">0.375</span>)<br></code></pre></td></tr></table></figure>
+
+<p>更简洁的方法是通过 <code>edges.data</code> 来展现属性：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">for</span> (u, v, wt) <span class="hljs-keyword">in</span> FG.edges.data(<span class="hljs-string">&#x27;weight&#x27;</span>):<br>  <span class="hljs-keyword">if</span> wt &lt; <span class="hljs-number">0.5</span>:<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;(<span class="hljs-subst">&#123;u&#125;</span>, <span class="hljs-subst">&#123;v&#125;</span>, <span class="hljs-subst">&#123;wt:<span class="hljs-number">.3</span>&#125;</span>)&quot;</span>)<br>&gt;&gt; (<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">0.125</span>)<br>&gt;&gt; (<span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">0.375</span>)<br></code></pre></td></tr></table></figure>
+
+<h3 id="添加属性"><a href="#添加属性" class="headerlink" title="添加属性"></a>添加属性</h3><p>可以向图，节点或边添加属性，属性可以是权重，标签，颜色或者任意 python 对象，这些属性都是以键值对形式指定的。</p>
+<p>创建图时就可以直接赋予图属性：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">G = nx.Graph(day=<span class="hljs-string">&quot;Friday&quot;</span>)<br>G.graph<br>&gt;&gt; &#123;<span class="hljs-string">&#x27;day&#x27;</span>: <span class="hljs-string">&#x27;Friday&#x27;</span>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>也可以后来更改：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">G.graph[<span class="hljs-string">&#x27;day&#x27;</span>] = <span class="hljs-string">&quot;Monday&quot;</span><br>G.graph<br>&gt;&gt; &#123;<span class="hljs-string">&#x27;day&#x27;</span>: <span class="hljs-string">&#x27;Monday&#x27;</span>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>节点和边也是类似：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">##节点</span><br>G.add_node(<span class="hljs-number">1</span>, time=<span class="hljs-string">&#x27;5pm&#x27;</span>)<br>G.add_nodes_from([<span class="hljs-number">3</span>], time=<span class="hljs-string">&#x27;2pm&#x27;</span>)<br>G.add_nodes_from([<br>  (<span class="hljs-number">4</span>,&#123;<span class="hljs-string">&quot;time&quot;</span>:<span class="hljs-string">&quot;4pm&quot;</span>&#125;),<br>  (<span class="hljs-number">6</span>,&#123;<span class="hljs-string">&quot;time&quot;</span>:<span class="hljs-string">&quot;5pm&quot;</span>&#125;)<br>])<br><br>G.nodes[<span class="hljs-number">6</span>]<br>&gt;&gt; &#123;<span class="hljs-string">&#x27;time&#x27;</span>: <span class="hljs-string">&#x27;5pm&#x27;</span>&#125;<br>G.nodes[<span class="hljs-number">1</span>][<span class="hljs-string">&#x27;room&#x27;</span>] = <span class="hljs-number">714</span><span class="hljs-comment">##添加属性</span><br>G.nodes.data()<br><br><span class="hljs-comment">##边</span><br>&gt;&gt; NodeDataView(&#123;<span class="hljs-number">1</span>: &#123;<span class="hljs-string">&#x27;time&#x27;</span>: <span class="hljs-string">&#x27;5pm&#x27;</span>, <span class="hljs-string">&#x27;room&#x27;</span>: <span class="hljs-number">714</span>&#125;, <span class="hljs-number">3</span>: &#123;<span class="hljs-string">&#x27;time&#x27;</span>: <span class="hljs-string">&#x27;2pm&#x27;</span>&#125;, <span class="hljs-number">4</span>: &#123;<span class="hljs-string">&#x27;time&#x27;</span>: <span class="hljs-string">&#x27;4pm&#x27;</span>&#125;, <span class="hljs-number">6</span>: &#123;<span class="hljs-string">&#x27;time&#x27;</span>: <span class="hljs-string">&#x27;5pm&#x27;</span>&#125;&#125;)<br>G.add_edge(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, weight=<span class="hljs-number">4.7</span> )<br>G.add_edges_from([(<span class="hljs-number">3</span>, <span class="hljs-number">4</span>), (<span class="hljs-number">4</span>, <span class="hljs-number">5</span>)], color=<span class="hljs-string">&#x27;red&#x27;</span>)<br>G.add_edges_from([<br>  (<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, &#123;<span class="hljs-string">&#x27;color&#x27;</span>: <span class="hljs-string">&#x27;blue&#x27;</span>&#125;), <br>  (<span class="hljs-number">2</span>, <span class="hljs-number">3</span>, &#123;<span class="hljs-string">&#x27;weight&#x27;</span>: <span class="hljs-number">8</span>&#125;)<br>])<br>G[<span class="hljs-number">1</span>][<span class="hljs-number">2</span>][<span class="hljs-string">&#x27;weight&#x27;</span>] = <span class="hljs-number">4.7</span><br>G.edges[<span class="hljs-number">3</span>, <span class="hljs-number">4</span>][<span class="hljs-string">&#x27;weight&#x27;</span>] = <span class="hljs-number">4.2</span><br><br>G.edges.data()<br>&gt;&gt; EdgeDataView([(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, &#123;<span class="hljs-string">&#x27;weight&#x27;</span>: <span class="hljs-number">4.7</span>, <span class="hljs-string">&#x27;color&#x27;</span>: <span class="hljs-string">&#x27;blue&#x27;</span>&#125;), (<span class="hljs-number">3</span>, <span class="hljs-number">4</span>, &#123;<span class="hljs-string">&#x27;color&#x27;</span>: <span class="hljs-string">&#x27;red&#x27;</span>, <span class="hljs-string">&#x27;weight&#x27;</span>: <span class="hljs-number">4.2</span>&#125;), (<span class="hljs-number">3</span>, <span class="hljs-number">2</span>, &#123;<span class="hljs-string">&#x27;weight&#x27;</span>: <span class="hljs-number">8</span>&#125;), (<span class="hljs-number">4</span>, <span class="hljs-number">5</span>, &#123;<span class="hljs-string">&#x27;color&#x27;</span>: <span class="hljs-string">&#x27;red&#x27;</span>&#125;)])<br></code></pre></td></tr></table></figure>
+
+<h3 id="有向图"><a href="#有向图" class="headerlink" title="有向图"></a>有向图</h3><p><code>DiGraph</code> 类表示有向边，有向图有一些特殊的特征，比如度可以分成入度和出度：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python">DG = nx.DiGraph()<br>DG.add_weighted_edges_from([(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">0.5</span>), (<span class="hljs-number">3</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0.75</span>)])<br>DG.out_degree(<span class="hljs-number">1</span>, weight=<span class="hljs-string">&#x27;weight&#x27;</span>)<br>&gt;&gt; <span class="hljs-number">0.5</span><br>DG.out_degree(<span class="hljs-number">3</span>, weight=<span class="hljs-string">&#x27;weight&#x27;</span>)<br>&gt;&gt; <span class="hljs-number">0.75</span><br>DG.degree(<span class="hljs-number">1</span>, weight=<span class="hljs-string">&#x27;weight&#x27;</span>)<span class="hljs-comment">##入度+出度</span><br>&gt;&gt; <span class="hljs-number">1.25</span><br>DG.degree(<span class="hljs-number">1</span>)<span class="hljs-comment">##不考虑边权重</span><br>&gt;&gt; <span class="hljs-number">2</span><br></code></pre></td></tr></table></figure>
+
+<p>注意有向图里面的 <code>neighbor</code> 和 <code>successor</code> 是一样的，<code>successor</code> 是后继节点，也就是如果 n 指向 m ，那么 m 是 n 的 `<code>successor</code>:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-built_in">list</span>(DG.successors(<span class="hljs-number">1</span>))<br>&gt;&gt; [<span class="hljs-number">2</span>]<br><span class="hljs-built_in">list</span>(DG.neighbors(<span class="hljs-number">1</span>))<br>&gt;&gt; [<span class="hljs-number">2</span>]<br></code></pre></td></tr></table></figure>
+
+<p>可以使用 <code>to_undirected</code> 将有向图转化为无向图或者直接从有向图构建无向图：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs python">G  = DG.to_undirected()<br>G.adj<br><br><span class="hljs-comment">##or</span><br>&gt;&gt; AdjacencyView(&#123;<span class="hljs-number">1</span>: &#123;<span class="hljs-number">2</span>: &#123;<span class="hljs-string">&#x27;weight&#x27;</span>: <span class="hljs-number">0.5</span>&#125;, <span class="hljs-number">3</span>: &#123;<span class="hljs-string">&#x27;weight&#x27;</span>: <span class="hljs-number">0.75</span>&#125;&#125;, <span class="hljs-number">2</span>: &#123;<span class="hljs-number">1</span>: &#123;<span class="hljs-string">&#x27;weight&#x27;</span>: <span class="hljs-number">0.5</span>&#125;&#125;, <span class="hljs-number">3</span>: &#123;<span class="hljs-number">1</span>: &#123;<span class="hljs-string">&#x27;weight&#x27;</span>: <span class="hljs-number">0.75</span>&#125;&#125;&#125;)<br>H = nx.Graph(DG)<br>H.adj<br>&gt;&gt; AdjacencyView(&#123;<span class="hljs-number">1</span>: &#123;<span class="hljs-number">2</span>: &#123;<span class="hljs-string">&#x27;weight&#x27;</span>: <span class="hljs-number">0.5</span>&#125;, <span class="hljs-number">3</span>: &#123;<span class="hljs-string">&#x27;weight&#x27;</span>: <span class="hljs-number">0.75</span>&#125;&#125;, <span class="hljs-number">2</span>: &#123;<span class="hljs-number">1</span>: &#123;<span class="hljs-string">&#x27;weight&#x27;</span>: <span class="hljs-number">0.5</span>&#125;&#125;, <span class="hljs-number">3</span>: &#123;<span class="hljs-number">1</span>: &#123;<span class="hljs-string">&#x27;weight&#x27;</span>: <span class="hljs-number">0.75</span>&#125;&#125;&#125;)<br></code></pre></td></tr></table></figure>
+
+<h3 id="多图"><a href="#多图" class="headerlink" title="多图"></a>多图</h3><p>多图指的是节点对之间有多条边：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs python">MG = nx.MultiGraph()<br>MG.add_weighted_edges_from([(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">0.5</span>), (<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">0.75</span>), (<span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">0.5</span>)])<br><span class="hljs-built_in">dict</span>(MG.degree(weight=<span class="hljs-string">&#x27;weight&#x27;</span>))<br>&gt;&gt; &#123;<span class="hljs-number">1</span>: <span class="hljs-number">1.25</span>, <span class="hljs-number">2</span>: <span class="hljs-number">1.75</span>, <span class="hljs-number">3</span>: <span class="hljs-number">0.5</span>&#125;<br>MG.adj<br><span class="hljs-comment">##将多图转化为标准的图</span><br>&gt;&gt; MultiAdjacencyView(&#123;<span class="hljs-number">1</span>: &#123;<span class="hljs-number">2</span>: &#123;<span class="hljs-number">0</span>: &#123;<span class="hljs-string">&#x27;weight&#x27;</span>: <span class="hljs-number">0.5</span>&#125;, <span class="hljs-number">1</span>: &#123;<span class="hljs-string">&#x27;weight&#x27;</span>: <span class="hljs-number">0.75</span>&#125;&#125;&#125;, <span class="hljs-number">2</span>: &#123;<span class="hljs-number">1</span>: &#123;<span class="hljs-number">0</span>: &#123;<span class="hljs-string">&#x27;weight&#x27;</span>: <span class="hljs-number">0.5</span>&#125;, <span class="hljs-number">1</span>: &#123;<span class="hljs-string">&#x27;weight&#x27;</span>: <span class="hljs-number">0.75</span>&#125;&#125;, <span class="hljs-number">3</span>: &#123;<span class="hljs-number">0</span>: &#123;<span class="hljs-string">&#x27;weight&#x27;</span>: <span class="hljs-number">0.5</span>&#125;&#125;&#125;, <span class="hljs-number">3</span>: &#123;<span class="hljs-number">2</span>: &#123;<span class="hljs-number">0</span>: &#123;<span class="hljs-string">&#x27;weight&#x27;</span>: <span class="hljs-number">0.5</span>&#125;&#125;&#125;&#125;)<br>GG = nx.Graph()<br><span class="hljs-keyword">for</span> n, nbrs <span class="hljs-keyword">in</span> MG.adjacency():<br>  <span class="hljs-keyword">for</span> nbr, edict <span class="hljs-keyword">in</span> nbrs.items():<br>    minvalue = <span class="hljs-built_in">min</span>([d[<span class="hljs-string">&#x27;weight&#x27;</span>] <span class="hljs-keyword">for</span> d <span class="hljs-keyword">in</span> edict.values()])<br>    GG.add_edge(n, nbr, weight = minvalue)<br></code></pre></td></tr></table></figure>
+
+<h3 id="可视化"><a href="#可视化" class="headerlink" title="可视化"></a>可视化</h3><p>NetworkX 不是专业绘图的包，但是提供了一些简单的绘图函数。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> matplotlib.pyplot <span class="hljs-keyword">as</span> plt<br>nx.draw(G, with_labels=<span class="hljs-literal">True</span>, font_weight=<span class="hljs-string">&#x27;bold&#x27;</span>)<br>plt.show()  <br></code></pre></td></tr></table></figure>
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/unnamed-chunk-2-1.png" srcset="/img/loading.gif" lazyload width="672" />
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">G = nx.petersen_graph()<br>nx.draw(G, with_labels=<span class="hljs-literal">True</span>, font_weight=<span class="hljs-string">&#x27;bold&#x27;</span>)<br>plt.show() <br></code></pre></td></tr></table></figure>
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/unnamed-chunk-2-2.png" srcset="/img/loading.gif" lazyload width="672" />
+
+<h3 id="图生成和操作"><a href="#图生成和操作" class="headerlink" title="图生成和操作"></a>图生成和操作</h3><h4 id="使用经典图操作器"><a href="#使用经典图操作器" class="headerlink" title="使用经典图操作器"></a>使用经典图操作器</h4><table>
+<thead>
+<tr>
+<th><a target="_blank" rel="noopener" href="https://networkx.org/documentation/stable/reference/generated/networkx.classes.function.subgraph.html#networkx.classes.function.subgraph"><code>subgraph</code></a>(G, nbunch)</th>
+<th>Returns the subgraph induced on nodes in nbunch.</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a target="_blank" rel="noopener" href="https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.operators.binary.union.html#networkx.algorithms.operators.binary.union"><code>union</code></a>(G, H[, rename, name])</td>
+<td>Return the union of graphs G and H.</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.operators.binary.disjoint_union.html#networkx.algorithms.operators.binary.disjoint_union"><code>disjoint_union</code></a>(G, H)</td>
+<td>Return the disjoint union of graphs G and H.</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.operators.product.cartesian_product.html#networkx.algorithms.operators.product.cartesian_product"><code>cartesian_product</code></a>(G, H)</td>
+<td>Returns the Cartesian product of G and H.</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.operators.binary.compose.html#networkx.algorithms.operators.binary.compose"><code>compose</code></a>(G, H)</td>
+<td>Returns a new graph of G composed with H.</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.operators.unary.complement.html#networkx.algorithms.operators.unary.complement"><code>complement</code></a>(G)</td>
+<td>Returns the graph complement of G.</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://networkx.org/documentation/stable/reference/generated/networkx.classes.function.create_empty_copy.html#networkx.classes.function.create_empty_copy"><code>create_empty_copy</code></a>(G[, with_data])</td>
+<td>Returns a copy of the graph G with all of the edges removed.</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://networkx.org/documentation/stable/reference/generated/networkx.classes.function.to_undirected.html#networkx.classes.function.to_undirected"><code>to_undirected</code></a>(graph)</td>
+<td>Returns an undirected view of the graph <code>graph</code>.</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://networkx.org/documentation/stable/reference/generated/networkx.classes.function.to_directed.html#networkx.classes.function.to_directed"><code>to_directed</code></a>(graph)</td>
+<td>Returns a directed view of the graph <code>graph</code>.</td>
+</tr>
+</tbody></table>
+<h4 id="调用一些预定义的小型图"><a href="#调用一些预定义的小型图" class="headerlink" title="调用一些预定义的小型图"></a>调用一些预定义的小型图</h4><table>
+<thead>
+<tr>
+<th><a target="_blank" rel="noopener" href="https://networkx.org/documentation/stable/reference/generated/networkx.generators.small.petersen_graph.html#networkx.generators.small.petersen_graph"><code>petersen_graph</code></a>([create_using])</th>
+<th>Returns the Petersen graph.</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a target="_blank" rel="noopener" href="https://networkx.org/documentation/stable/reference/generated/networkx.generators.small.tutte_graph.html#networkx.generators.small.tutte_graph"><code>tutte_graph</code></a>([create_using])</td>
+<td>Returns the Tutte graph.</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://networkx.org/documentation/stable/reference/generated/networkx.generators.small.sedgewick_maze_graph.html#networkx.generators.small.sedgewick_maze_graph"><code>sedgewick_maze_graph</code></a>([create_using])</td>
+<td>Return a small maze with a cycle.</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://networkx.org/documentation/stable/reference/generated/networkx.generators.small.tetrahedral_graph.html#networkx.generators.small.tetrahedral_graph"><code>tetrahedral_graph</code></a>([create_using])</td>
+<td>Returns the 3-regular Platonic Tetrahedral graph.</td>
+</tr>
+</tbody></table>
+<h4 id="经典图的构造器"><a href="#经典图的构造器" class="headerlink" title="经典图的构造器"></a>经典图的构造器</h4><table>
+<thead>
+<tr>
+<th><a target="_blank" rel="noopener" href="https://networkx.org/documentation/stable/reference/generated/networkx.generators.classic.complete_graph.html#networkx.generators.classic.complete_graph"><code>complete_graph</code></a>(n[, create_using])</th>
+<th>Return the complete graph <code>K_n</code> with n nodes.</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a target="_blank" rel="noopener" href="https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.bipartite.generators.complete_bipartite_graph.html#networkx.algorithms.bipartite.generators.complete_bipartite_graph"><code>complete_bipartite_graph</code></a>(n1, n2[, create_using])</td>
+<td>Returns the complete bipartite graph <code>K_&#123;n_1,n_2&#125;</code>.</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://networkx.org/documentation/stable/reference/generated/networkx.generators.classic.barbell_graph.html#networkx.generators.classic.barbell_graph"><code>barbell_graph</code></a>(m1, m2[, create_using])</td>
+<td>Returns the Barbell Graph: two complete graphs connected by a path.</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://networkx.org/documentation/stable/reference/generated/networkx.generators.classic.lollipop_graph.html#networkx.generators.classic.lollipop_graph"><code>lollipop_graph</code></a>(m, n[, create_using])</td>
+<td>Returns the Lollipop Graph; <code>K_m</code> connected to <code>P_n</code>.</td>
+</tr>
+</tbody></table>
+<h4 id="随机图生成器"><a href="#随机图生成器" class="headerlink" title="随机图生成器"></a>随机图生成器</h4><table>
+<thead>
+<tr>
+<th><a target="_blank" rel="noopener" href="https://networkx.org/documentation/stable/reference/generated/networkx.generators.random_graphs.erdos_renyi_graph.html#networkx.generators.random_graphs.erdos_renyi_graph"><code>erdos_renyi_graph</code></a>(n, p[, seed, directed])</th>
+<th>Returns a Gn,p random graph, also known as an Erdős-Rényi graph or a binomial graph.</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a target="_blank" rel="noopener" href="https://networkx.org/documentation/stable/reference/generated/networkx.generators.random_graphs.watts_strogatz_graph.html#networkx.generators.random_graphs.watts_strogatz_graph"><code>watts_strogatz_graph</code></a>(n, k, p[, seed])</td>
+<td>Returns a Watts–Strogatz small-world graph.</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://networkx.org/documentation/stable/reference/generated/networkx.generators.random_graphs.barabasi_albert_graph.html#networkx.generators.random_graphs.barabasi_albert_graph"><code>barabasi_albert_graph</code></a>(n, m[, seed, …])</td>
+<td>Returns a random graph using Barabási–Albert preferential attachment</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://networkx.org/documentation/stable/reference/generated/networkx.generators.random_graphs.random_lobster.html#networkx.generators.random_graphs.random_lobster"><code>random_lobster</code></a>(n, p1, p2[, seed])</td>
+<td>Returns a random lobster graph.</td>
+</tr>
+</tbody></table>
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/python/" class="category-chain-item">python</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E7%BD%91%E7%BB%9C%E5%88%86%E6%9E%90/">#网络分析</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>NetworkX 网络分析</div>
+      <div>http://example.com/2022/03/31/networkx/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Wu Tao</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年3月31日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/04/02/CS224W_colab/" title="图机器学习实践">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">图机器学习实践</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/03/15/mastering_shiny_part3/" title="Shiny基础-3">
+                        <span class="hidden-mobile">Shiny基础-3</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="waline"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#waline', function() {
+      Fluid.utils.createCssLink('https://cdn.jsdelivr.net/npm/@waline/client@0.14.8/dist/waline.min.css')
+      Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/@waline/client@0.14.8/dist/waline.min.js', function() {
+        var options = Object.assign(
+          {"serverURL":"https://comments-flax.vercel.app","path":"window.location.pathname","meta":["nick","mail","link"],"requiredMeta":["nick"],"lang":"zh-CN","emoji":["https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo"],"dark":"html[data-user-color-scheme=\"dark\"]","wordLimit":0,"pageSize":10},
+          {
+            el: '#waline',
+            path: window.location.pathname
+          }
+        )
+        Waline.init(options);
+        Fluid.utils.waitElementVisible('#waline .vcontent', () => {
+          var imgSelector = '#waline .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/tocbot@4.12.2/dist/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        MathJax = {
+          tex    : {
+            inlineMath: { '[+]': [['$', '$']] }
+          },
+          loader : {
+            
+          },
+          options: {
+            renderActions: {
+              findScript    : [10, doc => {
+                document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                  const display = !!node.type.match(/; *mode=display/);
+                  const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                  const text = document.createTextNode('');
+                  node.parentNode.replaceChild(text, node);
+                  math.start = { node: text, delim: '', n: 0 };
+                  math.end = { node: text, delim: '', n: 0 };
+                  doc.math.push(math);
+                });
+              }, '', false],
+              insertedScript: [200, () => {
+                document.querySelectorAll('mjx-container').forEach(node => {
+                  let target = node.parentNode;
+                  if (target.nodeName.toLowerCase() === 'li') {
+                    target.parentNode.classList.add('has-jax');
+                  }
+                });
+              }, '', false]
+            }
+          }
+        };
+      </script>
+    
+
+  <script  src="https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

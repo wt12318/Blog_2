@@ -1,0 +1,1741 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=light>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/DNA.png">
+  <link rel="icon" href="/img/DNA.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="wutao">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="使用 STAR-Fusion 及相关的软件从 RNA-Seq 数据中预测融合基因">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用 STAR-Fusion 鉴别融合基因">
+<meta property="og:url" content="http://example.com/2022/01/24/star_fusion/index.html">
+<meta property="og:site_name" content="wutao&#39;s blog">
+<meta property="og:description" content="使用 STAR-Fusion 及相关的软件从 RNA-Seq 数据中预测融合基因">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/star_fusion.png">
+<meta property="article:published_time" content="2022-01-24T02:00:00.000Z">
+<meta property="article:modified_time" content="2022-01-26T07:53:53.000Z">
+<meta property="article:author" content="Wu Tao">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/img/star_fusion.png">
+  
+  
+  
+  <title>使用 STAR-Fusion 鉴别融合基因 - wutao&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.1","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"R","line_number":true,"lib":"highlightjs","highlightjs":{"style":"Stackoverflow Light","style_dark":"light"},"prismjs":{"style":"default","preprocess":true}},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"A5lchRnum84Yumu5pVOSoVN8-MdYXbMMI","app_key":"runF3Mxw7648v64CISxiqMs8","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>wutao&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="使用 STAR-Fusion 鉴别融合基因"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        wutao
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-01-24 10:00" pubdate>
+          2022年1月24日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          24k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          201 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">使用 STAR-Fusion 鉴别融合基因</h1>
+            
+            <div class="markdown-body">
+              
+              <p>使用 STAR-Fusion 及相关的软件从 RNA-Seq 数据中预测融合基因</p>
+<span id="more"></span>
+
+<h2 id="安装-STAR-Fusion"><a href="#安装-STAR-Fusion" class="headerlink" title="安装 STAR-Fusion"></a>安装 STAR-Fusion</h2><p>有两种方法可以安装 STAR-Fusion，一种是下载 Github 的 <a href="%5BSTAR-Fusion/STAR-Fusion/releases%5D(https://github.com/STAR-Fusion/STAR-Fusion/releases)">release</a> （注意下载第一个，其他两个是自动生成的，可能有些组件不全）；第二种方法就是克隆 Github 仓库：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">#下载好解压后,进入文件夹</span></span><br>make<br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">#然后将STAR-Fusion的路径加入Bashrc的 PATH即可</span></span><br></code></pre></td></tr></table></figure>
+
+<p>STAR-Fusion 依赖一些其他的软件，需要安装：</p>
+<ul>
+<li><p>STAR</p>
+</li>
+<li><p>samtools</p>
+</li>
+<li><p>一些 Perl 模块：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs shell">perl -MCPAN -e shell<br>install DB_File<br>install URI::Escape<br>install Set::IntervalTree<br>install Carp::Assert<br>install JSON::XS<br>install PerlIO::gzip<br></code></pre></td></tr></table></figure></li>
+</ul>
+<p>先安装 STAR：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">Get latest STAR <span class="hljs-built_in">source</span> from releases</span><br>wget https://github.com/alexdobin/STAR/archive/2.7.10a.tar.gz<br>tar -xzf 2.7.10a.tar.gz<br>cd STAR-2.7.10a<br>cd source<br>make STAR<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">#将 STAR 加入 PATH</span></span><br>vi ~/.bashrc<br><span class="hljs-meta prompt_">#</span><span class="language-bash">bashrc添加：</span><br>PATH=&quot;/home/data/t040201/software/STAR-2.7.10a/bin/Linux_x86_64:$PATH&quot;<br>source ~/.bashrc<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">#验证一下是否安装成功</span></span><br>cd <br>STAR<br><span class="hljs-meta prompt_">#</span><span class="language-bash">出现以下信息则安装成功</span><br>Usage: STAR  [options]... --genomeDir /path/to/genome/index/   --readFilesIn R1.fq R2.fq<br>Spliced Transcripts Alignment to a Reference (c) Alexander Dobin, 2009-2020<br><br>STAR version=2.7.10a<br>STAR compilation time,server,dir=2022-01-14T18:50:00-05:00 :/home/dobin/data/STAR/STARcode/STAR.master/source<br>For more details see:<br>&lt;https://github.com/alexdobin/STAR&gt;<br>&lt;https://github.com/alexdobin/STAR/blob/master/doc/STARmanual.pdf&gt;<br><br>To list all parameters, run STAR --help<br></code></pre></td></tr></table></figure>
+
+<p>samtools 也是类似的，下载安装就行：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell">tar -xjf samtools-1.13.tar.bz2 <br>cd samtools-1.13 <br>./configure --prefix=/home/data/t040201/software/samtools <br>make <br>make install<br></code></pre></td></tr></table></figure>
+
+<p>安装需要的 Perl 模块（通过 conda 安装比较方便）：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">conda create -n STAR_fusion<br>conda install -c bioconda perl-db-file perl-uri perl-set-intervaltree perl-json-xs perl-perlio-gzip<br>conda install -c conda-forge perl-carp-assert<br></code></pre></td></tr></table></figure>
+
+<p>注意如果这里安装了<code>perl-set-intervaltree</code> 可能会和上面 STAR-Fusion make 过程中安装的 <code>intervaltree</code> 发生冲突，可以直接将 STAR-Fusion 路径下的 <code>PerlLib/Set</code> 目录给删除，这样就可以使用我们用 conda 安装的 <code>intervaltree</code> 了。</p>
+<p>STAR-Fusion 还需要参考基因组文件以及相关的基因注释文件，可以从<a target="_blank" rel="noopener" href="https://data.broadinstitute.org/Trinity/CTAT_RESOURCE_LIB/">这里</a> 下载，如果下载的是较大的30G左右的文件（GRCh38）就可以直接使用，如果下载的是几个 G 的未经处理的文件，则需要进行进一步的处理才能被 STAR-Fusion 使用，具体方法见 <a target="_blank" rel="noopener" href="https://github.com/STAR-Fusion/STAR-Fusion/wiki/installing-star-fusion">Github</a>, 这里直接下载了 30G 的文件（可以使用迅雷下载，比较快），解压就可以使用：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">tar -zxvf GRCh38_gencode_v37_CTAT_lib_Mar012021.plug-n-play.tar.gz<br></code></pre></td></tr></table></figure>
+
+<p>如果后面要进行转录本的重构，则需要安装 <code>Trinity</code> 和 <code>GMAP</code>:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">###安装依赖</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">##下载预编译的 bowtie2</span></span><br>unzip bowtie2-2.4.5-linux-x86_64.zip <br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">#安装路径加入 PATH 即可</span></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## 下载安装Jellyfish https://github.com/gmarcais/Jellyfish/releases</span></span><br>./configure --prefix=/home/data/t040201/software/Jellyfish/<br>make &amp; make install<br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">#bin 加入 PATH 即可</span></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## 下载预编译的 salmon</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">https://github.com/COMBINE-lab/salmon/releases</span><br>tar -xvzf salmon-1.6.0_linux_x86_64.tar.gz<br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">#bin 加入 PATH 即可</span></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">#下载安装 trinity https://github.com/trinityrnaseq/trinityrnaseq/releases</span></span><br>make<br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">#.bashrc中加入：</span></span><br>export TRINITY_HOME=/home/data/t040201/software/trinityrnaseq-v2.13.2<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## 下载安装GMAP http://research-pub.gene.com/gmap/</span></span><br> ./configure --prefix=/home/data/t040201/software/gmap_gsnap/<br><span class="hljs-meta prompt_"> #</span><span class="language-bash"><span class="hljs-comment">#bin 加入 PATH 即可</span></span><br></code></pre></td></tr></table></figure>
+
+<h2 id="运行-STAR-Fusion"><a href="#运行-STAR-Fusion" class="headerlink" title="运行 STAR-Fusion"></a>运行 STAR-Fusion</h2><p>有两种方式来运行 STAR-Fusion，一种就是从 FASTQ 文件开始，另一种是之前已经使用 STAR 进行比对，会得到 <code>Chimeric.out.junction</code> 文件，就可以直接使用这个文件作为 STAR-Fusion 的输入 （这种方式具体参照官方文档）。</p>
+<p>对于双端测序的 FASTQ 文件，可以运行（这里用 HEC108 细胞系的 RNA-seq 数据为例）：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">STAR-Fusion --genome_lib_dir /home/data/t040201/data/STAR_data/GRCh38_gencode_v37_CTAT_lib_Mar012021.plug-n-play/ctat_genome_lib_build_dir --left_fq HEC108_1.fastq.gz --right_fq HEC108_2.fastq.gz  --output_dir /home/data/t040201/cell_lines/fusion<br></code></pre></td></tr></table></figure>
+
+<p>其中参数：</p>
+<ul>
+<li><code>genome_lib_dir</code> ：刚刚下载的 30 多 G 数据解压后的 <code>ctat_genome_lib_build_dir</code> 子目录的路径</li>
+<li><code>left_fq</code> , <code>right_fq</code>：双端测序的 fastq 文件</li>
+<li><code>output_dir</code>：输出路径</li>
+</ul>
+<p>如果是单端测序，只需要指定 <code>left_fq</code> 就行了。</p>
+<p>如果是已经有了 <code>Chimeric.out.junction</code> 文件则可以直接运行：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">STAR-Fusion --genome_lib_dir <span class="hljs-regexp">/home/</span>data<span class="hljs-regexp">/t040201/</span>data<span class="hljs-regexp">/STAR_data/</span>GRCh38_gencode_v37_CTAT_lib_Mar012021.plug-n-play<span class="hljs-regexp">/ctat_genome_lib_build_dir -J ./</span>fusion<span class="hljs-regexp">/Chimeric.out.junction --output_dir /</span>home<span class="hljs-regexp">/data/</span>t040201<span class="hljs-regexp">/cell_lines/</span>fusion<br></code></pre></td></tr></table></figure>
+
+<h2 id="输出文件"><a href="#输出文件" class="headerlink" title="输出文件"></a>输出文件</h2><p>先需要了解几个概念：</p>
+<ul>
+<li><p>Fragment 和 Read ：对于双端测序，一个 Fragment 会有两个 reads 从两端开始测序，而单端测序只有一个 read：</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/fgene-05-00005-g001.jpg" srcset="/img/loading.gif" lazyload></p>
+</li>
+<li><p>Spanning reads 和 split reads：Spanning reads 指的是双端测序中有一个 read 匹配到与另一个 read 不同的基因上，而 split read 指的是一个 read 横跨两个基因</p>
+</li>
+</ul>
+<p>STAR-Fusion 的输出文件主要有两个：<code>star-fusion.fusion_predictions.abridged.tsv</code> 和 <code>star-fusion.fusion_predictions.tsv</code>，先来看第一个文件中的内容：</p>
+<table>
+<thead>
+<tr>
+<th>#FusionName</th>
+<th>JunctionReadCount</th>
+<th>SpanningFragCount</th>
+<th>est_J</th>
+<th>est_S</th>
+<th>SpliceType</th>
+<th>LeftGene</th>
+<th>LeftBreakpoint</th>
+<th>RightGene</th>
+<th>RightBreakpoint</th>
+<th>LargeAnchorSupport</th>
+<th>FFPM</th>
+<th>LeftBreakDinuc</th>
+<th>LeftBreakEntropy</th>
+<th>RightBreakDinuc</th>
+<th>RightBreakEntropy</th>
+<th>annots</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>PHACTR4--RCC1</td>
+<td>128</td>
+<td>48</td>
+<td>128</td>
+<td>48</td>
+<td>ONLY_REF_SPLICE</td>
+<td>PHACTR4^ENSG00000204138.13</td>
+<td>chr1:28407463:+</td>
+<td>RCC1^ENSG00000180198.16</td>
+<td>chr1:28529858:+</td>
+<td>YES_LDAS</td>
+<td>1.801</td>
+<td>GT</td>
+<td>1.9329</td>
+<td>AG</td>
+<td>1.8323</td>
+<td>[“CCLE_StarF2019”</td>
+</tr>
+<tr>
+<td>LEPROT--LEPR</td>
+<td>51</td>
+<td>4</td>
+<td>51</td>
+<td>4</td>
+<td>ONLY_REF_SPLICE</td>
+<td>LEPROT^ENSG00000213625.9</td>
+<td>chr1:65425378:+</td>
+<td>LEPR^ENSG00000116678.20</td>
+<td>chr1:65565546:+</td>
+<td>YES_LDAS</td>
+<td>0.5628</td>
+<td>GT</td>
+<td>1.8256</td>
+<td>AG</td>
+<td>1.9219</td>
+<td>[“GTEx_recurrent_StarF2019”</td>
+</tr>
+<tr>
+<td>SHISA9--U91319.1</td>
+<td>35</td>
+<td>13</td>
+<td>35</td>
+<td>11.67</td>
+<td>ONLY_REF_SPLICE</td>
+<td>SHISA9^ENSG00000237515.9</td>
+<td>chr16:13203549:+</td>
+<td>U91319.1^ENSG00000262801.6</td>
+<td>chr16:13350180:+</td>
+<td>YES_LDAS</td>
+<td>0.4775</td>
+<td>GT</td>
+<td>1.9899</td>
+<td>AG</td>
+<td>1.9656</td>
+<td>[“GTEx_recurrent_StarF2019”</td>
+</tr>
+<tr>
+<td>CRISPLD2--CDH13</td>
+<td>27</td>
+<td>9</td>
+<td>27</td>
+<td>9</td>
+<td>ONLY_REF_SPLICE</td>
+<td>CRISPLD2^ENSG00000103196.12</td>
+<td>chr16:84854829:+</td>
+<td>CDH13^ENSG00000140945.17</td>
+<td>chr16:83486477:+</td>
+<td>YES_LDAS</td>
+<td>0.3684</td>
+<td>GT</td>
+<td>1.9656</td>
+<td>AG</td>
+<td>1.9329</td>
+<td>[“CCLE_StarF2019”</td>
+</tr>
+<tr>
+<td>PFKFB3--LINC02649</td>
+<td>25</td>
+<td>11</td>
+<td>25</td>
+<td>11</td>
+<td>ONLY_REF_SPLICE</td>
+<td>PFKFB3^ENSG00000170525.21</td>
+<td>chr10:6226365:+</td>
+<td>LINC02649^ENSG00000215244.3</td>
+<td>chr10:6326546:+</td>
+<td>YES_LDAS</td>
+<td>0.3684</td>
+<td>GT</td>
+<td>1.9329</td>
+<td>AG</td>
+<td>1.9329</td>
+<td>[“INTRACHROMOSOMAL[chr10:0.02Mb]“</td>
+</tr>
+<tr>
+<td>SEPTIN7P14--PSPH</td>
+<td>24</td>
+<td>0</td>
+<td>12</td>
+<td>0</td>
+<td>ONLY_REF_SPLICE</td>
+<td>SEPTIN7P14^ENSG00000245958.6</td>
+<td>chr4:119455133:+</td>
+<td>PSPH^ENSG00000146733.14</td>
+<td>chr7:56021231:-</td>
+<td>YES_LDAS</td>
+<td>0.1228</td>
+<td>GT</td>
+<td>1.8892</td>
+<td>AG</td>
+<td>1.9656</td>
+<td>[“INTERCHROMOSOMAL[chr4--chr7]“]</td>
+</tr>
+<tr>
+<td>NRIP1--LINC02246</td>
+<td>13</td>
+<td>5</td>
+<td>13</td>
+<td>2.32</td>
+<td>ONLY_REF_SPLICE</td>
+<td>NRIP1^ENSG00000180530.11</td>
+<td>chr21:15064745:-</td>
+<td>LINC02246^ENSG00000281903.2</td>
+<td>chr21:14857708:-</td>
+<td>YES_LDAS</td>
+<td>0.1567</td>
+<td>GT</td>
+<td>1.2729</td>
+<td>AG</td>
+<td>1.5546</td>
+<td>[“GTEx_recurrent_StarF2019”</td>
+</tr>
+<tr>
+<td>LINC02643--NEBL</td>
+<td>8</td>
+<td>5</td>
+<td>8</td>
+<td>2.5</td>
+<td>ONLY_REF_SPLICE</td>
+<td>LINC02643^ENSG00000230109.1</td>
+<td>chr10:21369967:-</td>
+<td>NEBL^ENSG00000078114.19</td>
+<td>chr10:21020201:-</td>
+<td>YES_LDAS</td>
+<td>0.1075</td>
+<td>GT</td>
+<td>1.9656</td>
+<td>AG</td>
+<td>1.7056</td>
+<td>[“INTRACHROMOSOMAL[chr10:0.05Mb]“</td>
+</tr>
+<tr>
+<td>TVP23C--CDRT4</td>
+<td>6</td>
+<td>9</td>
+<td>5.88</td>
+<td>5.87</td>
+<td>ONLY_REF_SPLICE</td>
+<td>TVP23C^ENSG00000175106.17</td>
+<td>chr17:15540433:-</td>
+<td>CDRT4^ENSG00000239704.11</td>
+<td>chr17:15440285:-</td>
+<td>YES_LDAS</td>
+<td>0.1203</td>
+<td>GT</td>
+<td>1.8323</td>
+<td>AG</td>
+<td>1.9899</td>
+<td>[“INTRACHROMOSOMAL[chr17:0.03Mb]“</td>
+</tr>
+<tr>
+<td>NRIP1--LINC02246</td>
+<td>6</td>
+<td>10</td>
+<td>6</td>
+<td>5.79</td>
+<td>ONLY_REF_SPLICE</td>
+<td>NRIP1^ENSG00000180530.11</td>
+<td>chr21:15014344:-</td>
+<td>LINC02246^ENSG00000281903.2</td>
+<td>chr21:14857708:-</td>
+<td>YES_LDAS</td>
+<td>0.1206</td>
+<td>GT</td>
+<td>1.8892</td>
+<td>AG</td>
+<td>1.5546</td>
+<td>[“GTEx_recurrent_StarF2019”</td>
+</tr>
+</tbody></table>
+<ul>
+<li>FusionName：融合基因的名称，断点上下游的基因名称</li>
+<li>JunctionReadCount：含有 Split read 的 RNA fragment 的数量</li>
+<li>SpanningFragCount：含有 Spanning read 的 RNA fragment 的数量，如果一个融合事件的 JunctionReads 或者 （和）SpanningFrag 比较小，那么这个事件可能是假阳性的融合</li>
+<li>est_J , est_S, FFPM：JunctionReadCount 和 SpanningFragCount 是原始的，直接读出来的 read counts ，而 est_J 和 est_S 是考虑了多重比对和 fusion 转录本的多样性后的估计值，然后基于这些值计算 FFPM （fusion fragments per million total reads），一般使用这个值进行过滤融合事件（大于 0.1 FFPM），这个计算方法类似 RSEM （相关的讨论见<a target="_blank" rel="noopener" href="https://groups.google.com/g/star-fusion/c/THb6TxGrSBg?pli=1">这里</a> )</li>
+<li>SpliceType：表示预测的断点是否发生在提供的参考转录本注释（gencode）的外显子分界处</li>
+<li>LargeAnchorSupport：是否有 split read 提供在断点两侧的较长的比对（设定为 25 个碱基）；如果融合事件仅仅被 split reads 支持（没有 spanning reads）并且缺少LargeAnchorSupport，那么这个融合事件就很可疑，可能是假阳性</li>
+<li>Left&#x2F;RightBreakEntropy：断点两侧的 15 个碱基的 shannon 熵，低代表不可信（不知道为什么。。。）</li>
+<li>annots：使用 <a target="_blank" rel="noopener" href="https://github.com/FusionAnnotator/FusionAnnotator/wiki">FusionAnnotator</a> 对融合转录本的简单注释</li>
+</ul>
+<p><code>star-fusion.fusion_predictions.tsv</code> 就是多了两列：<code>JunctionReads</code> 和 <code>SpanningFrags</code> 以逗号分隔的方式列出了具体的 split reads 和 spanning reads。</p>
+<h2 id="使用-FusionInspector-对融合事件进行检查验证"><a href="#使用-FusionInspector-对融合事件进行检查验证" class="headerlink" title="使用 FusionInspector 对融合事件进行检查验证"></a>使用 FusionInspector 对融合事件进行检查验证</h2><p>FusionInspector 可以对融合事件进行检查，验证（其他的融合基因检测软件输出的结果也可以）并可视化。FusionInspector 提取融合对的基因组区间并构建包含基因对的 mini-fusion-contigs ，然后原始的 reads 被比对到这个 contig 上：</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/FusionInspector-alg_overview.png" srcset="/img/loading.gif" lazyload></p>
+<p>运行的时候只需要加上 <code>--FusionInspector</code> 就可以，这个工具有两种模式：</p>
+<ul>
+<li>inspect：只有被 STAR-Fusion 鉴别出支持融合事件的 reads 才会被比对到融合基因的 contig 上</li>
+<li>validate：对所有的 reads 进行重新评估</li>
+</ul>
+<p>另外还需要把安装一些依赖的 python 包：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">conda install -c anaconda numpy requests<br>conda install -c bioconda igv-reports<br></code></pre></td></tr></table></figure>
+
+<p>接着就可以运行了：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">STAR-Fusion --genome_lib_dir /home/data/t040201/data/STAR_data/GRCh38_gencode_v37_CTAT_lib_Mar012021.plug-n-play/ctat_genome_lib_build_dir --left_fq HEC108_1.fastq.gz --right_fq HEC108_2.fastq.gz  --output_dir /home/data/t040201/cell_lines/fusion --FusionInspector inspect<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>出现了一个报错：&#x2F;bin&#x2F;sh: bgzip: command not found，因此安装一下htslib：</p>
+<p>下载<a target="_blank" rel="noopener" href="http://www.htslib.org/download/">SAMtools&#x2F;BCFtools&#x2F;HTSlib - Downloads</a></p>
+<p>编译：.&#x2F;configure –prefix&#x3D;&#x2F;home&#x2F;data&#x2F;t040201&#x2F;software&#x2F;htslib</p>
+<p>安装：make &amp; make install</p>
+<p>添加 PATH</p>
+</blockquote>
+<p>主要的输出文件是 <code>finspector.FusionInspector.fusions.abridged.tsv</code> （在新生成的目录FusionInspector-inspect 下）：</p>
+<table>
+<thead>
+<tr>
+<th>FusionName</th>
+<th>JunctionReadCount</th>
+<th>SpanningFragCount</th>
+<th>est_J</th>
+<th>est_S</th>
+<th>LeftGene</th>
+<th>LeftLocalBreakpoint</th>
+<th>LeftBreakpoint</th>
+<th>RightGene</th>
+<th>RightLocalBreakpoint</th>
+<th>RightBreakpoint</th>
+<th>SpliceType</th>
+<th>LargeAnchorSupport</th>
+<th>NumCounterFusionLeft</th>
+<th>NumCounterFusionRight</th>
+<th>FAR_left</th>
+<th>FAR_right</th>
+<th>LeftBreakDinuc</th>
+<th>LeftBreakEntropy</th>
+<th>RightBreakDinuc</th>
+<th>RightBreakEntropy</th>
+<th>microh_brkpt_dist</th>
+<th>num_microh_near_brkpt</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>PHACTR4--RCC1</td>
+<td>117</td>
+<td>34</td>
+<td>117</td>
+<td>34</td>
+<td>PHACTR4^ENSG00000204138.13</td>
+<td>2298</td>
+<td>chr1:28407463:+</td>
+<td>RCC1^ENSG00000180198.16</td>
+<td>34901</td>
+<td>chr1:28529858:+</td>
+<td>ONLY_REF_SPLICE</td>
+<td>YES</td>
+<td>0</td>
+<td>0</td>
+<td>152</td>
+<td>152</td>
+<td>GT</td>
+<td>1.9329</td>
+<td>AG</td>
+<td>1.8323</td>
+<td>1539</td>
+<td>0</td>
+</tr>
+<tr>
+<td>LEPROT--LEPR</td>
+<td>48</td>
+<td>3</td>
+<td>48</td>
+<td>3</td>
+<td>LEPROT^ENSG00000213625.9</td>
+<td>2949</td>
+<td>chr1:65425378:+</td>
+<td>LEPR^ENSG00000116678.20</td>
+<td>14955</td>
+<td>chr1:65565546:+</td>
+<td>ONLY_REF_SPLICE</td>
+<td>YES</td>
+<td>0</td>
+<td>0</td>
+<td>52</td>
+<td>52</td>
+<td>GT</td>
+<td>1.8256</td>
+<td>AG</td>
+<td>1.9219</td>
+<td>57</td>
+<td>2</td>
+</tr>
+<tr>
+<td>SHISA9--U91319.1</td>
+<td>37</td>
+<td>10</td>
+<td>37</td>
+<td>10</td>
+<td>SHISA9^ENSG00000237515.9</td>
+<td>9996</td>
+<td>chr16:13203549:+</td>
+<td>U91319.1^ENSG00000262801.6</td>
+<td>25888</td>
+<td>chr16:13350180:+</td>
+<td>ONLY_REF_SPLICE</td>
+<td>YES</td>
+<td>0</td>
+<td>0</td>
+<td>48</td>
+<td>48</td>
+<td>GT</td>
+<td>1.9899</td>
+<td>AG</td>
+<td>1.9656</td>
+<td>3012</td>
+<td>0</td>
+</tr>
+<tr>
+<td>CRISPLD2--CDH13</td>
+<td>27</td>
+<td>9</td>
+<td>27</td>
+<td>9</td>
+<td>CRISPLD2^ENSG00000103196.12</td>
+<td>11156</td>
+<td>chr16:84854829:+</td>
+<td>CDH13^ENSG00000140945.17</td>
+<td>50276</td>
+<td>chr16:83486477:+</td>
+<td>ONLY_REF_SPLICE</td>
+<td>YES</td>
+<td>0</td>
+<td>0</td>
+<td>37</td>
+<td>37</td>
+<td>GT</td>
+<td>1.9656</td>
+<td>AG</td>
+<td>1.9329</td>
+<td>5725</td>
+<td>0</td>
+</tr>
+<tr>
+<td>PFKFB3--LINC02649</td>
+<td>22</td>
+<td>10</td>
+<td>22</td>
+<td>10</td>
+<td>PFKFB3^ENSG00000170525.21</td>
+<td>16805</td>
+<td>chr10:6226365:+</td>
+<td>LINC02649^ENSG00000215244.3</td>
+<td>31340</td>
+<td>chr10:6326546:+</td>
+<td>ONLY_REF_SPLICE</td>
+<td>YES</td>
+<td>0</td>
+<td>0</td>
+<td>33</td>
+<td>33</td>
+<td>GT</td>
+<td>1.9329</td>
+<td>AG</td>
+<td>1.9329</td>
+<td>2817</td>
+<td>0</td>
+</tr>
+<tr>
+<td>NRIP1--LINC02246</td>
+<td>14</td>
+<td>4</td>
+<td>14</td>
+<td>2.24</td>
+<td>NRIP1^ENSG00000180530.11</td>
+<td>2192</td>
+<td>chr21:15064745:-</td>
+<td>LINC02246^ENSG00000281903.2</td>
+<td>24982</td>
+<td>chr21:14857708:-</td>
+<td>ONLY_REF_SPLICE</td>
+<td>YES</td>
+<td>0</td>
+<td>0</td>
+<td>19</td>
+<td>19</td>
+<td>GT</td>
+<td>1.2729</td>
+<td>AG</td>
+<td>1.5546</td>
+<td>5526</td>
+<td>0</td>
+</tr>
+<tr>
+<td>NRIP1--LINC02246</td>
+<td>6</td>
+<td>9</td>
+<td>6</td>
+<td>6.76</td>
+<td>NRIP1^ENSG00000180530.11</td>
+<td>4395</td>
+<td>chr21:15014344:-</td>
+<td>LINC02246^ENSG00000281903.2</td>
+<td>24982</td>
+<td>chr21:14857708:-</td>
+<td>ONLY_REF_SPLICE</td>
+<td>YES</td>
+<td>0</td>
+<td>0</td>
+<td>16</td>
+<td>16</td>
+<td>GT</td>
+<td>1.8892</td>
+<td>AG</td>
+<td>1.5546</td>
+<td>5568</td>
+<td>0</td>
+</tr>
+<tr>
+<td>LINC02643--NEBL</td>
+<td>8</td>
+<td>5</td>
+<td>8</td>
+<td>5</td>
+<td>LINC02643^ENSG00000230109.1</td>
+<td>2205</td>
+<td>chr10:21369967:-</td>
+<td>NEBL^ENSG00000078114.19</td>
+<td>23713</td>
+<td>chr10:21020201:-</td>
+<td>ONLY_REF_SPLICE</td>
+<td>YES</td>
+<td>0</td>
+<td>0</td>
+<td>14</td>
+<td>14</td>
+<td>GT</td>
+<td>1.9656</td>
+<td>AG</td>
+<td>1.7056</td>
+<td>4138</td>
+<td>0</td>
+</tr>
+<tr>
+<td>TVP23C--CDRT4</td>
+<td>4</td>
+<td>10</td>
+<td>4</td>
+<td>10</td>
+<td>TVP23C^ENSG00000175106.17</td>
+<td>7982</td>
+<td>chr17:15540433:-</td>
+<td>CDRT4^ENSG00000239704.11</td>
+<td>22624</td>
+<td>chr17:15440285:-</td>
+<td>ONLY_REF_SPLICE</td>
+<td>YES</td>
+<td>0</td>
+<td>0</td>
+<td>15</td>
+<td>15</td>
+<td>GT</td>
+<td>1.8323</td>
+<td>AG</td>
+<td>1.9899</td>
+<td>2126</td>
+<td>0</td>
+</tr>
+</tbody></table>
+<p>可以看到这个文件里面少了 <code>SEPTIN7P14--PSPH</code>  一行，因为在 STAR-Fusion 的结果中，这个融合的 spanning reads 为 0 ，把他过滤掉了。这个文件中有新的几列：</p>
+<ul>
+<li><p>Left&#x2F;RightlocalBreakpoint：断点在构建的 mini-fusion-gene contig 中的位置</p>
+</li>
+<li><p>NumCounterFusionLeft&#x2F;Right：在断点处支持非融合的等位基因的 RNA-seq fragment 的数量</p>
+</li>
+<li><p>FAR_left&#x2F;right：fusion allelic ratio，用来作为相对该基因的非融合等位位点的融合转录本表达量的一种定量，可用下图展示计算方法：</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220125214733245.png" srcset="/img/loading.gif" lazyload></p>
+</li>
+</ul>
+<p>在这个图中，共有两个支持 fusion 的 fragment，对于基因 A 有 3 个支持非 fusion 的fragment，对于基因 B 有 1 个这样的 fragment，因此可以分别对基因 A 和 B 计算 FAR，作为融合 VS 非融合转录本比例的粗糙估计。</p>
+<h2 id="融合效应的检测"><a href="#融合效应的检测" class="headerlink" title="融合效应的检测"></a>融合效应的检测</h2><p>有些时候融合转录本会产生新的蛋白，改变原蛋白的功能，可以使用 <code>examine_coding_effect</code> 参数来检测融合事件对编码区域造成的影响：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">STAR-Fusion --genome_lib_dir /home/data/t040201/data/STAR_data/GRCh38_gencode_v37_CTAT_lib_Mar012021.plug-n-play/ctat_genome_lib_build_dir --left_fq HEC108_1.fastq.gz --right_fq HEC108_2.fastq.gz  --output_dir /home/data/t040201/cell_lines/fusion --FusionInspector inspect --examine_coding_effect<br></code></pre></td></tr></table></figure>
+
+<p>会产生一个新的文件 <code>star-fusion.fusion_predictions.abridged.coding_effect.tsv</code> ，这个文件比 STAR-Fusion 的直接输出会多出几列：</p>
+<table>
+<thead>
+<tr>
+<th align="center">#FusionName</th>
+<th>JunctionReadCount</th>
+<th>SpanningFragCount</th>
+<th>est_J</th>
+<th>est_S</th>
+<th>SpliceType</th>
+<th>LeftGene</th>
+<th>LeftBreakpoint</th>
+<th>RightGene</th>
+<th>RightBreakpoint</th>
+<th>LargeAnchorSupport</th>
+<th>FFPM</th>
+<th>LeftBreakDinuc</th>
+<th>LeftBreakEntropy</th>
+<th>RightBreakDinuc</th>
+<th>RightBreakEntropy</th>
+<th>annots</th>
+<th>CDS_LEFT_ID</th>
+<th>CDS_LEFT_RANGE</th>
+<th>CDS_RIGHT_ID</th>
+<th>CDS_RIGHT_RANGE</th>
+<th>PROT_FUSION_TYPE</th>
+<th>FUSION_MODEL</th>
+<th>FUSION_CDS</th>
+<th>FUSION_TRANSL</th>
+<th>PFAM_LEFT</th>
+<th>PFAM_RIGHT</th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">PHACTR4--RCC1</td>
+<td>128</td>
+<td>48</td>
+<td>128</td>
+<td>48</td>
+<td>ONLY_REF_SPLICE</td>
+<td>PHACTR4^ENSG00000204138.13</td>
+<td>chr1:28407463:+</td>
+<td>RCC1^ENSG00000180198.16</td>
+<td>chr1:28529858:+</td>
+<td>YES_LDAS</td>
+<td>1.801</td>
+<td>GT</td>
+<td>1.9329</td>
+<td>AG</td>
+<td>1.8323</td>
+<td>[“CCLE_StarF2019”</td>
+<td>“INTRACHROMOSOMAL[chr1:0.01Mb]“</td>
+<td>“NEIGHBORS[5579]“]</td>
+<td>ENST00000493669.2</td>
+<td>1-16</td>
+<td>ENST00000486790.2</td>
+<td>298-446</td>
+<td>FRAMESHIFT</td>
+<td>chr1|+|[0]28407448-28407463[0]&lt;&#x3D;&#x3D;&gt;chr1|+|[0]28529858-28529939[0]|[1]28530523-28530573[0]|[1]28531803-28531818[1]</td>
+<td>atggaagatccatttgGACAGGAAGATGTCACCCAAGCGCATAGCTAAAAGAAGGTCCCCCCCAGCAGATGCCATCCCCAAAAGCAAGAAGGTGAAGGACACGAGGGCCGCTGCCTCCCGCCGCGTTCCTGGCGCCCGCTCCTGCCAAGTCTCACACAGGTCCCA</td>
+<td>MEDPFGQEDVTQAHS*KKVPPSRCHPQKQEGEGHEGRCLPPRSWRPLLPSLTQVP</td>
+<td>TGF_beta-PARTIAL|6-16~|4.4e-06</td>
+<td>.</td>
+<td></td>
+</tr>
+<tr>
+<td align="center">LEPROT--LEPR</td>
+<td>51</td>
+<td>4</td>
+<td>51</td>
+<td>4</td>
+<td>ONLY_REF_SPLICE</td>
+<td>LEPROT^ENSG00000213625.9</td>
+<td>chr1:65425378:+</td>
+<td>LEPR^ENSG00000116678.20</td>
+<td>chr1:65565546:+</td>
+<td>YES_LDAS</td>
+<td>0.5628</td>
+<td>GT</td>
+<td>1.8256</td>
+<td>AG</td>
+<td>1.9219</td>
+<td>[“GTEx_recurrent_StarF2019”</td>
+<td>“ChimerSeq”</td>
+<td>“INTRACHROMOSOMAL[chr1:0.09Mb]“</td>
+<td>“NEIGHBORS[89682]“]</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+</tr>
+<tr>
+<td align="center">SHISA9--U91319.1</td>
+<td>35</td>
+<td>13</td>
+<td>35</td>
+<td>11.67</td>
+<td>ONLY_REF_SPLICE</td>
+<td>SHISA9^ENSG00000237515.9</td>
+<td>chr16:13203549:+</td>
+<td>U91319.1^ENSG00000262801.6</td>
+<td>chr16:13350180:+</td>
+<td>YES_LDAS</td>
+<td>0.4775</td>
+<td>GT</td>
+<td>1.9899</td>
+<td>AG</td>
+<td>1.9656</td>
+<td>[“GTEx_recurrent_StarF2019”</td>
+<td>“INTRACHROMOSOMAL[chr16:0.01Mb]“</td>
+<td>“NEIGHBORS[5816]“]</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td></td>
+</tr>
+<tr>
+<td align="center">CRISPLD2--CDH13</td>
+<td>27</td>
+<td>9</td>
+<td>27</td>
+<td>9</td>
+<td>ONLY_REF_SPLICE</td>
+<td>CRISPLD2^ENSG00000103196.12</td>
+<td>chr16:84854829:+</td>
+<td>CDH13^ENSG00000140945.17</td>
+<td>chr16:83486477:+</td>
+<td>YES_LDAS</td>
+<td>0.3684</td>
+<td>GT</td>
+<td>1.9656</td>
+<td>AG</td>
+<td>1.9329</td>
+<td>[“CCLE_StarF2019”</td>
+<td>“INTRACHROMOSOMAL[chr16:1.02Mb]“]</td>
+<td>ENST00000567845.5</td>
+<td>1-709</td>
+<td>ENST00000428848.7</td>
+<td>665-2025</td>
+<td>INFRAME</td>
+<td>chr16|+|[0]84838496-84838735[2]|[0]84845786-84845904[1]|[2]84849385-84849517[2]|[0]84850568-84850683[1]|[2]84854729-84854829[0]&lt;&#x3D;&#x3D;&gt;chr16|+|[1]83486477-83486655[2]|[0]83602454-83602594[2]|[0]83670790-83670972[2]|[0]83678208-83678461[1]|[2]83748108-83748250[0]|[1]83779968-83780201[0]|[1]83783254-83783472[0]|[1]83795023-83795030[2]</td>
+<td>atgagctgcgtcctgggtggtgtcatccccttggggctgctgttcctggtctgcggatcccaaggctacctcctgcccaacgtcactctcttagaggagctgctcagcaaataccagcacaacgagtctcactcccgggtccgcagagccatccccagggaggacaaggaggagatcctcatgctgcacaacaagcttcggggccaggtgcagcctcaggcctccaacatggagtacatgacctgggatgacgaactggagaagtctgctgcagcgtgggccagtcagtgcatctgggagcacgggcccaccagtctgctggtgtccatcgggcagaacctgggcgctcactggggcaggtatcgctctccggggttccatgtgcagtcctggtatgacgaggtgaaggactacacctacccctacccgagcgagtgcaacccctggtgtccagagaggtgctcggggcccatgtgcacgcactacacacagatagtttgggccaccaccaacaagatcggttgtgctgtgaacacctgccggaagatgactgtctggggagaagtttgggagaacgcggtctactttgtctgcaattattctccaaaggggaactggattggagaagccccctacaagaatggccggccctgctctgagtgcccacccagctatggaggcagctgcaggaacaacttgtgttaccgagGCACCACAGTGATGCGGATGACAGCCTTTGATGCAGATGACCCAGCCACCGATAATGCCCTCCTGCGGTATAATATCCGTCAGCAGACGCCTGACAAGCCATCTCCCAACATGTTCTACATCGATCCTGAGAAAGGAGACATTGTCACTGTTGTGTCACCTGCGCTGCTGGACCGAGAGACTCTGGAAAATCCCAAGTATGAACTGATCATCGAGGCTCAAGATATGGCTGGACTGGATGTTGGATTAACAGGCACGGCCACAGCCACGATCATGATCGATGACAAAAATGATCACTCACCAAAATTCACCAAGAAAGAGTTTCAAGCCACAGTCGAGGAAGGAGCTGTGGGAGTTATTGTCAATTTGACAGTTGAAGATAAGGATGACCCCACCACAGGTGCATGGAGGGCTGCCTACACCATCATCAACGGAAACCCCGGGCAGAGCTTTGAAATCCACACCAACCCTCAAACCAACGAAGGGATGCTTTCTGTTGTCAAACCATTGGACTATGAAATTTCTGCCTTCCACACCCTGCTGATCAAAGTGGAAAATGAAGACCCACTCGTACCCGACGTCTCCTACGGCCCCAGCTCCACAGCCACCGTCCACATCACTGTCCTGGATGTCAACGAGGGCCCAGTCTTCTACCCAGACCCCATGATGGTGACCAGGCAGGAGGACCTCTCTGTGGGCAGCGTGCTGCTGACAGTGAATGCCACGGACCCCGACTCCCTGCAGCATCAAACCATCAGGTATTCTGTTTACAAGGACCCAGCAGGTTGGCTGAATATTAACCCCATCAATGGGACTGTTGACACCACAGCTGTGCTGGACCGTGAGTCCCCATTTGTCGACAACAGCGTGTACACTGCTCTCTTCCTGGCAATTGACAGTGGCAACCCTCCCGCTACGGGCACTGGGACTTTGCTGATAACCCTGGAGGACGTGAATGACAATGCCCCGTTCATTTACCCCACAGTAGCTGAAGTCTGTGATGATGCCAAAAACCTCAGTGTAGTCATTTTGGGAGCATCAGATAAGGATCTTCACCCGAATACAGATCCTTTCAAATTTGAAATCCACAAACAAGCTGTTCCTGATAAAGTCTGGAAGATCTCCAAGATCAACAATACACACGCCCTGGTAAGCCTTCTTCAAAATCTGAACAAAGCAAACTACAACCTGCCCATCATGGTGACAGATTCAGGGAAACCACCCATGACGAATATCACAGATCTCAGGGTACAAGTGTGCTCCTGCAGGAATTCCAAAGTGGACTGCAACGCGGCAGGGGCCCTGCGCTTCAGCCTGCCCTCAGTCCTGCTCCTCAGCCTCTTCAGCTTAGCTTGTCTGTGA</td>
+<td>MSCVLGGVIPLGLLFLVCGSQGYLLPNVTLLEELLSKYQHNESHSRVRRAIPREDKEEILMLHNKLRGQVQPQASNMEYMTWDDELEKSAAAWASQCIWEHGPTSLLVSIGQNLGAHWGRYRSPGFHVQSWYDEVKDYTYPYPSECNPWCPERCSGPMCTHYTQIVWATTNKIGCAVNTCRKMTVWGEVWENAVYFVCNYSPKGNWIGEAPYKNGRPCSECPPSYGGSCRNNLCYRGTTVMRMTAFDADDPATDNALLRYNIRQQTPDKPSPNMFYIDPEKGDIVTVVSPALLDRETLENPKYELIIEAQDMAGLDVGLTGTATATIMIDDKNDHSPKFTKKEFQATVEEGAVGVIVNLTVEDKDDPTTGAWRAAYTIINGNPGQSFEIHTNPQTNEGMLSVVKPLDYEISAFHTLLIKVENEDPLVPDVSYGPSSTATVHITVLDVNEGPVFYPDPMMVTRQEDLSVGSVLLTVNATDPDSLQHQTIRYSVYKDPAGWLNINPINGTVDTTAVLDRESPFVDNSVYTALFLAIDSGNPPATGTGTLLITLEDVNDNAPFIYPTVAEVCDDAKNLSVVILGASDKDLHPNTDPFKFEIHKQAVPDKVWKISKINNTHALVSLLQNLNKANYNLPIMVTDSGKPPMTNITDLRVQVCSCRNSKVDCNAAGALRFSLPSVLLLSLFSLACL*</td>
+<td>CAP|62-200|1.6e-26^LCCL|150-164|1^DUF5607|170-196|1.8e-05^LCCL|287-378|2.2e-28^Rxt3|315-340|0.0053^LCCL|388-483|2.6e-31^Rxt3|425-466|2.8e-07</td>
+<td>.</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td align="center">PFKFB3--LINC02649</td>
+<td>25</td>
+<td>11</td>
+<td>25</td>
+<td>11</td>
+<td>ONLY_REF_SPLICE</td>
+<td>PFKFB3^ENSG00000170525.21</td>
+<td>chr10:6226365:+</td>
+<td>LINC02649^ENSG00000215244.3</td>
+<td>chr10:6326546:+</td>
+<td>YES_LDAS</td>
+<td>0.3684</td>
+<td>GT</td>
+<td>1.9329</td>
+<td>AG</td>
+<td>1.9329</td>
+<td>[“INTRACHROMOSOMAL[chr10:0.02Mb]“</td>
+<td>“NEIGHBORS[16525]“]</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td align="center">SEPTIN7P14--PSPH</td>
+<td>24</td>
+<td>0</td>
+<td>12</td>
+<td>0</td>
+<td>ONLY_REF_SPLICE</td>
+<td>SEPTIN7P14^ENSG00000245958.6</td>
+<td>chr4:119455133:+</td>
+<td>PSPH^ENSG00000146733.14</td>
+<td>chr7:56021231:-</td>
+<td>YES_LDAS</td>
+<td>0.1228</td>
+<td>GT</td>
+<td>1.8892</td>
+<td>AG</td>
+<td>1.9656</td>
+<td>[“INTERCHROMOSOMAL[chr4--chr7]“]</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td align="center">NRIP1--LINC02246</td>
+<td>13</td>
+<td>5</td>
+<td>13</td>
+<td>2.32</td>
+<td>ONLY_REF_SPLICE</td>
+<td>NRIP1^ENSG00000180530.11</td>
+<td>chr21:15064745:-</td>
+<td>LINC02246^ENSG00000281903.2</td>
+<td>chr21:14857708:-</td>
+<td>YES_LDAS</td>
+<td>0.1567</td>
+<td>GT</td>
+<td>1.2729</td>
+<td>AG</td>
+<td>1.5546</td>
+<td>[“GTEx_recurrent_StarF2019”</td>
+<td>“INTRACHROMOSOMAL[chr21:0.04Mb]“</td>
+<td>“NEIGHBORS[42683]“]</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td></td>
+</tr>
+<tr>
+<td align="center">LINC02643--NEBL</td>
+<td>8</td>
+<td>5</td>
+<td>8</td>
+<td>2.5</td>
+<td>ONLY_REF_SPLICE</td>
+<td>LINC02643^ENSG00000230109.1</td>
+<td>chr10:21369967:-</td>
+<td>NEBL^ENSG00000078114.19</td>
+<td>chr10:21020201:-</td>
+<td>YES_LDAS</td>
+<td>0.1075</td>
+<td>GT</td>
+<td>1.9656</td>
+<td>AG</td>
+<td>1.7056</td>
+<td>[“INTRACHROMOSOMAL[chr10:0.05Mb]“</td>
+<td>“NEIGHBORS[47222]“]</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td align="center">TVP23C--CDRT4</td>
+<td>6</td>
+<td>9</td>
+<td>5.88</td>
+<td>5.87</td>
+<td>ONLY_REF_SPLICE</td>
+<td>TVP23C^ENSG00000175106.17</td>
+<td>chr17:15540433:-</td>
+<td>CDRT4^ENSG00000239704.11</td>
+<td>chr17:15440285:-</td>
+<td>YES_LDAS</td>
+<td>0.1203</td>
+<td>GT</td>
+<td>1.8323</td>
+<td>AG</td>
+<td>1.9899</td>
+<td>[“INTRACHROMOSOMAL[chr17:0.03Mb]“</td>
+<td>“NEIGHBORS[26536]“]</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td align="center">NRIP1--LINC02246</td>
+<td>6</td>
+<td>10</td>
+<td>6</td>
+<td>5.79</td>
+<td>ONLY_REF_SPLICE</td>
+<td>NRIP1^ENSG00000180530.11</td>
+<td>chr21:15014344:-</td>
+<td>LINC02246^ENSG00000281903.2</td>
+<td>chr21:14857708:-</td>
+<td>YES_LDAS</td>
+<td>0.1206</td>
+<td>GT</td>
+<td>1.8892</td>
+<td>AG</td>
+<td>1.5546</td>
+<td>[“GTEx_recurrent_StarF2019”</td>
+<td>“INTRACHROMOSOMAL[chr21:0.04Mb]“</td>
+<td>“NEIGHBORS[42683]“]</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td>.</td>
+<td></td>
+</tr>
+</tbody></table>
+<p>主要关注的有 FUSION_MODEL 和 PFAM 列，FUSION MODEL 是基于断点和在多个 isoform 中选择的编码框内的编码结构重构的融合转录本的基因结构，格式为：<code>chr|strand|[exon_start_codon_phase]|lend-rend[exon_end_codon_phase] ...&lt;==&gt; 另一侧的基因结构（相同的格式）</code>；PFAM 表示推定的融合蛋白结构域的位置（基于原始蛋白结构域的注释），<code>~</code> 符号表示断点破坏了原始蛋白结构域注释。</p>
+<h2 id="使用-Trinity-重构融合转录本"><a href="#使用-Trinity-重构融合转录本" class="headerlink" title="使用 Trinity 重构融合转录本"></a>使用 Trinity 重构融合转录本</h2><p>上面得出的 FUSION_MODEL, FUSION_CDS, FUSION_TRANSL 是基于参考注释和参考基因组序列，如果想要基于实际支持融合事件的 RNA-seq 的 Read 进行从头的（de novo）融合转录本重构，从而获取变异信息或者新的序列特征，就要加上 <code>--denovo_reconstruct</code> 参数，通过使用 Trinity 组装比对到 FusionInspector 构建的 fusion contig 上的 reads 来进行转录本重构：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">STAR-Fusion --genome_lib_dir /home/data/t040201/data/STAR_data/GRCh38_gencode_v37_CTAT_lib_Mar012021.plug-n-play/ctat_genome_lib_build_dir --left_fq HEC108_1.fastq.gz --right_fq HEC108_2.fastq.gz  --output_dir /home/data/t040201/cell_lines/fusion --FusionInspector inspect --examine_coding_effect --denovo_reconstruct<br></code></pre></td></tr></table></figure>
+
+<p>运行之后就会多出这些文件：</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220126094937488.png" srcset="/img/loading.gif" lazyload></p>
+<p>其中 <code>fusions.fasta </code> 是 de novo 装配的转录组序列，<code>gff3</code> 是 gff3 格式的转录本比对，其他的文件可以用来进行 IGV 可视化。</p>
+<p>该细胞系重构的融合转录本如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">&gt;</span><span class="language-bash">TRINITY_GG_1_c0_g2_i2 PHACTR4--RCC1:2298-34901</span><br>CCGGCCCCTGCTGGGGACTACAAGTCCCGTAAGCCTCCGCGGCGGCACGTCCTACCCTACACTGTCCAGCCGGCTCCCTTTTTCCCCCTCCCCGGGGGCCAAGGGCTCCGGCTGCTGCCTGGCGGCCAACGGGCCAGGTAGGATTTCCGGGAGAGGCTGCTGTGGAGGCTGAGGAGGCGGCGGCGGAGATCTGGAAACAGTATCTCACCTCCCTAAACTGGTTAATAGTGGCATGGAAGATCCATTTGGACAGGAAGATGTCACCCAAGCGCATAGCTAAAAGAAGGTCCCCCCCAGCAGATGCCATCCCCAAAAGCAAGAAGGTGAAGGTCTCACACAGGTCCCACAGCACAGAACCCGGCTTGGTGCTGACACTAGGCCAGGGCGACGTGGGCCAGCTGGGGCTGGGTGAGAATGTGATGGAGAGGAAGAAGCCGGCCCTGGTATCCATTCCGGAGGATGTTGTGCAGGCTGAGGCTGGGGGCATGCACACCGTGTGTCTAAGCAAAAGTGGCCAGGTCTATTCCTTCGGCTGCAATGATGAGGGTGCCCTGGGAAGGGACACATCAGTGGAGGGCTCGGAGATGGTCCCTGGGAAAGTGGAGCTGCAAGAGAAGGTGGTACAGGTGTCAGCAGGAGACAGTCACACAGCAGCCCTCACCGATGATGGCCGTGTCTTCCTCTGGGGCTCCTTCCGGGACAATAACGGTGTGATTTGACTGTTGGAGCCCATGAAGAAGAGCATGGTGCCTG<br><span class="hljs-meta prompt_">&gt;</span><span class="language-bash">TRINITY_GG_1_c0_g2_i4 PHACTR4--RCC1:2298-34901</span><br>CCGGCCCCTGCTGGGGACTACAAGTCCCGTAAGCCTCCGCGGCGGCACGTCCTACCCTACACTGTCCAGCCGGCTCCCTTTTTCCCCCTCCCCGGGGGCCAAGGGCTCCGGCTGCTGCCTGGCGGCCAACGGGCCAGGTAGGATTTCCGGGAGAGGCTGCTGTGGAGGCTGAGGAGGCGGCGGCGGAGATCTGGAAACAGTATCTCACCTCCCTAAACTGGTTAATAGTGGCATGGAAGATCCATTTGGACAGGAAGATGTCACCCAAGCGCATAGCTAAAAGAAGGTCCCCCCCAGCAGATGCCATCCCCAAAAGCAAGAAGGTGAAGGACACGAGGGCCGCTGCCTCCCGCCGCGTTCCTGGCGCCCGCTCCTGCCAAGTCTCACACAGGTCCCACAGCACAGAACCCGGCTTGGTGCTGACACTAGGCCAGGGCGACGTGGGCCAGCTGGGGCTGGGTGAGAATGTGATGGAGAGGAAGAAGCCGGCCCTGGTATCCATTCCGGAGGATGTTGTGCAGGCTGAGGCTGGGGGCATGCACACCGTGTGTCTAAGCAAAAGTGGCCAGGTCTATTCCTTCGGCTGCAATGATGAGGGTGCCCTGGGAAGGGACACATCAGTGGAGGGCTCGGAGATGGTCCCTGGGAAAGTGGAGCTGCAAGAGAAGGTGGTACAGGTGTCAGCAGGAGACAGTCACACAGCAGCCCTCACCGATGATGGCCGTGTCTTCCTCTGGGGCTCCTTCCGGGACAATAACGGTGTGATTTGACTGTTGGAGCCCATGAAGAAGAGCATGGTGCCTG<br><span class="hljs-meta prompt_">&gt;</span><span class="language-bash">TRINITY_GG_2_c0_g2_i1 SEPTIN7P14--PSPH:1343-30726</span><br>CGCAGAAGCTTCTCAATGGCCAGCGCCAGCTGCAGCCCCGGCGGCGCACTCGCCTCACCTGAGCCTGGGAGGAAAATTCTTCCAAGGATGATCTCCCACTCAGAGCTGAGGAAGCTTTTCTACTCAGCAGATGCTGTGTGTTTTGATGTTGACAGCACGGTCATCAGTGAAGAAGGAATCGGAC<br><span class="hljs-meta prompt_">&gt;</span><span class="language-bash">TRINITY_GG_3_c0_g1_i1 SHISA9--U91319.1:9996-25888</span><br>CTTGCGGATGTCATGAGACCACAGGGCCACTGCAACACTGATCACATGGAGAGAGACCTAAACATCGTTGTCCACGTCCAGCATTATGAGAACATGGACACGAGAACCCCCATAAATAATCTTCATGCCACCCAGATGAACAACGCAGTGCCCACCTCTCCTCTGCTCCAGCAGATGGGCCATCCACATTCGTACCCGAACCTGGGCCAGATCTCCAACCCCTATGAACAGCAGCCACCAGGAAAAGAGCTCAACAAGTACGCCTCCTTAAAGGCAGTCGAGCTGGAACACCCTTCTTCTCCTGCCTTTGGACATCAGAACTTCAGATTCTCTGGCCTTCAGACTTCAAGACTTGCACTAGTGGCCCCCTGGGTTCTCAAGGTTTTGGCCGCCTCGGTTGAGAGTTACACCATCGGCTTCTTTGGTTCTGAGGCCGTTGGAGTTGGACTGAGCCATGCTACCAGCTTCCCTGGGTCTCCAGCCTGCAGATTGCCTACTGTGAGATTTAGCCTCCATAATCACGTAACAGAATATTGGCATGTAGCACTCCTCAAAACATAGAAAGCAGAAACAAATCAATTCTGCCTGGAGG<br><span class="hljs-meta prompt_">&gt;</span><span class="language-bash">TRINITY_GG_4_c0_g1_i1 PFKFB3--LINC02649:16805-31340</span><br>TGAACGTGGAGTCCGTCTGCACACACCGAGAGAGGTCAGAGGATGCAAAGAAGGGACCTAACCCGCTCATGAGACGCAATAGTGTCACCCCGCTAGCCAGCCCCGAACCCACCAAAAAGCCTCGCATCAACAGCTTTGAGGAGCATGTGGCCTCCACCTCGGCCGCCCTGCCCAGCTGCCTGCCCCCGGAGGTGCCCACGCAGCTGCCTGGACAAATATGGAGTTACCAGTAAGGAGCTCCACCGTGACTCTCCTCCCTGCTCCGTTGCCCCGACGAGGAAGTGTGAAAACGTTTCTGGCTCCATCCAAGAGTTACTTCCCTGAAGAAGAGAGGGCTTTGTTGAAGTCTTCCCATGCTTTCTGCACAGGGCTCTGGCCTTGGAGAAGGGATTTCCAGTTACCGCAGTGTCACTTGGCCCTGGGTCTCCTCCCGGGAGAGAGAAGTGTACGGCTCCCAAGGTTCCTGGCAGTTTTGAAAGAGCTCTCAGCCACAGCCAGCTTTACTTTGATCACG<br><span class="hljs-meta prompt_">&gt;</span><span class="language-bash">TRINITY_GG_5_c0_g1_i1 CRISPLD2--CDH13:11156-50276</span><br>TGAAGGACTACACCTACCCCTACCCGAGCGAGTGCAACCCCTGGTGTCCAGAGAGGTGCTCGGGGCCCATGTGCACGCACTACACACAGATAGTTTGGGCCACCACCAACAAGATCGGTTGTGCTGTGAACACCTGCCGGAAGATGACTGTCTGGGGAGAAGTTTGGGAGAACGCGGTCTACTTTGTCTGCAATTATTCTCCAAAGGGGAACTGGATTGGAGAAGCCCCCTACAAGAATGGCCGGCCCTGCTCTGAGTGCCCACCCAGCTATGGAGGCAGCTGCAGGAACAACTTGTGTTACCGAGGCACCACAGTGATGCGGATGACAGCCTTTGATGCAGATGACCCAGCCACCGATAATGCCCTCCTGCGGTATAATATCCGTCAGCAGACGCCTGACAAGCCATCTCCCAACATGTTCTACATCGATCCTGAGAAAGGAGACATTGTCACTGTTGTGTCACCTGCGCTGCTGGACCGAGAGACTCTGGAAAATCCCAAGTATGAACTGATCATCGAGGCTCAAGATATGGCTGGACTGGATGTTGGATTAACAGGCACGGCCACGG<br><span class="hljs-meta prompt_">&gt;</span><span class="language-bash">TRINITY_GG_6_c0_g1_i2 NRIP1--LINC02246:2192-24982</span><br>CTGGCTCCCTCTTTGCCTTCCACCATGACTGTAAGCTTCCTGAGGCCTCACCACAAGCCAAACAGATGCACGTGCCATGCTTGCACAACCTGCTCTCAGCTGGGCTCACTCATGCATCTGCTATCAGCTGGCTGGTTAACTGTAGTTAGTTTATCTTGATGGCATCATTGGGGAAACTCAGCTCTCTTTCACTGGACTTCTCTTATATTTCTCCAGCAAACTGGAAAGGGTGTGTTCTCGTGGCAGGGGCAGGAGTCCCAGGCCGCCGCGGCTCCCAGCCTCCGGCTCCGTCAGGCTCGGTCCGCGAAGGCGCCTGCCGCCCCGTCCTGGCCCGGCGCCCCGGCGAGCTCTTCCCTCCGACCAGCGGCGCTCAC<br><span class="hljs-meta prompt_">&gt;</span><span class="language-bash">TRINITY_GG_6_c0_g1_i3 NRIP1--LINC02246:4395-24982</span><br>CTGGCTCCCTCTTTGCCTTCCACCATGACTGTAAGCTTCCTGAGGCCTCACCACAAGCCAAACAGATGCACGTGCCATGCTTGCACAACCTGCTCTCAGCTGGGCTCACTCATGCATCTGCTATCAGCTGGCTGGTTAACTGTAGTTAGTTTATCTTGATGGCATCATTGGGGAAACTCAGCTCTCTTTCACTGGACTTCTCTTATATTTCTCCAGCAAACTGGAAAGGGTGTGTTCTCGTGGCAGGGGCAGGAGTCGTCTGTCTCCAAGCTCTGAGCCTCTGCTTTCTGAGAAAGAAAATTGAGAAGGCTGTTGAAAAGTAGCTCTGATGTCATCCGGAGTCTTCAGATTCCCTGTCCTCCTTCAGTCAAGTGTGCATCCCAGGCCGCCGCGG<br><span class="hljs-meta prompt_">&gt;</span><span class="language-bash">TRINITY_GG_7_c0_g1_i1 TVP23C--CDRT4:7982-22624</span><br>GACTAATGGTTGGCCTACGTTGGTGGAATCACATTGATGAAGATGGAAAGAGCCATTGGGTGTTTGAATCTAGAAAGGAGTCCTCTCAAGAGAATAAAACTGTGTCAGAGGCTGAATCAAGAATCTTTTGGTTGGGACTTATTGCCTGTTCAGTACTGTGGGTGATATTTGCCTTTAGTGCACTCTTCTCCTTCACAGTAAAGTGGCTGGCGGTGGTTATTATGGGTGTGGTGCTACAAGGTGCCAACCTGTATGGTTACATCAGGTGTAAGGTGCGCAGCAGAAAGCATTTAACCAGCATGGCTACTTCATATTTTGGAAAGCAGTTTTTAAGACAAGAATCTGAACCTGTGATGTTAAGAAATCAGTAAATATTAAAAAGAAGATGGATGCAAGAAGGATGAAGAAAGAAGAAGGACTCACAGAAAACACTGGACTTCCCCGGAAGCTACTTGAAAAACATGACCCCTGGCCGGCCTATGTCACCTATACCTCTCAGACAGTGAAAAGACTCATTGAGAAAAGCAAAACTAGAGAACTGGAATGCATGCGTGCCCTCGAGGAAAGACCCTGGGCATCAAGGCAGAATAAACCTTCCAGCGTC<br><span class="hljs-meta prompt_">&gt;</span><span class="language-bash">TRINITY_GG_8_c0_g2_i1 LEPROT--LEPR:2949-14955</span><br>CGCGGGGCGACTCCCGGTCTGGCTTGGGCAGGCTGCCCGGGCCGTGGCAGGAAGCCGGAAGCAGCCGCGGCCCCAGTTCGGGAGACATGGCGGGCGTTAAAGCTCTCGTGGCATTATCCTTCAGTGGGGCTATTGGACTGACTTTTCTTATGCTGGGATGTGCCTTAGAGGATTATGGGTGTACTTCTCTGAAGTAAGATGATTTGTCAAAAATTCTGTGTGGTTTTGTTACATTGGGAATTTATTTATGTGATAACTGCGTTTAACTTGTCATATCCAATTACTCCTTGGAGATTTAAGTTGTCTTGCATGCCACCAAATTCAACCTATGACTACTTCCTTTTGCCTGCTGGACTCTCAAAGAATACTTCAAATTCGAATGGACATTATGAGACAGCTGTTGAACCTAAGTTTAATTCAAG<br><span class="hljs-meta prompt_">&gt;</span><span class="language-bash">TRINITY_GG_9_c0_g1_i1 LINC02643--NEBL:2205-23713</span><br>AAACAATCAGGAAAGCTCAGCAGCATAAAACTATGAGAAAACTGGGTCTGAGAATCCAGATGTCCTGAGTGAGTAAAGGGAAAATTTTCACTTCTTCCTATGGAAGCCTGTCACCCCCCAACTCCATCCTAGGCTGAGGAAGTCTGCGTTCTTCTCTCACGGAGCTGGAGAACCTTTCAAGACACTACCCGAAGCAGTCCTTCACCACGGTGGCAGATACACCTGAAAATCTTCGCCTGAAGCAGCAAAGTGAATTGCAGAGTCAGGTCAAGTACAAAAGAGATTTTGAAGAAAGCAAAGGGAGGGGCTTCAGCATCGTCACGGACACTCCTGAGCTACAGAGACTGAAGAGGACTCAGGAGCAAATCAGTAATGTAGGTGCCTGTTTATTCAATAGCATGATGGCTCTGATGTGCATTTCTGGATGAGAAAGGGAGGCTGGATGACTT<br></code></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>如果想要一步完成融合转录本的检测，融合事件的效应，以及重构融合转录本，就可以直接运行：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell">conda activate STAR_fusion ##激活环境<br>cd /home/data/t040201/cell_lines<br>mkdir KLE_fusion<br><br>nohup STAR-Fusion --genome_lib_dir /home/data/t040201/data/STAR_data/GRCh38_gencode_v37_CTAT_lib_Mar012021.plug-n-play/ctat_genome_lib_build_dir --left_fq KLE_1.fastq.gz --right_fq KLE_2.fastq.gz  --output_dir /home/data/t040201/cell_lines/KLE_fusion/ --FusionInspector inspect --examine_coding_effect --denovo_reconstruct &amp;<br></code></pre></td></tr></table></figure>
+
+<p>主要查看的文件包括 <code>star-fusion.fusion_predictions.abridged.tsv</code> （融合事件），<code>star-fusion.fusion_predictions.abridged.coding_effect.tsv</code> (融合事件对编码区域的影响) , FusionInspector-inspect 目录下的 <code>finspector.FusionInspector.fusions.abridged.tsv</code> （校验后的融合以及 FAR 值）和 <code>finspector.gmap_trinity_GG.fusions.fasta</code> （重构的融合转录本序列）文件。</p>
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%94%9F%E7%89%A9%E4%BF%A1%E6%81%AF/" class="category-chain-item">生物信息</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>使用 STAR-Fusion 鉴别融合基因</div>
+      <div>http://example.com/2022/01/24/star_fusion/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>wutao</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年1月24日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/03/06/R_options/" title="R 启动设置">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">R 启动设置</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/01/07/GenomicDataCommons/" title="使用R包GenomicDataCommons下载和处理TCGA数据">
+                        <span class="hidden-mobile">使用R包GenomicDataCommons下载和处理TCGA数据</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="waline"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#waline', function() {
+      Fluid.utils.createCssLink('https://cdn.jsdelivr.net/npm/@waline/client@0.14.8/dist/waline.min.css')
+      Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/@waline/client@0.14.8/dist/waline.min.js', function() {
+        var options = Object.assign(
+          {"serverURL":"https://comments-flax.vercel.app","path":"window.location.pathname","meta":["nick","mail","link"],"requiredMeta":["nick"],"lang":"zh-CN","emoji":["https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo"],"dark":"html[data-user-color-scheme=\"dark\"]","wordLimit":0,"pageSize":10},
+          {
+            el: '#waline',
+            path: window.location.pathname
+          }
+        )
+        Waline.init(options);
+        Fluid.utils.waitElementVisible('#waline .vcontent', () => {
+          var imgSelector = '#waline .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/tocbot@4.12.2/dist/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        MathJax = {
+          tex    : {
+            inlineMath: { '[+]': [['$', '$']] }
+          },
+          loader : {
+            
+          },
+          options: {
+            renderActions: {
+              findScript    : [10, doc => {
+                document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                  const display = !!node.type.match(/; *mode=display/);
+                  const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                  const text = document.createTextNode('');
+                  node.parentNode.replaceChild(text, node);
+                  math.start = { node: text, delim: '', n: 0 };
+                  math.end = { node: text, delim: '', n: 0 };
+                  doc.math.push(math);
+                });
+              }, '', false],
+              insertedScript: [200, () => {
+                document.querySelectorAll('mjx-container').forEach(node => {
+                  let target = node.parentNode;
+                  if (target.nodeName.toLowerCase() === 'li') {
+                    target.parentNode.classList.add('has-jax');
+                  }
+                });
+              }, '', false]
+            }
+          }
+        };
+      </script>
+    
+
+  <script  src="https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,844 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=light>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/DNA.png">
+  <link rel="icon" href="/img/DNA.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="wutao">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="为什么需要 GAN 什么是 GAN 如何实现 GAN  一般的判别问题都是给定一个输出，通过一定的模型来预测其属于哪个类（分类），或者对应的值应该是多少（回归），也就是这些模型评判的是要预测的样本与训练样本的相似性。但是如果我们想要做一些更具有“创造力”的工作，比如让模型去绘画或者创造一种对话机器人，这时单纯的判别模型就不能很好的发挥作用，而生成模型此时就可以派上用场。  上图展示的是生成模型的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="对抗生成网络">
+<meta property="og:url" content="http://example.com/2021/12/15/GAN/index.html">
+<meta property="og:site_name" content="wutao&#39;s blog">
+<meta property="og:description" content="为什么需要 GAN 什么是 GAN 如何实现 GAN  一般的判别问题都是给定一个输出，通过一定的模型来预测其属于哪个类（分类），或者对应的值应该是多少（回归），也就是这些模型评判的是要预测的样本与训练样本的相似性。但是如果我们想要做一些更具有“创造力”的工作，比如让模型去绘画或者创造一种对话机器人，这时单纯的判别模型就不能很好的发挥作用，而生成模型此时就可以派上用场。  上图展示的是生成模型的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/gan.png">
+<meta property="article:published_time" content="2021-12-15T02:00:00.000Z">
+<meta property="article:modified_time" content="2022-01-02T05:41:06.000Z">
+<meta property="article:author" content="Wu Tao">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/img/gan.png">
+  
+  
+  
+  <title>对抗生成网络 - wutao&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.1","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"R","line_number":true,"lib":"highlightjs","highlightjs":{"style":"Stackoverflow Light","style_dark":"light"},"prismjs":{"style":"default","preprocess":true}},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"A5lchRnum84Yumu5pVOSoVN8-MdYXbMMI","app_key":"runF3Mxw7648v64CISxiqMs8","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>wutao&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="对抗生成网络"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        wutao
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2021-12-15 10:00" pubdate>
+          2021年12月15日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          6.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          51 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">对抗生成网络</h1>
+            
+            <div class="markdown-body">
+              
+              <ul>
+<li>为什么需要 GAN</li>
+<li>什么是 GAN</li>
+<li>如何实现 GAN</li>
+</ul>
+<p>一般的判别问题都是给定一个输出，通过一定的模型来预测其属于哪个类（分类），或者对应的值应该是多少（回归），也就是这些模型评判的是要预测的样本与训练样本的相似性。但是如果我们想要做一些更具有“创造力”的工作，比如让模型去绘画或者创造一种对话机器人，这时单纯的判别模型就不能很好的发挥作用，而生成模型此时就可以派上用场。</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20211210085819179.png" srcset="/img/loading.gif" lazyload></p>
+<p>上图展示的是生成模型的工作流程：生成模型是一种概率模型，输入的是真实数据以及随机噪声，期望通过学习得到真实数据的<strong>分布</strong>，然后在这个分布中采样得到最终的输出；比如上面的生成模型生成一幅马的图像，但是这个图像并不属于训练数据（分布抽样，不是样本抽样）。</p>
+<p>生成模型有很多，比如混合高斯模型，隐马尔可夫模型，这里主要讲生成对抗网络（Generative Adversarial Networks，GAN）</p>
+<p>例子：</p>
+<ul>
+<li><p>[apchenstu&#x2F;sofgan: <a target="_blank" rel="noopener" href="https://github.com/apchenstu/sofgan">TOG 2021] SofGAN: A Portrait Image Generator with Dynamic Styling (github.com)</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://github.com/hindupuravinash/the-gan-zoo">hindupuravinash&#x2F;the-gan-zoo: A list of all named GANs! (github.com)</a></p>
+</li>
+</ul>
+<p>对抗生成网络的思想和进化生物学上的共进化（Coevolution）类似：</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20211210092455743.png" srcset="/img/loading.gif" lazyload></p>
+<p>下面举一个更具体的例子来说明 GAN 的思想：</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20211210092925900.png" srcset="/img/loading.gif" lazyload></p>
+<p>我们可以比较容易的训练一个分类器来区分真猫咪和假猫咪的图像，但是我们现在用一个生成器来自动地生成假猫咪的图像，关心的问题是如何使这个生成器能生成以假乱真的猫咪图像，也就是生成器的输出可以骗过分类器，与此同时分类器也必须持续的进步来分辨出真猫咪和逐渐进步的生成器生成的假猫咪：</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20211210093714155.png" srcset="/img/loading.gif" lazyload alt="image-20211210093714155"></p>
+<p>这里的分类器（一般叫做鉴别器，discriminator）和生成器（generator）之间是竞争对手（adversary）的关系，双方都想要超越对方，在这个过程中逐渐提高鉴别和生成的能力，因此这种模型架构叫做对抗生成网络。</p>
+<p>下面来看一下如何训练 GAN：</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20211210094015805.png" srcset="/img/loading.gif" lazyload></p>
+<p>第一步固定生成器 G，向判别器输入真实数据，并且这些真实数据的标签为 1，来训练判别器；</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20211210094027666.png" srcset="/img/loading.gif" lazyload></p>
+<p>第二步还是固定生成器 G，这次向判别器输入生成器生成的假数据，这些假数据的标签为0，来训练鉴别器（上面两步其实就是一步）；</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20211210094040997.png" srcset="/img/loading.gif" lazyload></p>
+<p>第三步是固定判别器，向判别器输入生成器生成的假数据，但是要注意这时的数据的标签为 1（因为我们想要生成器 ”骗过“ 鉴别器，通过更新生成器让鉴别器认为生成器生成的假数据是真实数据），然后根据损失来训练更新生成器，<strong>不更新判别器</strong>。</p>
+<p>使用 <code>pytorch</code> 来实现 GAN 生成手写数字图像：</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20211210122801632.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> torch<br><span class="hljs-keyword">import</span> torch.nn <span class="hljs-keyword">as</span> nn<br><span class="hljs-keyword">from</span> torch.utils.data <span class="hljs-keyword">import</span> Dataset<br><br><span class="hljs-keyword">import</span> pandas<br><span class="hljs-keyword">import</span> matplotlib.pyplot <span class="hljs-keyword">as</span> plt<br><span class="hljs-keyword">import</span> numpy <br><span class="hljs-keyword">import</span> random<br><br><span class="hljs-comment"># dataset class</span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">MnistDataset</span>(<span class="hljs-title class_ inherited__">Dataset</span>):<br>  <br>  <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, csv_file</span>):<br>    self.data_df = pandas.read_csv(csv_file, header=<span class="hljs-literal">None</span>)<br>    <br>  <span class="hljs-keyword">def</span> <span class="hljs-title function_">__len__</span>(<span class="hljs-params">self</span>):<br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">len</span>(self.data_df)<br>  <br>  <span class="hljs-keyword">def</span> <span class="hljs-title function_">__getitem__</span>(<span class="hljs-params">self, index</span>):<br>    <span class="hljs-comment"># image target (label)</span><br>    label = self.data_df.iloc[index,<span class="hljs-number">0</span>]<br>    target = torch.zeros((<span class="hljs-number">10</span>))<br>    target[label] = <span class="hljs-number">1.0</span><br>    <br>    <span class="hljs-comment"># image data, normalised from 0-255 to 0-1</span><br>    image_values = torch.FloatTensor(self.data_df.iloc[index,<span class="hljs-number">1</span>:].values) / <span class="hljs-number">255.0</span><br>    <br>    <span class="hljs-comment"># return label, image data tensor and target tensor</span><br>    <span class="hljs-keyword">return</span> label, image_values, target<br>  <br>  <span class="hljs-keyword">def</span> <span class="hljs-title function_">plot_image</span>(<span class="hljs-params">self, index</span>):<br>    img = self.data_df.iloc[index,<span class="hljs-number">1</span>:].values.reshape(<span class="hljs-number">28</span>,<span class="hljs-number">28</span>)<br>    plt.title(<span class="hljs-string">&quot;label = &quot;</span> + <span class="hljs-built_in">str</span>(self.data_df.iloc[index,<span class="hljs-number">0</span>]))<br>    plt.imshow(img, interpolation=<span class="hljs-string">&#x27;none&#x27;</span>, cmap=<span class="hljs-string">&#x27;Blues&#x27;</span>)<br><br>mnist_dataset = MnistDataset(<span class="hljs-string">&#x27;/home/wt/useful_data/mnist_train.csv&#x27;</span>)<br>mnist_dataset.plot_image(<span class="hljs-number">9</span>)<br>plt.show()<br><br>mnist_dataset[<span class="hljs-number">100</span>]<br><br><span class="hljs-comment"># functions to generate random data</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">generate_random_seed</span>(<span class="hljs-params">size</span>):<br>  random_data = torch.randn(size)<br>  <span class="hljs-keyword">return</span> random_data<br>  <br><br><span class="hljs-comment"># discriminator class</span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Discriminator</span>(nn.Module):<br>  <br>  <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self</span>):<br>    <span class="hljs-comment"># initialise parent pytorch class</span><br>    <span class="hljs-built_in">super</span>().__init__()<br>    <br>    <span class="hljs-comment"># define neural network layers</span><br>    self.model = nn.Sequential(<br>        nn.Linear(<span class="hljs-number">784</span>, <span class="hljs-number">200</span>),<br>        nn.LeakyReLU(<span class="hljs-number">0.02</span>),<br><br>        nn.LayerNorm(<span class="hljs-number">200</span>),<br><br>        nn.Linear(<span class="hljs-number">200</span>, <span class="hljs-number">1</span>),<br>        nn.Sigmoid()<br>    )<br>    <br>    <span class="hljs-comment"># create loss function</span><br>    self.loss_function = nn.BCELoss()<br><br>    <span class="hljs-comment"># create optimiser, simple stochastic gradient descent</span><br>    self.optimiser = torch.optim.Adam(self.parameters(), lr=<span class="hljs-number">0.0001</span>)<br><br>    <span class="hljs-comment"># counter and accumulator for progress</span><br>    self.counter = <span class="hljs-number">0</span>;<br>    self.progress = []<br><br>  <span class="hljs-keyword">def</span> <span class="hljs-title function_">forward</span>(<span class="hljs-params">self, inputs</span>):<br>    <span class="hljs-comment"># simply run model</span><br>    <span class="hljs-keyword">return</span> self.model(inputs)<br>  <br>  <br>  <span class="hljs-keyword">def</span> <span class="hljs-title function_">train</span>(<span class="hljs-params">self, inputs, targets</span>):<br>    <span class="hljs-comment"># calculate the output of the network</span><br>    outputs = self.forward(inputs)<br>    <br>    <span class="hljs-comment"># calculate loss</span><br>    loss = self.loss_function(outputs, targets)<br><br>    <span class="hljs-comment"># increase counter and accumulate error every 10</span><br>    self.counter += <span class="hljs-number">1</span>;<br>    <span class="hljs-keyword">if</span> (self.counter % <span class="hljs-number">10</span> == <span class="hljs-number">0</span>):<br>        self.progress.append(loss.item())<br>    <span class="hljs-keyword">if</span> (self.counter % <span class="hljs-number">10000</span> == <span class="hljs-number">0</span>):<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;counter = &quot;</span>, self.counter)<br><br>    <span class="hljs-comment"># zero gradients, perform a backward pass, update weights</span><br>    self.optimiser.zero_grad()<br>    loss.backward()<br>    self.optimiser.step()<br><br>  <span class="hljs-keyword">def</span> <span class="hljs-title function_">plot_progress</span>(<span class="hljs-params">self</span>):<br>    df = pandas.DataFrame(self.progress, columns=[<span class="hljs-string">&#x27;loss&#x27;</span>])<br>    df.plot(ylim=(<span class="hljs-number">0</span>), figsize=(<span class="hljs-number">16</span>,<span class="hljs-number">8</span>), alpha=<span class="hljs-number">0.1</span>, marker=<span class="hljs-string">&#x27;.&#x27;</span>, grid=<span class="hljs-literal">True</span>, yticks=(<span class="hljs-number">0</span>, <span class="hljs-number">0.25</span>, <span class="hljs-number">0.5</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">5.0</span>))<br>    <br><span class="hljs-comment"># generator class</span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Generator</span>(nn.Module):<br>    <br>  <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self</span>):<br>    <span class="hljs-comment"># initialise parent pytorch class</span><br>    <span class="hljs-built_in">super</span>().__init__()<br>    <br>    <span class="hljs-comment"># define neural network layers</span><br>    self.model = nn.Sequential(<br>        nn.Linear(<span class="hljs-number">100</span>, <span class="hljs-number">200</span>),<br>        nn.LeakyReLU(<span class="hljs-number">0.02</span>),<br><br>        nn.LayerNorm(<span class="hljs-number">200</span>),<br><br>        nn.Linear(<span class="hljs-number">200</span>, <span class="hljs-number">784</span>),<br>        nn.Sigmoid()<br>    )<br>    <br>    <span class="hljs-comment"># create optimiser, simple stochastic gradient descent</span><br>    self.optimiser = torch.optim.Adam(self.parameters(), lr=<span class="hljs-number">0.0001</span>)<br><br>    <span class="hljs-comment"># counter and accumulator for progress</span><br>    self.counter = <span class="hljs-number">0</span>;<br>    self.progress = []<br>    <br>  <span class="hljs-keyword">def</span> <span class="hljs-title function_">forward</span>(<span class="hljs-params">self, inputs</span>):        <br>    <span class="hljs-comment"># simply run model</span><br>    <span class="hljs-keyword">return</span> self.model(inputs)<br><br>  <br>  <span class="hljs-keyword">def</span> <span class="hljs-title function_">train</span>(<span class="hljs-params">self, D, inputs, targets</span>):<br>    <span class="hljs-comment"># calculate the output of the network</span><br>    g_output = self.forward(inputs)<br>    <br>    <span class="hljs-comment"># pass onto Discriminator</span><br>    d_output = D.forward(g_output)<br>    <br>    <span class="hljs-comment"># calculate error</span><br>    loss = D.loss_function(d_output, targets)<br><br>    <span class="hljs-comment"># increase counter and accumulate error every 10</span><br>    self.counter += <span class="hljs-number">1</span>;<br>    <span class="hljs-keyword">if</span> (self.counter % <span class="hljs-number">10</span> == <span class="hljs-number">0</span>):<br>        self.progress.append(loss.item())<br><br>    <span class="hljs-comment"># zero gradients, perform a backward pass, update weights</span><br>    self.optimiser.zero_grad()<br>    loss.backward()<br>    self.optimiser.step()<br><br>  <span class="hljs-keyword">def</span> <span class="hljs-title function_">plot_progress</span>(<span class="hljs-params">self</span>):<br>    df = pandas.DataFrame(self.progress, columns=[<span class="hljs-string">&#x27;loss&#x27;</span>])<br>    df.plot(ylim=(<span class="hljs-number">0</span>), figsize=(<span class="hljs-number">16</span>,<span class="hljs-number">8</span>), alpha=<span class="hljs-number">0.1</span>, marker=<span class="hljs-string">&#x27;.&#x27;</span>, grid=<span class="hljs-literal">True</span>, yticks=(<span class="hljs-number">0</span>, <span class="hljs-number">0.25</span>, <span class="hljs-number">0.5</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">5.0</span>))<br><br>G = Generator()<br>output = G.forward(generate_random_seed(<span class="hljs-number">100</span>))<br>img = output.detach().numpy().reshape(<span class="hljs-number">28</span>,<span class="hljs-number">28</span>)<br>plt.imshow(img, interpolation=<span class="hljs-string">&#x27;none&#x27;</span>, cmap=<span class="hljs-string">&#x27;Blues&#x27;</span>)<br>plt.show()<br><span class="hljs-comment">##训练</span><br><span class="hljs-comment"># create Discriminator and Generator</span><br><br>D = Discriminator()<br>G = Generator()<br><br>epochs = <span class="hljs-number">4</span><br><br><span class="hljs-keyword">for</span> epoch <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(epochs):<br>  <span class="hljs-built_in">print</span> (<span class="hljs-string">&quot;epoch = &quot;</span>, epoch + <span class="hljs-number">1</span>)<br><br>  <span class="hljs-comment"># train Discriminator and Generator</span><br><br>  <span class="hljs-keyword">for</span> label, image_data_tensor, target_tensor <span class="hljs-keyword">in</span> mnist_dataset:<br>    <span class="hljs-comment"># train discriminator on true</span><br>    D.train(image_data_tensor, torch.FloatTensor([<span class="hljs-number">1.0</span>]))<br>    <span class="hljs-comment"># train discriminator on false</span><br>    <span class="hljs-comment"># use detach() so gradients in G are not calculated</span><br>    D.train(G.forward(generate_random_seed(<span class="hljs-number">100</span>)).detach(), torch.FloatTensor([<span class="hljs-number">0.0</span>]))<br>    <span class="hljs-comment"># train generator</span><br>    G.train(D, generate_random_seed(<span class="hljs-number">100</span>), torch.FloatTensor([<span class="hljs-number">1.0</span>]))<br><br><span class="hljs-comment"># plot several outputs from the trained generator</span><br><br><span class="hljs-comment"># plot a 3 column, 2 row array of generated images</span><br>f, axarr = plt.subplots(<span class="hljs-number">2</span>,<span class="hljs-number">3</span>, figsize=(<span class="hljs-number">16</span>,<span class="hljs-number">8</span>))<br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">2</span>):<br>  <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">3</span>):<br>    output = G.forward(generate_random_seed(<span class="hljs-number">100</span>))<br>    img = output.detach().numpy().reshape(<span class="hljs-number">28</span>,<span class="hljs-number">28</span>)<br>    axarr[i,j].imshow(img, interpolation=<span class="hljs-string">&#x27;none&#x27;</span>, cmap=<span class="hljs-string">&#x27;Blues&#x27;</span>)<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20211210122128264.png" srcset="/img/loading.gif" lazyload></p>
+<p>当我们训练出一个比较好的生成器时，loss 应该是多少？</p>
+<p>对于 MSE Loss：一个好的生成器，鉴别器的输出值应该是 0.5，因为其无法分辨是真实的还是假的，所以给了0.5 的预测值，这个时候标签要么是 0 要么是 1，算出来的 LOSS 都是 0.25。</p>
+<p>对于交叉熵损失 (BCEloss)：<br>$$<br>Loss &#x3D; \sum-y*ln(x)&#x3D;-(1.0)*ln(0.5)-(0)*ln(1-0.5)&#x3D;0.693<br>$$</p>
+<p>我们可以看一下训练的 Loss：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python">D.plot_progress()<br>plt.show()<br>G.plot_progress()<br>plt.show()<br></code></pre></td></tr></table></figure>
+
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" class="category-chain-item">深度学习</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>对抗生成网络</div>
+      <div>http://example.com/2021/12/15/GAN/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>wutao</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2021年12月15日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/01/07/GenomicDataCommons/" title="使用R包GenomicDataCommons下载和处理TCGA数据">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">使用R包GenomicDataCommons下载和处理TCGA数据</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/11/06/classification_evalution/" title="分类模型评估指标">
+                        <span class="hidden-mobile">分类模型评估指标</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="waline"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#waline', function() {
+      Fluid.utils.createCssLink('https://cdn.jsdelivr.net/npm/@waline/client@0.14.8/dist/waline.min.css')
+      Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/@waline/client@0.14.8/dist/waline.min.js', function() {
+        var options = Object.assign(
+          {"serverURL":"https://comments-flax.vercel.app","path":"window.location.pathname","meta":["nick","mail","link"],"requiredMeta":["nick"],"lang":"zh-CN","emoji":["https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo"],"dark":"html[data-user-color-scheme=\"dark\"]","wordLimit":0,"pageSize":10},
+          {
+            el: '#waline',
+            path: window.location.pathname
+          }
+        )
+        Waline.init(options);
+        Fluid.utils.waitElementVisible('#waline .vcontent', () => {
+          var imgSelector = '#waline .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/tocbot@4.12.2/dist/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        MathJax = {
+          tex    : {
+            inlineMath: { '[+]': [['$', '$']] }
+          },
+          loader : {
+            
+          },
+          options: {
+            renderActions: {
+              findScript    : [10, doc => {
+                document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                  const display = !!node.type.match(/; *mode=display/);
+                  const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                  const text = document.createTextNode('');
+                  node.parentNode.replaceChild(text, node);
+                  math.start = { node: text, delim: '', n: 0 };
+                  math.end = { node: text, delim: '', n: 0 };
+                  doc.math.push(math);
+                });
+              }, '', false],
+              insertedScript: [200, () => {
+                document.querySelectorAll('mjx-container').forEach(node => {
+                  let target = node.parentNode;
+                  if (target.nodeName.toLowerCase() === 'li') {
+                    target.parentNode.classList.add('has-jax');
+                  }
+                });
+              }, '', false]
+            }
+          }
+        };
+      </script>
+    
+
+  <script  src="https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

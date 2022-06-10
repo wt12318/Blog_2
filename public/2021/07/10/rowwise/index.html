@@ -1,0 +1,854 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=light>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/DNA.png">
+  <link rel="icon" href="/img/DNA.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Wu Tao">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="dplyr 按行操作，主要是 rowwise 函数的用法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="dplyr行式操作">
+<meta property="og:url" content="http://example.com/2021/07/10/rowwise/index.html">
+<meta property="og:site_name" content="wutao&#39;s blog">
+<meta property="og:description" content="dplyr 按行操作，主要是 rowwise 函数的用法">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/dplyr.png">
+<meta property="article:published_time" content="2021-07-10T02:00:00.000Z">
+<meta property="article:modified_time" content="2022-01-02T02:21:47.000Z">
+<meta property="article:author" content="Wu Tao">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/img/dplyr.png">
+  
+  
+  
+  <title>dplyr行式操作 - wutao&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.1","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"R","line_number":true,"lib":"highlightjs","highlightjs":{"style":"Stackoverflow Light","style_dark":"light"},"prismjs":{"style":"default","preprocess":true}},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"A5lchRnum84Yumu5pVOSoVN8-MdYXbMMI","app_key":"runF3Mxw7648v64CISxiqMs8","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>wutao&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="dplyr行式操作"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        Wu Tao
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2021-07-10 10:00" pubdate>
+          2021年7月10日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          9.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          79 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">dplyr行式操作</h1>
+            
+            <div class="markdown-body">
+              
+              <p>dplyr 按行操作，主要是 rowwise 函数的用法</p>
+<span id="more"></span>
+
+<h2 id="创建"><a href="#创建" class="headerlink" title="创建"></a>创建</h2><p>按行操作需要一种特殊类型的分组，每一组中只有一行，通过 <code>rowwise</code> 实现：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs r">df <span class="hljs-operator">&lt;-</span> tibble<span class="hljs-punctuation">(</span>x <span class="hljs-operator">=</span> <span class="hljs-number">1</span><span class="hljs-operator">:</span><span class="hljs-number">2</span><span class="hljs-punctuation">,</span> y <span class="hljs-operator">=</span> <span class="hljs-number">3</span><span class="hljs-operator">:</span><span class="hljs-number">4</span><span class="hljs-punctuation">,</span> z <span class="hljs-operator">=</span> <span class="hljs-number">5</span><span class="hljs-operator">:</span><span class="hljs-number">6</span><span class="hljs-punctuation">)</span><br>df <span class="hljs-operator">%&gt;%</span> rowwise<span class="hljs-punctuation">(</span><span class="hljs-punctuation">)</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># A tibble: 2 x 3</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># Rowwise: </span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>       x     y     z<br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>   <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">1</span>     <span class="hljs-number">1</span>     <span class="hljs-number">3</span>     <span class="hljs-number">5</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">2</span>     <span class="hljs-number">2</span>     <span class="hljs-number">4</span>     <span class="hljs-number">6</span><br></code></pre></td></tr></table></figure>
+
+<p>像 <code>group_by</code> 一样，<code>rowwise</code> 并不会进行计算，仅仅会改变其他动词的行为：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs r">df <span class="hljs-operator">%&gt;%</span> mutate<span class="hljs-punctuation">(</span>m <span class="hljs-operator">=</span> mean<span class="hljs-punctuation">(</span><span class="hljs-built_in">c</span><span class="hljs-punctuation">(</span>x<span class="hljs-punctuation">,</span> y<span class="hljs-punctuation">,</span> z<span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># A tibble: 2 x 4</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>       x     y     z     m<br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>   <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>dbl<span class="hljs-operator">&gt;</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">1</span>     <span class="hljs-number">1</span>     <span class="hljs-number">3</span>     <span class="hljs-number">5</span>   <span class="hljs-number">3.5</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">2</span>     <span class="hljs-number">2</span>     <span class="hljs-number">4</span>     <span class="hljs-number">6</span>   <span class="hljs-number">3.5</span><br>df <span class="hljs-operator">%&gt;%</span> rowwise<span class="hljs-punctuation">(</span><span class="hljs-punctuation">)</span> <span class="hljs-operator">%&gt;%</span> mutate<span class="hljs-punctuation">(</span>m <span class="hljs-operator">=</span> mean<span class="hljs-punctuation">(</span><span class="hljs-built_in">c</span><span class="hljs-punctuation">(</span>x<span class="hljs-punctuation">,</span> y<span class="hljs-punctuation">,</span> z<span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># A tibble: 2 x 4</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># Rowwise: </span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>       x     y     z     m<br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>   <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>dbl<span class="hljs-operator">&gt;</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">1</span>     <span class="hljs-number">1</span>     <span class="hljs-number">3</span>     <span class="hljs-number">5</span>     <span class="hljs-number">3</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">2</span>     <span class="hljs-number">2</span>     <span class="hljs-number">4</span>     <span class="hljs-number">6</span>     <span class="hljs-number">4</span><br></code></pre></td></tr></table></figure>
+
+<p>可以看到不使用 <code>rowwise</code> 之前计算的是所有行的均值（6个值的均值，实际上是一个值），而使用 <code>rowwsise</code> 之后计算的是每行的均值。</p>
+<p><code>rowwise</code> 也可以加上列名作为参数，表示在输出结果中保留这一列：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs r">df <span class="hljs-operator">&lt;-</span> tibble<span class="hljs-punctuation">(</span>name <span class="hljs-operator">=</span> <span class="hljs-built_in">c</span><span class="hljs-punctuation">(</span><span class="hljs-string">&quot;Mara&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-string">&quot;Hadley&quot;</span><span class="hljs-punctuation">)</span><span class="hljs-punctuation">,</span> x <span class="hljs-operator">=</span> <span class="hljs-number">1</span><span class="hljs-operator">:</span><span class="hljs-number">2</span><span class="hljs-punctuation">,</span> y <span class="hljs-operator">=</span> <span class="hljs-number">3</span><span class="hljs-operator">:</span><span class="hljs-number">4</span><span class="hljs-punctuation">,</span> z <span class="hljs-operator">=</span> <span class="hljs-number">5</span><span class="hljs-operator">:</span><span class="hljs-number">6</span><span class="hljs-punctuation">)</span><br><br><span class="hljs-comment">##不加列名输出的就是最终结果</span><br>df <span class="hljs-operator">%&gt;%</span> <br>  rowwise<span class="hljs-punctuation">(</span><span class="hljs-punctuation">)</span> <span class="hljs-operator">%&gt;%</span> <br>  summarise<span class="hljs-punctuation">(</span>m <span class="hljs-operator">=</span> mean<span class="hljs-punctuation">(</span><span class="hljs-built_in">c</span><span class="hljs-punctuation">(</span>x<span class="hljs-punctuation">,</span> y<span class="hljs-punctuation">,</span> z<span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> `summarise()` has ungrouped output. You can override using the `.groups` argument.<br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># A tibble: 2 x 1</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>       m<br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>   <span class="hljs-operator">&lt;</span>dbl<span class="hljs-operator">&gt;</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">1</span>     <span class="hljs-number">3</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">2</span>     <span class="hljs-number">4</span><br><br><span class="hljs-comment">##加上列名最后会保存该列</span><br>df <span class="hljs-operator">%&gt;%</span> <br>  rowwise<span class="hljs-punctuation">(</span>name<span class="hljs-punctuation">)</span> <span class="hljs-operator">%&gt;%</span> <br>  summarise<span class="hljs-punctuation">(</span>m <span class="hljs-operator">=</span> mean<span class="hljs-punctuation">(</span><span class="hljs-built_in">c</span><span class="hljs-punctuation">(</span>x<span class="hljs-punctuation">,</span> y<span class="hljs-punctuation">,</span> z<span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> `summarise()` has grouped output by <span class="hljs-string">&#x27;name&#x27;</span>. You can override using the `.groups` argument.<br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># A tibble: 2 x 2</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># Groups:   name [2]</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>   name       m<br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>   <span class="hljs-operator">&lt;</span>chr<span class="hljs-operator">&gt;</span>  <span class="hljs-operator">&lt;</span>dbl<span class="hljs-operator">&gt;</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">1</span> Mara       <span class="hljs-number">3</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">2</span> Hadley     <span class="hljs-number">4</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="按行进行汇总统计"><a href="#按行进行汇总统计" class="headerlink" title="按行进行汇总统计"></a>按行进行汇总统计</h2><p><code>rowwise</code> 可以和 <code>summarise</code> 一起使用来方便的进行汇总统计：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs r"><span class="hljs-comment">##创建数据</span><br>df <span class="hljs-operator">&lt;-</span> tibble<span class="hljs-punctuation">(</span>id <span class="hljs-operator">=</span> <span class="hljs-number">1</span><span class="hljs-operator">:</span><span class="hljs-number">6</span><span class="hljs-punctuation">,</span> w <span class="hljs-operator">=</span> <span class="hljs-number">10</span><span class="hljs-operator">:</span><span class="hljs-number">15</span><span class="hljs-punctuation">,</span> x <span class="hljs-operator">=</span> <span class="hljs-number">20</span><span class="hljs-operator">:</span><span class="hljs-number">25</span><span class="hljs-punctuation">,</span> y <span class="hljs-operator">=</span> <span class="hljs-number">30</span><span class="hljs-operator">:</span><span class="hljs-number">35</span><span class="hljs-punctuation">,</span> z <span class="hljs-operator">=</span> <span class="hljs-number">40</span><span class="hljs-operator">:</span><span class="hljs-number">45</span><span class="hljs-punctuation">)</span><br>df<br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># A tibble: 6 x 5</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>      id     w     x     y     z<br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>   <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">1</span>     <span class="hljs-number">1</span>    <span class="hljs-number">10</span>    <span class="hljs-number">20</span>    <span class="hljs-number">30</span>    <span class="hljs-number">40</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">2</span>     <span class="hljs-number">2</span>    <span class="hljs-number">11</span>    <span class="hljs-number">21</span>    <span class="hljs-number">31</span>    <span class="hljs-number">41</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">3</span>     <span class="hljs-number">3</span>    <span class="hljs-number">12</span>    <span class="hljs-number">22</span>    <span class="hljs-number">32</span>    <span class="hljs-number">42</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">4</span>     <span class="hljs-number">4</span>    <span class="hljs-number">13</span>    <span class="hljs-number">23</span>    <span class="hljs-number">33</span>    <span class="hljs-number">43</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">5</span>     <span class="hljs-number">5</span>    <span class="hljs-number">14</span>    <span class="hljs-number">24</span>    <span class="hljs-number">34</span>    <span class="hljs-number">44</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">6</span>     <span class="hljs-number">6</span>    <span class="hljs-number">15</span>    <span class="hljs-number">25</span>    <span class="hljs-number">35</span>    <span class="hljs-number">45</span><br><br>rf <span class="hljs-operator">&lt;-</span> df <span class="hljs-operator">%&gt;%</span> rowwise<span class="hljs-punctuation">(</span>id<span class="hljs-punctuation">)</span><br><br><span class="hljs-comment">##mutate来添加一列汇总</span><br>rf <span class="hljs-operator">%&gt;%</span> mutate<span class="hljs-punctuation">(</span>total <span class="hljs-operator">=</span> <span class="hljs-built_in">sum</span><span class="hljs-punctuation">(</span><span class="hljs-built_in">c</span><span class="hljs-punctuation">(</span>w<span class="hljs-punctuation">,</span> x<span class="hljs-punctuation">,</span> y<span class="hljs-punctuation">,</span> z<span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># A tibble: 6 x 6</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># Rowwise:  id</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>      id     w     x     y     z total<br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>   <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">1</span>     <span class="hljs-number">1</span>    <span class="hljs-number">10</span>    <span class="hljs-number">20</span>    <span class="hljs-number">30</span>    <span class="hljs-number">40</span>   <span class="hljs-number">100</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">2</span>     <span class="hljs-number">2</span>    <span class="hljs-number">11</span>    <span class="hljs-number">21</span>    <span class="hljs-number">31</span>    <span class="hljs-number">41</span>   <span class="hljs-number">104</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">3</span>     <span class="hljs-number">3</span>    <span class="hljs-number">12</span>    <span class="hljs-number">22</span>    <span class="hljs-number">32</span>    <span class="hljs-number">42</span>   <span class="hljs-number">108</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">4</span>     <span class="hljs-number">4</span>    <span class="hljs-number">13</span>    <span class="hljs-number">23</span>    <span class="hljs-number">33</span>    <span class="hljs-number">43</span>   <span class="hljs-number">112</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">5</span>     <span class="hljs-number">5</span>    <span class="hljs-number">14</span>    <span class="hljs-number">24</span>    <span class="hljs-number">34</span>    <span class="hljs-number">44</span>   <span class="hljs-number">116</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">6</span>     <span class="hljs-number">6</span>    <span class="hljs-number">15</span>    <span class="hljs-number">25</span>    <span class="hljs-number">35</span>    <span class="hljs-number">45</span>   <span class="hljs-number">120</span><br><span class="hljs-comment">##或者summarise只保留汇总</span><br>rf <span class="hljs-operator">%&gt;%</span> summarise<span class="hljs-punctuation">(</span>total <span class="hljs-operator">=</span> <span class="hljs-built_in">sum</span><span class="hljs-punctuation">(</span><span class="hljs-built_in">c</span><span class="hljs-punctuation">(</span>w<span class="hljs-punctuation">,</span> x<span class="hljs-punctuation">,</span> y<span class="hljs-punctuation">,</span> z<span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> `summarise()` has grouped output by <span class="hljs-string">&#x27;id&#x27;</span>. You can override using the `.groups` argument.<br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># A tibble: 6 x 2</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># Groups:   id [6]</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>      id total<br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>   <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">1</span>     <span class="hljs-number">1</span>   <span class="hljs-number">100</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">2</span>     <span class="hljs-number">2</span>   <span class="hljs-number">104</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">3</span>     <span class="hljs-number">3</span>   <span class="hljs-number">108</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">4</span>     <span class="hljs-number">4</span>   <span class="hljs-number">112</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">5</span>     <span class="hljs-number">5</span>   <span class="hljs-number">116</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">6</span>     <span class="hljs-number">6</span>   <span class="hljs-number">120</span><br></code></pre></td></tr></table></figure>
+
+<p>当有很多变量的时候，可以结合 <code>c_across</code> 来进行 <code>tidy selection</code>：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs r">rf <span class="hljs-operator">%&gt;%</span> mutate<span class="hljs-punctuation">(</span>total <span class="hljs-operator">=</span> <span class="hljs-built_in">sum</span><span class="hljs-punctuation">(</span>c_across<span class="hljs-punctuation">(</span>w<span class="hljs-operator">:</span>z<span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># A tibble: 6 x 6</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># Rowwise:  id</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>      id     w     x     y     z total<br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>   <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">1</span>     <span class="hljs-number">1</span>    <span class="hljs-number">10</span>    <span class="hljs-number">20</span>    <span class="hljs-number">30</span>    <span class="hljs-number">40</span>   <span class="hljs-number">100</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">2</span>     <span class="hljs-number">2</span>    <span class="hljs-number">11</span>    <span class="hljs-number">21</span>    <span class="hljs-number">31</span>    <span class="hljs-number">41</span>   <span class="hljs-number">104</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">3</span>     <span class="hljs-number">3</span>    <span class="hljs-number">12</span>    <span class="hljs-number">22</span>    <span class="hljs-number">32</span>    <span class="hljs-number">42</span>   <span class="hljs-number">108</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">4</span>     <span class="hljs-number">4</span>    <span class="hljs-number">13</span>    <span class="hljs-number">23</span>    <span class="hljs-number">33</span>    <span class="hljs-number">43</span>   <span class="hljs-number">112</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">5</span>     <span class="hljs-number">5</span>    <span class="hljs-number">14</span>    <span class="hljs-number">24</span>    <span class="hljs-number">34</span>    <span class="hljs-number">44</span>   <span class="hljs-number">116</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">6</span>     <span class="hljs-number">6</span>    <span class="hljs-number">15</span>    <span class="hljs-number">25</span>    <span class="hljs-number">35</span>    <span class="hljs-number">45</span>   <span class="hljs-number">120</span><br>rf <span class="hljs-operator">%&gt;%</span> mutate<span class="hljs-punctuation">(</span>total <span class="hljs-operator">=</span> <span class="hljs-built_in">sum</span><span class="hljs-punctuation">(</span>c_across<span class="hljs-punctuation">(</span>where<span class="hljs-punctuation">(</span><span class="hljs-built_in">is.numeric</span><span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># A tibble: 6 x 6</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># Rowwise:  id</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>      id     w     x     y     z total<br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>   <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">1</span>     <span class="hljs-number">1</span>    <span class="hljs-number">10</span>    <span class="hljs-number">20</span>    <span class="hljs-number">30</span>    <span class="hljs-number">40</span>   <span class="hljs-number">100</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">2</span>     <span class="hljs-number">2</span>    <span class="hljs-number">11</span>    <span class="hljs-number">21</span>    <span class="hljs-number">31</span>    <span class="hljs-number">41</span>   <span class="hljs-number">104</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">3</span>     <span class="hljs-number">3</span>    <span class="hljs-number">12</span>    <span class="hljs-number">22</span>    <span class="hljs-number">32</span>    <span class="hljs-number">42</span>   <span class="hljs-number">108</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">4</span>     <span class="hljs-number">4</span>    <span class="hljs-number">13</span>    <span class="hljs-number">23</span>    <span class="hljs-number">33</span>    <span class="hljs-number">43</span>   <span class="hljs-number">112</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">5</span>     <span class="hljs-number">5</span>    <span class="hljs-number">14</span>    <span class="hljs-number">24</span>    <span class="hljs-number">34</span>    <span class="hljs-number">44</span>   <span class="hljs-number">116</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">6</span>     <span class="hljs-number">6</span>    <span class="hljs-number">15</span>    <span class="hljs-number">25</span>    <span class="hljs-number">35</span>    <span class="hljs-number">45</span>   <span class="hljs-number">120</span><br></code></pre></td></tr></table></figure>
+
+<p>在这里可以结合行式操作和列式操作计算每个元素占行总和的比例：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs r">rf <span class="hljs-operator">%&gt;%</span> <br>  mutate<span class="hljs-punctuation">(</span>total <span class="hljs-operator">=</span> <span class="hljs-built_in">sum</span><span class="hljs-punctuation">(</span>c_across<span class="hljs-punctuation">(</span>w<span class="hljs-operator">:</span>z<span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span> <span class="hljs-operator">%&gt;%</span> <br>  ungroup<span class="hljs-punctuation">(</span><span class="hljs-punctuation">)</span> <span class="hljs-operator">%&gt;%</span> <br>  mutate<span class="hljs-punctuation">(</span>across<span class="hljs-punctuation">(</span>w<span class="hljs-operator">:</span>z<span class="hljs-punctuation">,</span> <span class="hljs-operator">~</span> . <span class="hljs-operator">/</span> total<span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># A tibble: 6 x 6</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>      id     w     x     y     z total<br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>   <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>dbl<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>dbl<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>dbl<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>dbl<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">1</span>     <span class="hljs-number">1</span> <span class="hljs-number">0.1</span>   <span class="hljs-number">0.2</span>   <span class="hljs-number">0.3</span>   <span class="hljs-number">0.4</span>     <span class="hljs-number">100</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">2</span>     <span class="hljs-number">2</span> <span class="hljs-number">0.106</span> <span class="hljs-number">0.202</span> <span class="hljs-number">0.298</span> <span class="hljs-number">0.394</span>   <span class="hljs-number">104</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">3</span>     <span class="hljs-number">3</span> <span class="hljs-number">0.111</span> <span class="hljs-number">0.204</span> <span class="hljs-number">0.296</span> <span class="hljs-number">0.389</span>   <span class="hljs-number">108</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">4</span>     <span class="hljs-number">4</span> <span class="hljs-number">0.116</span> <span class="hljs-number">0.205</span> <span class="hljs-number">0.295</span> <span class="hljs-number">0.384</span>   <span class="hljs-number">112</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">5</span>     <span class="hljs-number">5</span> <span class="hljs-number">0.121</span> <span class="hljs-number">0.207</span> <span class="hljs-number">0.293</span> <span class="hljs-number">0.379</span>   <span class="hljs-number">116</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">6</span>     <span class="hljs-number">6</span> <span class="hljs-number">0.125</span> <span class="hljs-number">0.208</span> <span class="hljs-number">0.292</span> <span class="hljs-number">0.375</span>   <span class="hljs-number">120</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="List-columns"><a href="#List-columns" class="headerlink" title="List-columns"></a>List-columns</h2><p>当列中有列表元素时，行式操作就比较方便。现在假设有下列的数据，想要计算一列中每行元素的长度：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs r">df <span class="hljs-operator">&lt;-</span> tibble<span class="hljs-punctuation">(</span><br>  x <span class="hljs-operator">=</span> <span class="hljs-built_in">list</span><span class="hljs-punctuation">(</span><span class="hljs-number">1</span><span class="hljs-punctuation">,</span> <span class="hljs-number">2</span><span class="hljs-operator">:</span><span class="hljs-number">3</span><span class="hljs-punctuation">,</span> <span class="hljs-number">4</span><span class="hljs-operator">:</span><span class="hljs-number">6</span><span class="hljs-punctuation">)</span><br><span class="hljs-punctuation">)</span><br>df<br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># A tibble: 3 x 1</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>   x        <br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>   <span class="hljs-operator">&lt;</span><span class="hljs-built_in">list</span><span class="hljs-operator">&gt;</span>   <br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">1</span> <span class="hljs-operator">&lt;</span>dbl <span class="hljs-punctuation">[</span><span class="hljs-number">1</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">2</span> <span class="hljs-operator">&lt;</span>int <span class="hljs-punctuation">[</span><span class="hljs-number">2</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">3</span> <span class="hljs-operator">&lt;</span>int <span class="hljs-punctuation">[</span><span class="hljs-number">3</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span><br><br>df <span class="hljs-operator">%&gt;%</span> mutate<span class="hljs-punctuation">(</span>l <span class="hljs-operator">=</span> <span class="hljs-built_in">length</span><span class="hljs-punctuation">(</span>x<span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># A tibble: 3 x 2</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>   x             l<br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>   <span class="hljs-operator">&lt;</span><span class="hljs-built_in">list</span><span class="hljs-operator">&gt;</span>    <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">1</span> <span class="hljs-operator">&lt;</span>dbl <span class="hljs-punctuation">[</span><span class="hljs-number">1</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span>     <span class="hljs-number">3</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">2</span> <span class="hljs-operator">&lt;</span>int <span class="hljs-punctuation">[</span><span class="hljs-number">2</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span>     <span class="hljs-number">3</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">3</span> <span class="hljs-operator">&lt;</span>int <span class="hljs-punctuation">[</span><span class="hljs-number">3</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span>     <span class="hljs-number">3</span><br></code></pre></td></tr></table></figure>
+
+<p>可以看到当使用 <code>length</code> 时返回的是列的长度，而不是列中每个元素的长度；这个问题可以使用 R 内置的 <code>lengths</code> 函数或者直接用循环来解决：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs r">df <span class="hljs-operator">%&gt;%</span> mutate<span class="hljs-punctuation">(</span>l <span class="hljs-operator">=</span> lengths<span class="hljs-punctuation">(</span>x<span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># A tibble: 3 x 2</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>   x             l<br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>   <span class="hljs-operator">&lt;</span><span class="hljs-built_in">list</span><span class="hljs-operator">&gt;</span>    <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">1</span> <span class="hljs-operator">&lt;</span>dbl <span class="hljs-punctuation">[</span><span class="hljs-number">1</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span>     <span class="hljs-number">1</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">2</span> <span class="hljs-operator">&lt;</span>int <span class="hljs-punctuation">[</span><span class="hljs-number">2</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span>     <span class="hljs-number">2</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">3</span> <span class="hljs-operator">&lt;</span>int <span class="hljs-punctuation">[</span><span class="hljs-number">3</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span>     <span class="hljs-number">3</span><br><br>df <span class="hljs-operator">%&gt;%</span> mutate<span class="hljs-punctuation">(</span>l <span class="hljs-operator">=</span> sapply<span class="hljs-punctuation">(</span>x<span class="hljs-punctuation">,</span> <span class="hljs-built_in">length</span><span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># A tibble: 3 x 2</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>   x             l<br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>   <span class="hljs-operator">&lt;</span><span class="hljs-built_in">list</span><span class="hljs-operator">&gt;</span>    <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">1</span> <span class="hljs-operator">&lt;</span>dbl <span class="hljs-punctuation">[</span><span class="hljs-number">1</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span>     <span class="hljs-number">1</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">2</span> <span class="hljs-operator">&lt;</span>int <span class="hljs-punctuation">[</span><span class="hljs-number">2</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span>     <span class="hljs-number">2</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">3</span> <span class="hljs-operator">&lt;</span>int <span class="hljs-punctuation">[</span><span class="hljs-number">3</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span>     <span class="hljs-number">3</span><br><br><span class="hljs-comment">##或者使用purrr</span><br>df <span class="hljs-operator">%&gt;%</span> mutate<span class="hljs-punctuation">(</span>l <span class="hljs-operator">=</span> purrr<span class="hljs-operator">::</span>map_int<span class="hljs-punctuation">(</span>x<span class="hljs-punctuation">,</span> <span class="hljs-built_in">length</span><span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># A tibble: 3 x 2</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>   x             l<br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>   <span class="hljs-operator">&lt;</span><span class="hljs-built_in">list</span><span class="hljs-operator">&gt;</span>    <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">1</span> <span class="hljs-operator">&lt;</span>dbl <span class="hljs-punctuation">[</span><span class="hljs-number">1</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span>     <span class="hljs-number">1</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">2</span> <span class="hljs-operator">&lt;</span>int <span class="hljs-punctuation">[</span><span class="hljs-number">2</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span>     <span class="hljs-number">2</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">3</span> <span class="hljs-operator">&lt;</span>int <span class="hljs-punctuation">[</span><span class="hljs-number">3</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span>     <span class="hljs-number">3</span><br></code></pre></td></tr></table></figure>
+
+<p>另一个方法就是使用 <code>rowwise</code> 操作：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs r">df <span class="hljs-operator">%&gt;%</span> <br>  rowwise<span class="hljs-punctuation">(</span><span class="hljs-punctuation">)</span> <span class="hljs-operator">%&gt;%</span> <br>  mutate<span class="hljs-punctuation">(</span>l <span class="hljs-operator">=</span> <span class="hljs-built_in">length</span><span class="hljs-punctuation">(</span>x<span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># A tibble: 3 x 2</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># Rowwise: </span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>   x             l<br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>   <span class="hljs-operator">&lt;</span><span class="hljs-built_in">list</span><span class="hljs-operator">&gt;</span>    <span class="hljs-operator">&lt;</span>int<span class="hljs-operator">&gt;</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">1</span> <span class="hljs-operator">&lt;</span>dbl <span class="hljs-punctuation">[</span><span class="hljs-number">1</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span>     <span class="hljs-number">1</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">2</span> <span class="hljs-operator">&lt;</span>int <span class="hljs-punctuation">[</span><span class="hljs-number">2</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span>     <span class="hljs-number">2</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">3</span> <span class="hljs-operator">&lt;</span>int <span class="hljs-punctuation">[</span><span class="hljs-number">3</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span>     <span class="hljs-number">3</span><br></code></pre></td></tr></table></figure>
+
+<p>那么这里 <code>mutate</code> 和 <code>rowwise</code> 之后再 <code>mutate</code> 有什么区别呢？主要不同就是：<code>mutate</code> 对列切片的方式是一个中括号 <code>[</code>，而 <code>rowwise mutate</code> 则是通过两个中括号 <code>[[</code> 来切片，所以当列的元素是列表的时候，我们通过 <code>[</code> 只能获取整个列表的内容，而 <code>[[</code> 能获取列表的元素：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs r">df<span class="hljs-operator">$</span>x<br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-punctuation">[[</span><span class="hljs-number">1</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">]</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-punctuation">[</span><span class="hljs-number">1</span><span class="hljs-punctuation">]</span> <span class="hljs-number">1</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-punctuation">[[</span><span class="hljs-number">2</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">]</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-punctuation">[</span><span class="hljs-number">1</span><span class="hljs-punctuation">]</span> <span class="hljs-number">2</span> <span class="hljs-number">3</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-punctuation">[[</span><span class="hljs-number">3</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">]</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-punctuation">[</span><span class="hljs-number">1</span><span class="hljs-punctuation">]</span> <span class="hljs-number">4</span> <span class="hljs-number">5</span> <span class="hljs-number">6</span><br><br><span class="hljs-comment"># mutate</span><br>out1 <span class="hljs-operator">&lt;-</span> integer<span class="hljs-punctuation">(</span><span class="hljs-number">3</span><span class="hljs-punctuation">)</span><br><span class="hljs-keyword">for</span> <span class="hljs-punctuation">(</span>i <span class="hljs-keyword">in</span> <span class="hljs-number">1</span><span class="hljs-operator">:</span><span class="hljs-number">3</span><span class="hljs-punctuation">)</span> <span class="hljs-punctuation">&#123;</span><br>  out1<span class="hljs-punctuation">[[</span>i<span class="hljs-punctuation">]</span><span class="hljs-punctuation">]</span> <span class="hljs-operator">&lt;-</span> <span class="hljs-built_in">length</span><span class="hljs-punctuation">(</span>df<span class="hljs-operator">$</span>x<span class="hljs-punctuation">[</span>i<span class="hljs-punctuation">]</span><span class="hljs-punctuation">)</span><br><span class="hljs-punctuation">&#125;</span><br>out1<br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-punctuation">[</span><span class="hljs-number">1</span><span class="hljs-punctuation">]</span> <span class="hljs-number">1</span> <span class="hljs-number">1</span> <span class="hljs-number">1</span><br><br><span class="hljs-comment"># rowwise mutate</span><br>out2 <span class="hljs-operator">&lt;-</span> integer<span class="hljs-punctuation">(</span><span class="hljs-number">3</span><span class="hljs-punctuation">)</span><br><span class="hljs-keyword">for</span> <span class="hljs-punctuation">(</span>i <span class="hljs-keyword">in</span> <span class="hljs-number">1</span><span class="hljs-operator">:</span><span class="hljs-number">3</span><span class="hljs-punctuation">)</span> <span class="hljs-punctuation">&#123;</span><br>  out2<span class="hljs-punctuation">[[</span>i<span class="hljs-punctuation">]</span><span class="hljs-punctuation">]</span> <span class="hljs-operator">&lt;-</span> <span class="hljs-built_in">length</span><span class="hljs-punctuation">(</span>df<span class="hljs-operator">$</span>x<span class="hljs-punctuation">[[</span>i<span class="hljs-punctuation">]</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">)</span><br><span class="hljs-punctuation">&#125;</span><br>out2<br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-punctuation">[</span><span class="hljs-number">1</span><span class="hljs-punctuation">]</span> <span class="hljs-number">1</span> <span class="hljs-number">2</span> <span class="hljs-number">3</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="建模"><a href="#建模" class="headerlink" title="建模"></a>建模</h2><p><code>rowwise</code> 的按行操作的特征特别适合建模以及存放模型及数据：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs r"><span class="hljs-comment">##nest_by 和 group_by 类似，不过在视觉上改变了数据框的结构，返回的是rowwise的数据框</span><br>by_cyl <span class="hljs-operator">&lt;-</span> mtcars <span class="hljs-operator">%&gt;%</span> nest_by<span class="hljs-punctuation">(</span>cyl<span class="hljs-punctuation">)</span><br>by_cyl<br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># A tibble: 3 x 2</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># Rowwise:  cyl</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>     cyl                data<br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>   <span class="hljs-operator">&lt;</span>dbl<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span><span class="hljs-built_in">list</span><span class="hljs-operator">&lt;</span>tibble<span class="hljs-punctuation">[</span><span class="hljs-punctuation">,</span><span class="hljs-number">10</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">1</span>     <span class="hljs-number">4</span>           <span class="hljs-punctuation">[</span><span class="hljs-number">11</span> x <span class="hljs-number">10</span><span class="hljs-punctuation">]</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">2</span>     <span class="hljs-number">6</span>            <span class="hljs-punctuation">[</span><span class="hljs-number">7</span> x <span class="hljs-number">10</span><span class="hljs-punctuation">]</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">3</span>     <span class="hljs-number">8</span>           <span class="hljs-punctuation">[</span><span class="hljs-number">14</span> x <span class="hljs-number">10</span><span class="hljs-punctuation">]</span><br></code></pre></td></tr></table></figure>
+
+<p>将数据按行存放之后就可以对每行进行建模及存放数据：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs r"><span class="hljs-comment">##建立线性回归模型</span><br>mods <span class="hljs-operator">&lt;-</span> by_cyl <span class="hljs-operator">%&gt;%</span> mutate<span class="hljs-punctuation">(</span>mod <span class="hljs-operator">=</span> <span class="hljs-built_in">list</span><span class="hljs-punctuation">(</span>lm<span class="hljs-punctuation">(</span>mpg <span class="hljs-operator">~</span> wt<span class="hljs-punctuation">,</span> data <span class="hljs-operator">=</span> data<span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span><br><br><span class="hljs-comment">##添加预测数据</span><br>mods <span class="hljs-operator">&lt;-</span> mods <span class="hljs-operator">%&gt;%</span> mutate<span class="hljs-punctuation">(</span>pred <span class="hljs-operator">=</span> <span class="hljs-built_in">list</span><span class="hljs-punctuation">(</span>predict<span class="hljs-punctuation">(</span>mod<span class="hljs-punctuation">,</span> data<span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span><br>mods<br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># A tibble: 3 x 4</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># Rowwise:  cyl</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>     cyl                data mod    pred      <br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>   <span class="hljs-operator">&lt;</span>dbl<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span><span class="hljs-built_in">list</span><span class="hljs-operator">&lt;</span>tibble<span class="hljs-punctuation">[</span><span class="hljs-punctuation">,</span><span class="hljs-number">10</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span><span class="hljs-built_in">list</span><span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span><span class="hljs-built_in">list</span><span class="hljs-operator">&gt;</span>    <br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">1</span>     <span class="hljs-number">4</span>           <span class="hljs-punctuation">[</span><span class="hljs-number">11</span> x <span class="hljs-number">10</span><span class="hljs-punctuation">]</span> <span class="hljs-operator">&lt;</span>lm<span class="hljs-operator">&gt;</span>   <span class="hljs-operator">&lt;</span>dbl <span class="hljs-punctuation">[</span><span class="hljs-number">11</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">2</span>     <span class="hljs-number">6</span>            <span class="hljs-punctuation">[</span><span class="hljs-number">7</span> x <span class="hljs-number">10</span><span class="hljs-punctuation">]</span> <span class="hljs-operator">&lt;</span>lm<span class="hljs-operator">&gt;</span>   <span class="hljs-operator">&lt;</span>dbl <span class="hljs-punctuation">[</span><span class="hljs-number">7</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span> <br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">3</span>     <span class="hljs-number">8</span>           <span class="hljs-punctuation">[</span><span class="hljs-number">14</span> x <span class="hljs-number">10</span><span class="hljs-punctuation">]</span> <span class="hljs-operator">&lt;</span>lm<span class="hljs-operator">&gt;</span>   <span class="hljs-operator">&lt;</span>dbl <span class="hljs-punctuation">[</span><span class="hljs-number">14</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>这个用 <code>list</code> 的原因是：<code>predict</code> 返回的是列表，上面说过对于 <code>rowwise mutate</code> 使用 <code>[[</code> 来切片，因此返回的数据的长度是 11，而 <code>mutate</code> 返回的长度必须是 1。</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs r">mods <span class="hljs-operator">%&gt;%</span> mutate<span class="hljs-punctuation">(</span>pred <span class="hljs-operator">=</span> predict<span class="hljs-punctuation">(</span>mod<span class="hljs-punctuation">,</span> data<span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> Error<span class="hljs-operator">:</span> Problem with `mutate()` column `pred`.<br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> i `pred = predict(mod, data)`.<br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> i `pred` must be size <span class="hljs-number">1</span><span class="hljs-punctuation">,</span> not <span class="hljs-number">11.</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> i Did you mean<span class="hljs-operator">:</span> `pred = list(predict(mod, data))` <span class="hljs-operator">?</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> i The error occurred <span class="hljs-keyword">in</span> row <span class="hljs-number">1.</span><br></code></pre></td></tr></table></figure>
+
+<p>接着可以自由添加一些模型的汇总信息：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><code class="hljs r">mods <span class="hljs-operator">%&gt;%</span> summarise<span class="hljs-punctuation">(</span>rmse <span class="hljs-operator">=</span> <span class="hljs-built_in">sqrt</span><span class="hljs-punctuation">(</span>mean<span class="hljs-punctuation">(</span><span class="hljs-punctuation">(</span>pred <span class="hljs-operator">-</span> data<span class="hljs-operator">$</span>mpg<span class="hljs-punctuation">)</span> <span class="hljs-operator">^</span> <span class="hljs-number">2</span><span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> `summarise()` has grouped output by <span class="hljs-string">&#x27;cyl&#x27;</span>. You can override using the `.groups` argument.<br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># A tibble: 3 x 2</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># Groups:   cyl [3]</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>     cyl  rmse<br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>   <span class="hljs-operator">&lt;</span>dbl<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>dbl<span class="hljs-operator">&gt;</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">1</span>     <span class="hljs-number">4</span> <span class="hljs-number">3.01</span> <br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">2</span>     <span class="hljs-number">6</span> <span class="hljs-number">0.985</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">3</span>     <span class="hljs-number">8</span> <span class="hljs-number">1.87</span><br><br>mods <span class="hljs-operator">%&gt;%</span> summarise<span class="hljs-punctuation">(</span>rsq <span class="hljs-operator">=</span> summary<span class="hljs-punctuation">(</span>mod<span class="hljs-punctuation">)</span><span class="hljs-operator">$</span>r.squared<span class="hljs-punctuation">)</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> `summarise()` has grouped output by <span class="hljs-string">&#x27;cyl&#x27;</span>. You can override using the `.groups` argument.<br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># A tibble: 3 x 2</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># Groups:   cyl [3]</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>     cyl   rsq<br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>   <span class="hljs-operator">&lt;</span>dbl<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>dbl<span class="hljs-operator">&gt;</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">1</span>     <span class="hljs-number">4</span> <span class="hljs-number">0.509</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">2</span>     <span class="hljs-number">6</span> <span class="hljs-number">0.465</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">3</span>     <span class="hljs-number">8</span> <span class="hljs-number">0.423</span><br><br>mods <span class="hljs-operator">%&gt;%</span> summarise<span class="hljs-punctuation">(</span>broom<span class="hljs-operator">::</span>glance<span class="hljs-punctuation">(</span>mod<span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> `summarise()` has grouped output by <span class="hljs-string">&#x27;cyl&#x27;</span>. You can override using the `.groups` argument.<br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># A tibble: 3 x 12</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># Groups:   cyl [3]</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>     cyl r.squared adj.r.squared sigma statistic p.value<br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>   <span class="hljs-operator">&lt;</span>dbl<span class="hljs-operator">&gt;</span>     <span class="hljs-operator">&lt;</span>dbl<span class="hljs-operator">&gt;</span>         <span class="hljs-operator">&lt;</span>dbl<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>dbl<span class="hljs-operator">&gt;</span>     <span class="hljs-operator">&lt;</span>dbl<span class="hljs-operator">&gt;</span>   <span class="hljs-operator">&lt;</span>dbl<span class="hljs-operator">&gt;</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">1</span>     <span class="hljs-number">4</span>     <span class="hljs-number">0.509</span>         <span class="hljs-number">0.454</span>  <span class="hljs-number">3.33</span>      <span class="hljs-number">9.32</span>  <span class="hljs-number">0.0137</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">2</span>     <span class="hljs-number">6</span>     <span class="hljs-number">0.465</span>         <span class="hljs-number">0.357</span>  <span class="hljs-number">1.17</span>      <span class="hljs-number">4.34</span>  <span class="hljs-number">0.0918</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">3</span>     <span class="hljs-number">8</span>     <span class="hljs-number">0.423</span>         <span class="hljs-number">0.375</span>  <span class="hljs-number">2.02</span>      <span class="hljs-number">8.80</span>  <span class="hljs-number">0.0118</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># ... with 6 more variables: df &lt;int&gt;, logLik &lt;dbl&gt;,</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment">#   AIC &lt;dbl&gt;, BIC &lt;dbl&gt;, deviance &lt;dbl&gt;,</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment">#   df.residual &lt;int&gt;</span><br><br><span class="hljs-comment">##获取模型参数</span><br>mods <span class="hljs-operator">%&gt;%</span> summarise<span class="hljs-punctuation">(</span>broom<span class="hljs-operator">::</span>tidy<span class="hljs-punctuation">(</span>mod<span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> `summarise()` has grouped output by <span class="hljs-string">&#x27;cyl&#x27;</span>. You can override using the `.groups` argument.<br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># A tibble: 6 x 6</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># Groups:   cyl [3]</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>     cyl term       estimate std.error statistic   p.value<br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>   <span class="hljs-operator">&lt;</span>dbl<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>chr<span class="hljs-operator">&gt;</span>         <span class="hljs-operator">&lt;</span>dbl<span class="hljs-operator">&gt;</span>     <span class="hljs-operator">&lt;</span>dbl<span class="hljs-operator">&gt;</span>     <span class="hljs-operator">&lt;</span>dbl<span class="hljs-operator">&gt;</span>     <span class="hljs-operator">&lt;</span>dbl<span class="hljs-operator">&gt;</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">1</span>     <span class="hljs-number">4</span> <span class="hljs-punctuation">(</span>Intercep<span class="hljs-operator">~</span>    <span class="hljs-number">39.6</span>      <span class="hljs-number">4.35</span>       <span class="hljs-number">9.10</span>   <span class="hljs-number">7.77e-6</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">2</span>     <span class="hljs-number">4</span> wt            <span class="hljs-operator">-</span><span class="hljs-number">5.65</span>     <span class="hljs-number">1.85</span>      <span class="hljs-operator">-</span><span class="hljs-number">3.05</span>   <span class="hljs-number">1.37e-2</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">3</span>     <span class="hljs-number">6</span> <span class="hljs-punctuation">(</span>Intercep<span class="hljs-operator">~</span>    <span class="hljs-number">28.4</span>      <span class="hljs-number">4.18</span>       <span class="hljs-number">6.79</span>   <span class="hljs-number">1.05e-3</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">4</span>     <span class="hljs-number">6</span> wt            <span class="hljs-operator">-</span><span class="hljs-number">2.78</span>     <span class="hljs-number">1.33</span>      <span class="hljs-operator">-</span><span class="hljs-number">2.08</span>   <span class="hljs-number">9.18e-2</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">5</span>     <span class="hljs-number">8</span> <span class="hljs-punctuation">(</span>Intercep<span class="hljs-operator">~</span>    <span class="hljs-number">23.9</span>      <span class="hljs-number">3.01</span>       <span class="hljs-number">7.94</span>   <span class="hljs-number">4.05e-6</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">6</span>     <span class="hljs-number">8</span> wt            <span class="hljs-operator">-</span><span class="hljs-number">2.19</span>     <span class="hljs-number">0.739</span>     <span class="hljs-operator">-</span><span class="hljs-number">2.97</span>   <span class="hljs-number">1.18e-2</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="重复调用函数"><a href="#重复调用函数" class="headerlink" title="重复调用函数"></a>重复调用函数</h2><p>和前面的思路一样，如果在各列中存放函数的参数，就可以方便的重复调用函数：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs r">df <span class="hljs-operator">&lt;-</span> tribble<span class="hljs-punctuation">(</span><br>  <span class="hljs-operator">~</span> n<span class="hljs-punctuation">,</span> <span class="hljs-operator">~</span> <span class="hljs-built_in">min</span><span class="hljs-punctuation">,</span> <span class="hljs-operator">~</span> <span class="hljs-built_in">max</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-number">1</span><span class="hljs-punctuation">,</span>     <span class="hljs-number">0</span><span class="hljs-punctuation">,</span>     <span class="hljs-number">1</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-number">2</span><span class="hljs-punctuation">,</span>    <span class="hljs-number">10</span><span class="hljs-punctuation">,</span>   <span class="hljs-number">100</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-number">3</span><span class="hljs-punctuation">,</span>   <span class="hljs-number">100</span><span class="hljs-punctuation">,</span>  <span class="hljs-number">1000</span><span class="hljs-punctuation">,</span><br><span class="hljs-punctuation">)</span><br><br><span class="hljs-comment">#从不同参数的均匀分布中产生随机数</span><br>df <span class="hljs-operator">%&gt;%</span> <br>  rowwise<span class="hljs-punctuation">(</span><span class="hljs-punctuation">)</span> <span class="hljs-operator">%&gt;%</span> <br>  mutate<span class="hljs-punctuation">(</span>data <span class="hljs-operator">=</span> <span class="hljs-built_in">list</span><span class="hljs-punctuation">(</span>runif<span class="hljs-punctuation">(</span>n<span class="hljs-punctuation">,</span> <span class="hljs-built_in">min</span><span class="hljs-punctuation">,</span> <span class="hljs-built_in">max</span><span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># A tibble: 3 x 4</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># Rowwise: </span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>       n   <span class="hljs-built_in">min</span>   <span class="hljs-built_in">max</span> data     <br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>   <span class="hljs-operator">&lt;</span>dbl<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>dbl<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>dbl<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span><span class="hljs-built_in">list</span><span class="hljs-operator">&gt;</span>   <br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">1</span>     <span class="hljs-number">1</span>     <span class="hljs-number">0</span>     <span class="hljs-number">1</span> <span class="hljs-operator">&lt;</span>dbl <span class="hljs-punctuation">[</span><span class="hljs-number">1</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">2</span>     <span class="hljs-number">2</span>    <span class="hljs-number">10</span>   <span class="hljs-number">100</span> <span class="hljs-operator">&lt;</span>dbl <span class="hljs-punctuation">[</span><span class="hljs-number">2</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">3</span>     <span class="hljs-number">3</span>   <span class="hljs-number">100</span>  <span class="hljs-number">1000</span> <span class="hljs-operator">&lt;</span>dbl <span class="hljs-punctuation">[</span><span class="hljs-number">3</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span><br><br><span class="hljs-comment">##扩充不同的组合</span><br>df <span class="hljs-operator">&lt;-</span> expand.grid<span class="hljs-punctuation">(</span>mean <span class="hljs-operator">=</span> <span class="hljs-built_in">c</span><span class="hljs-punctuation">(</span><span class="hljs-operator">-</span><span class="hljs-number">1</span><span class="hljs-punctuation">,</span> <span class="hljs-number">0</span><span class="hljs-punctuation">,</span> <span class="hljs-number">1</span><span class="hljs-punctuation">)</span><span class="hljs-punctuation">,</span> sd <span class="hljs-operator">=</span> <span class="hljs-built_in">c</span><span class="hljs-punctuation">(</span><span class="hljs-number">1</span><span class="hljs-punctuation">,</span> <span class="hljs-number">10</span><span class="hljs-punctuation">,</span> <span class="hljs-number">100</span><span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span><br><br>df <span class="hljs-operator">%&gt;%</span> <br>  rowwise<span class="hljs-punctuation">(</span><span class="hljs-punctuation">)</span> <span class="hljs-operator">%&gt;%</span> <br>  mutate<span class="hljs-punctuation">(</span>data <span class="hljs-operator">=</span> <span class="hljs-built_in">list</span><span class="hljs-punctuation">(</span>rnorm<span class="hljs-punctuation">(</span><span class="hljs-number">10</span><span class="hljs-punctuation">,</span> mean<span class="hljs-punctuation">,</span> sd<span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># A tibble: 9 x 3</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># Rowwise: </span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>    mean    sd data      <br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>   <span class="hljs-operator">&lt;</span>dbl<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>dbl<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span><span class="hljs-built_in">list</span><span class="hljs-operator">&gt;</span>    <br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">1</span>    <span class="hljs-operator">-</span><span class="hljs-number">1</span>     <span class="hljs-number">1</span> <span class="hljs-operator">&lt;</span>dbl <span class="hljs-punctuation">[</span><span class="hljs-number">10</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">2</span>     <span class="hljs-number">0</span>     <span class="hljs-number">1</span> <span class="hljs-operator">&lt;</span>dbl <span class="hljs-punctuation">[</span><span class="hljs-number">10</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">3</span>     <span class="hljs-number">1</span>     <span class="hljs-number">1</span> <span class="hljs-operator">&lt;</span>dbl <span class="hljs-punctuation">[</span><span class="hljs-number">10</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">4</span>    <span class="hljs-operator">-</span><span class="hljs-number">1</span>    <span class="hljs-number">10</span> <span class="hljs-operator">&lt;</span>dbl <span class="hljs-punctuation">[</span><span class="hljs-number">10</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">5</span>     <span class="hljs-number">0</span>    <span class="hljs-number">10</span> <span class="hljs-operator">&lt;</span>dbl <span class="hljs-punctuation">[</span><span class="hljs-number">10</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">6</span>     <span class="hljs-number">1</span>    <span class="hljs-number">10</span> <span class="hljs-operator">&lt;</span>dbl <span class="hljs-punctuation">[</span><span class="hljs-number">10</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">7</span>    <span class="hljs-operator">-</span><span class="hljs-number">1</span>   <span class="hljs-number">100</span> <span class="hljs-operator">&lt;</span>dbl <span class="hljs-punctuation">[</span><span class="hljs-number">10</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">8</span>     <span class="hljs-number">0</span>   <span class="hljs-number">100</span> <span class="hljs-operator">&lt;</span>dbl <span class="hljs-punctuation">[</span><span class="hljs-number">10</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">9</span>     <span class="hljs-number">1</span>   <span class="hljs-number">100</span> <span class="hljs-operator">&lt;</span>dbl <span class="hljs-punctuation">[</span><span class="hljs-number">10</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>当我们想要变化的不是函数的参数，而是调用不同的函数，可以将 <code>rowwise</code> 和 <code>do.call</code> 结合：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs r">df <span class="hljs-operator">&lt;-</span> tribble<span class="hljs-punctuation">(</span><br>   <span class="hljs-operator">~</span>rng<span class="hljs-punctuation">,</span>     <span class="hljs-operator">~</span>params<span class="hljs-punctuation">,</span><br>   <span class="hljs-string">&quot;runif&quot;</span><span class="hljs-punctuation">,</span>  <span class="hljs-built_in">list</span><span class="hljs-punctuation">(</span>n <span class="hljs-operator">=</span> <span class="hljs-number">10</span><span class="hljs-punctuation">)</span><span class="hljs-punctuation">,</span> <br>   <span class="hljs-string">&quot;rnorm&quot;</span><span class="hljs-punctuation">,</span>  <span class="hljs-built_in">list</span><span class="hljs-punctuation">(</span>n <span class="hljs-operator">=</span> <span class="hljs-number">20</span><span class="hljs-punctuation">)</span><span class="hljs-punctuation">,</span><br>   <span class="hljs-string">&quot;rpois&quot;</span><span class="hljs-punctuation">,</span>  <span class="hljs-built_in">list</span><span class="hljs-punctuation">(</span>n <span class="hljs-operator">=</span> <span class="hljs-number">10</span><span class="hljs-punctuation">,</span> lambda <span class="hljs-operator">=</span> <span class="hljs-number">5</span><span class="hljs-punctuation">)</span><span class="hljs-punctuation">,</span><br><span class="hljs-punctuation">)</span> <span class="hljs-operator">%&gt;%</span><br>  rowwise<span class="hljs-punctuation">(</span><span class="hljs-punctuation">)</span><br><br>df <span class="hljs-operator">%&gt;%</span> <br>  mutate<span class="hljs-punctuation">(</span>data <span class="hljs-operator">=</span> <span class="hljs-built_in">list</span><span class="hljs-punctuation">(</span>do.call<span class="hljs-punctuation">(</span>rng<span class="hljs-punctuation">,</span> params<span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span><span class="hljs-punctuation">)</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># A tibble: 3 x 3</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-comment"># Rowwise: </span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>   rng   params           data      <br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span>   <span class="hljs-operator">&lt;</span>chr<span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span><span class="hljs-built_in">list</span><span class="hljs-operator">&gt;</span>           <span class="hljs-operator">&lt;</span><span class="hljs-built_in">list</span><span class="hljs-operator">&gt;</span>    <br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">1</span> runif <span class="hljs-operator">&lt;</span>named <span class="hljs-built_in">list</span> <span class="hljs-punctuation">[</span><span class="hljs-number">1</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>dbl <span class="hljs-punctuation">[</span><span class="hljs-number">10</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">2</span> rnorm <span class="hljs-operator">&lt;</span>named <span class="hljs-built_in">list</span> <span class="hljs-punctuation">[</span><span class="hljs-number">1</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>dbl <span class="hljs-punctuation">[</span><span class="hljs-number">20</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-number">3</span> rpois <span class="hljs-operator">&lt;</span>named <span class="hljs-built_in">list</span> <span class="hljs-punctuation">[</span><span class="hljs-number">2</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span> <span class="hljs-operator">&lt;</span>int <span class="hljs-punctuation">[</span><span class="hljs-number">10</span><span class="hljs-punctuation">]</span><span class="hljs-operator">&gt;</span><br></code></pre></td></tr></table></figure>
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/R/" class="category-chain-item">R</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>dplyr行式操作</div>
+      <div>http://example.com/2021/07/10/rowwise/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Wu Tao</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2021年7月10日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/07/15/mastering_shiny_part2/" title="Shiny基础-2">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Shiny基础-2</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/06/23/pytorch_base/" title="【Pytorch】Tensor 的基本操作">
+                        <span class="hidden-mobile">【Pytorch】Tensor 的基本操作</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="waline"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#waline', function() {
+      Fluid.utils.createCssLink('https://cdn.jsdelivr.net/npm/@waline/client@0.14.8/dist/waline.min.css')
+      Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/@waline/client@0.14.8/dist/waline.min.js', function() {
+        var options = Object.assign(
+          {"serverURL":"https://comments-flax.vercel.app","path":"window.location.pathname","meta":["nick","mail","link"],"requiredMeta":["nick"],"lang":"zh-CN","emoji":["https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo"],"dark":"html[data-user-color-scheme=\"dark\"]","wordLimit":0,"pageSize":10},
+          {
+            el: '#waline',
+            path: window.location.pathname
+          }
+        )
+        Waline.init(options);
+        Fluid.utils.waitElementVisible('#waline .vcontent', () => {
+          var imgSelector = '#waline .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/tocbot@4.12.2/dist/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        MathJax = {
+          tex    : {
+            inlineMath: { '[+]': [['$', '$']] }
+          },
+          loader : {
+            
+          },
+          options: {
+            renderActions: {
+              findScript    : [10, doc => {
+                document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                  const display = !!node.type.match(/; *mode=display/);
+                  const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                  const text = document.createTextNode('');
+                  node.parentNode.replaceChild(text, node);
+                  math.start = { node: text, delim: '', n: 0 };
+                  math.end = { node: text, delim: '', n: 0 };
+                  doc.math.push(math);
+                });
+              }, '', false],
+              insertedScript: [200, () => {
+                document.querySelectorAll('mjx-container').forEach(node => {
+                  let target = node.parentNode;
+                  if (target.nodeName.toLowerCase() === 'li') {
+                    target.parentNode.classList.add('has-jax');
+                  }
+                });
+              }, '', false]
+            }
+          }
+        };
+      </script>
+    
+
+  <script  src="https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

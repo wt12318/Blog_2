@@ -1,0 +1,977 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=light>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/DNA.png">
+  <link rel="icon" href="/img/DNA.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Wu Tao">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Pytorch 官网教程 学习">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Pytorch 基础">
+<meta property="og:url" content="http://example.com/2021/07/21/pytorch_tutorial/index.html">
+<meta property="og:site_name" content="wutao&#39;s blog">
+<meta property="og:description" content="Pytorch 官网教程 学习">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/pytorc.jpg">
+<meta property="article:published_time" content="2021-07-21T12:59:00.000Z">
+<meta property="article:modified_time" content="2022-01-02T02:21:10.000Z">
+<meta property="article:author" content="Wu Tao">
+<meta property="article:tag" content="编程">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/img/pytorc.jpg">
+  
+  
+  
+  <title>Pytorch 基础 - wutao&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.1","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"R","line_number":true,"lib":"highlightjs","highlightjs":{"style":"Stackoverflow Light","style_dark":"light"},"prismjs":{"style":"default","preprocess":true}},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"A5lchRnum84Yumu5pVOSoVN8-MdYXbMMI","app_key":"runF3Mxw7648v64CISxiqMs8","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>wutao&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Pytorch 基础"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        Wu Tao
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2021-07-21 20:59" pubdate>
+          2021年7月21日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          32k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          265 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Pytorch 基础</h1>
+            
+            <div class="markdown-body">
+              
+              <p> Pytorch 官网教程 学习</p>
+<span id="more"></span>
+
+<p>学习 Pytorch 官网教程，主要包括以下内容：</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210721075853969.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="Tensors"><a href="#Tensors" class="headerlink" title="Tensors"></a>Tensors</h2><p>Tensor 类似于 Numpy 的 ndarray，不同之处在于张量可以在 GPU 或其他硬件加速器上运行。 实际上，张量和 NumPy 数组通常可以共享相同的底层内存，从而无需复制数据；另外张量也针对自动微分进行了优化。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">##首先导入需要的库</span><br><span class="hljs-keyword">import</span> torch<br><span class="hljs-keyword">import</span> numpy <span class="hljs-keyword">as</span> np<br></code></pre></td></tr></table></figure>
+
+<h3 id="初始化-Tensor"><a href="#初始化-Tensor" class="headerlink" title="初始化 Tensor"></a>初始化 Tensor</h3><p>可以以多种方式初始化 Tensor：</p>
+<ol>
+<li>直接从数据创建，数据类型可以自动判断</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs python">data = [[<span class="hljs-number">1</span>,<span class="hljs-number">2</span>],[<span class="hljs-number">3</span>,<span class="hljs-number">4</span>]]<br>x_data = torch.tensor(data)<br>x_data.<span class="hljs-built_in">type</span>()<br>&gt;&gt; <span class="hljs-string">&#x27;torch.LongTensor&#x27;</span><br>x_data.dtype<br>&gt;&gt; torch.int64<br></code></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>从 numpy 数组创建</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">np_array = np.array(data)<br>x_np = torch.from_numpy(np_array)<br></code></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>从另一个 Tensor 创建，<code>torch.**_like</code> 函数，会保留作为参数的 Tensor 的形状和数据类型，当然也可以进行覆盖：</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs python">x_ones = torch.ones_like(x_data)<span class="hljs-comment">##全为1的Tensor，形状和数据类型一致</span><br>x_ones.dtype<br>&gt;&gt; torch.int64<br>x_ones = torch.ones_like(x_data, dtype=torch.<span class="hljs-built_in">float</span>)<br>x_ones.dtype<br>&gt;&gt; torch.float32<br>x_rand = torch.rand_like(x_data) <br>&gt;&gt; Error <span class="hljs-keyword">in</span> py_call_impl(<span class="hljs-built_in">callable</span>, dots$args, dots$keywords): RuntimeError: <span class="hljs-string">&quot;check_uniform_bounds&quot;</span> <span class="hljs-keyword">not</span> implemented <span class="hljs-keyword">for</span> <span class="hljs-string">&#x27;Long&#x27;</span><br>x_rand = torch.rand_like(x_data, dtype=torch.<span class="hljs-built_in">float</span>) <br></code></pre></td></tr></table></figure>
+
+<h3 id="Tensor-的属性"><a href="#Tensor-的属性" class="headerlink" title="Tensor 的属性"></a>Tensor 的属性</h3><p>Tensor 的属性包括形状（shape），数据类型（dtype）和存储的设备（device）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs python">tensor = torch.rand(<span class="hljs-number">3</span>,<span class="hljs-number">4</span>)<br><br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;Shape of tensor: <span class="hljs-subst">&#123;tensor.shape&#125;</span>&quot;</span>)<br>&gt;&gt; Shape of tensor: torch.Size([<span class="hljs-number">3</span>, <span class="hljs-number">4</span>])<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;Datatype of tensor: <span class="hljs-subst">&#123;tensor.dtype&#125;</span>&quot;</span>)<br>&gt;&gt; Datatype of tensor: torch.float32<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;Device tensor is stored on: <span class="hljs-subst">&#123;tensor.device&#125;</span>&quot;</span>)<br>&gt;&gt; Device tensor <span class="hljs-keyword">is</span> stored on: cpu<br></code></pre></td></tr></table></figure>
+
+<h3 id="Tensor-操作"><a href="#Tensor-操作" class="headerlink" title="Tensor 操作"></a>Tensor 操作</h3><p>对 Tensor 的操作有多种，包括转置，索引，切片，数学计算，随机抽样等，更具体的描述<a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/torch.html">在这里</a>，这些操作都可以在 GPU 上运行，查看 GPU 信息的方法：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python">torch.cuda.is_available()<span class="hljs-comment">#cuda是否可用</span><br>&gt;&gt; <span class="hljs-literal">True</span><br>torch.cuda.device_count()<span class="hljs-comment">#返回gpu数量</span><br>&gt;&gt; <span class="hljs-number">1</span><br>torch.cuda.get_device_name(<span class="hljs-number">0</span>)<span class="hljs-comment">#返回gpu名字，设备索引默认从0开始</span><br>&gt;&gt; <span class="hljs-string">&#x27;NVIDIA GeForce GTX 1060&#x27;</span><br>torch.cuda.current_device()<span class="hljs-comment">#返回当前设备索引</span><br>&gt;&gt; <span class="hljs-number">0</span><br>torch.cuda.get_device_capability()<span class="hljs-comment">##查看内存</span><br>&gt;&gt; (<span class="hljs-number">6</span>, <span class="hljs-number">1</span>)<br></code></pre></td></tr></table></figure>
+
+<p>默认情况下 tensor 是在 CPU 上创建的，需要使用 <code>.to</code> 方法将其移到 GPU 上：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">if</span> torch.cuda.is_available():<br>  tensor = tensor.to(<span class="hljs-string">&#x27;cuda&#x27;</span>)<br><br>tensor.device<br>&gt;&gt; device(<span class="hljs-built_in">type</span>=<span class="hljs-string">&#x27;cuda&#x27;</span>, index=<span class="hljs-number">0</span>)<br></code></pre></td></tr></table></figure>
+
+<p>下面是一些对 tensor 操作的实列：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">##索引和切片</span><br>tensor = torch.randn(<span class="hljs-number">4</span>,<span class="hljs-number">4</span>)<br>tensor<br>&gt;&gt; tensor([[-<span class="hljs-number">1.3974</span>,  <span class="hljs-number">0.2943</span>, -<span class="hljs-number">0.5416</span>, -<span class="hljs-number">0.9584</span>],<br>&gt;&gt;         [-<span class="hljs-number">0.5710</span>, -<span class="hljs-number">0.6704</span>, -<span class="hljs-number">0.2144</span>, -<span class="hljs-number">0.8668</span>],<br>&gt;&gt;         [ <span class="hljs-number">0.2884</span>,  <span class="hljs-number">1.0564</span>,  <span class="hljs-number">0.1403</span>, -<span class="hljs-number">0.4693</span>],<br>&gt;&gt;         [-<span class="hljs-number">0.4992</span>,  <span class="hljs-number">0.6969</span>,  <span class="hljs-number">0.1507</span>,  <span class="hljs-number">1.9419</span>]])<br>tensor[<span class="hljs-number">0</span>]<span class="hljs-comment">##第一行</span><br>&gt;&gt; tensor([-<span class="hljs-number">1.3974</span>,  <span class="hljs-number">0.2943</span>, -<span class="hljs-number">0.5416</span>, -<span class="hljs-number">0.9584</span>])<br>tensor[:,<span class="hljs-number">0</span>]<span class="hljs-comment">##第一例</span><br>&gt;&gt; tensor([-<span class="hljs-number">1.3974</span>, -<span class="hljs-number">0.5710</span>,  <span class="hljs-number">0.2884</span>, -<span class="hljs-number">0.4992</span>])<br>tensor[...,-<span class="hljs-number">1</span>]<span class="hljs-comment">##或者tensor[:,-1] 最后一列</span><br>&gt;&gt; tensor([-<span class="hljs-number">0.9584</span>, -<span class="hljs-number">0.8668</span>, -<span class="hljs-number">0.4693</span>,  <span class="hljs-number">1.9419</span>])<br>tensor[:,<span class="hljs-number">1</span>] = <span class="hljs-number">0</span><br>tensor<br><br><span class="hljs-comment">##合并tensor</span><br>&gt;&gt; tensor([[-<span class="hljs-number">1.3974</span>,  <span class="hljs-number">0.0000</span>, -<span class="hljs-number">0.5416</span>, -<span class="hljs-number">0.9584</span>],<br>&gt;&gt;         [-<span class="hljs-number">0.5710</span>,  <span class="hljs-number">0.0000</span>, -<span class="hljs-number">0.2144</span>, -<span class="hljs-number">0.8668</span>],<br>&gt;&gt;         [ <span class="hljs-number">0.2884</span>,  <span class="hljs-number">0.0000</span>,  <span class="hljs-number">0.1403</span>, -<span class="hljs-number">0.4693</span>],<br>&gt;&gt;         [-<span class="hljs-number">0.4992</span>,  <span class="hljs-number">0.0000</span>,  <span class="hljs-number">0.1507</span>,  <span class="hljs-number">1.9419</span>]])<br>t0 = torch.cat([tensor,tensor],dim=<span class="hljs-number">0</span>)<br>t0<br>&gt;&gt; tensor([[-<span class="hljs-number">1.3974</span>,  <span class="hljs-number">0.0000</span>, -<span class="hljs-number">0.5416</span>, -<span class="hljs-number">0.9584</span>],<br>&gt;&gt;         [-<span class="hljs-number">0.5710</span>,  <span class="hljs-number">0.0000</span>, -<span class="hljs-number">0.2144</span>, -<span class="hljs-number">0.8668</span>],<br>&gt;&gt;         [ <span class="hljs-number">0.2884</span>,  <span class="hljs-number">0.0000</span>,  <span class="hljs-number">0.1403</span>, -<span class="hljs-number">0.4693</span>],<br>&gt;&gt;         [-<span class="hljs-number">0.4992</span>,  <span class="hljs-number">0.0000</span>,  <span class="hljs-number">0.1507</span>,  <span class="hljs-number">1.9419</span>],<br>&gt;&gt;         [-<span class="hljs-number">1.3974</span>,  <span class="hljs-number">0.0000</span>, -<span class="hljs-number">0.5416</span>, -<span class="hljs-number">0.9584</span>],<br>&gt;&gt;         [-<span class="hljs-number">0.5710</span>,  <span class="hljs-number">0.0000</span>, -<span class="hljs-number">0.2144</span>, -<span class="hljs-number">0.8668</span>],<br>&gt;&gt;         [ <span class="hljs-number">0.2884</span>,  <span class="hljs-number">0.0000</span>,  <span class="hljs-number">0.1403</span>, -<span class="hljs-number">0.4693</span>],<br>&gt;&gt;         [-<span class="hljs-number">0.4992</span>,  <span class="hljs-number">0.0000</span>,  <span class="hljs-number">0.1507</span>,  <span class="hljs-number">1.9419</span>]])<br>t0.shape<br>&gt;&gt; torch.Size([<span class="hljs-number">8</span>, <span class="hljs-number">4</span>])<br>t1 = torch.cat([tensor,tensor],dim=<span class="hljs-number">1</span>)<br>t1<br>&gt;&gt; tensor([[-<span class="hljs-number">1.3974</span>,  <span class="hljs-number">0.0000</span>, -<span class="hljs-number">0.5416</span>, -<span class="hljs-number">0.9584</span>, -<span class="hljs-number">1.3974</span>,  <span class="hljs-number">0.0000</span>, -<span class="hljs-number">0.5416</span>, -<span class="hljs-number">0.9584</span>],<br>&gt;&gt;         [-<span class="hljs-number">0.5710</span>,  <span class="hljs-number">0.0000</span>, -<span class="hljs-number">0.2144</span>, -<span class="hljs-number">0.8668</span>, -<span class="hljs-number">0.5710</span>,  <span class="hljs-number">0.0000</span>, -<span class="hljs-number">0.2144</span>, -<span class="hljs-number">0.8668</span>],<br>&gt;&gt;         [ <span class="hljs-number">0.2884</span>,  <span class="hljs-number">0.0000</span>,  <span class="hljs-number">0.1403</span>, -<span class="hljs-number">0.4693</span>,  <span class="hljs-number">0.2884</span>,  <span class="hljs-number">0.0000</span>,  <span class="hljs-number">0.1403</span>, -<span class="hljs-number">0.4693</span>],<br>&gt;&gt;         [-<span class="hljs-number">0.4992</span>,  <span class="hljs-number">0.0000</span>,  <span class="hljs-number">0.1507</span>,  <span class="hljs-number">1.9419</span>, -<span class="hljs-number">0.4992</span>,  <span class="hljs-number">0.0000</span>,  <span class="hljs-number">0.1507</span>,  <span class="hljs-number">1.9419</span>]])<br>t1.shape<br>&gt;&gt; torch.Size([<span class="hljs-number">4</span>, <span class="hljs-number">8</span>])<br>t2 = torch.stack([tensor,tensor],dim=<span class="hljs-number">0</span>)<br>t2<br>&gt;&gt; tensor([[[-<span class="hljs-number">1.3974</span>,  <span class="hljs-number">0.0000</span>, -<span class="hljs-number">0.5416</span>, -<span class="hljs-number">0.9584</span>],<br>&gt;&gt;          [-<span class="hljs-number">0.5710</span>,  <span class="hljs-number">0.0000</span>, -<span class="hljs-number">0.2144</span>, -<span class="hljs-number">0.8668</span>],<br>&gt;&gt;          [ <span class="hljs-number">0.2884</span>,  <span class="hljs-number">0.0000</span>,  <span class="hljs-number">0.1403</span>, -<span class="hljs-number">0.4693</span>],<br>&gt;&gt;          [-<span class="hljs-number">0.4992</span>,  <span class="hljs-number">0.0000</span>,  <span class="hljs-number">0.1507</span>,  <span class="hljs-number">1.9419</span>]],<br>&gt;&gt; <br>&gt;&gt;         [[-<span class="hljs-number">1.3974</span>,  <span class="hljs-number">0.0000</span>, -<span class="hljs-number">0.5416</span>, -<span class="hljs-number">0.9584</span>],<br>&gt;&gt;          [-<span class="hljs-number">0.5710</span>,  <span class="hljs-number">0.0000</span>, -<span class="hljs-number">0.2144</span>, -<span class="hljs-number">0.8668</span>],<br>&gt;&gt;          [ <span class="hljs-number">0.2884</span>,  <span class="hljs-number">0.0000</span>,  <span class="hljs-number">0.1403</span>, -<span class="hljs-number">0.4693</span>],<br>&gt;&gt;          [-<span class="hljs-number">0.4992</span>,  <span class="hljs-number">0.0000</span>,  <span class="hljs-number">0.1507</span>,  <span class="hljs-number">1.9419</span>]]])<br>t2.shape<br>&gt;&gt; torch.Size([<span class="hljs-number">2</span>, <span class="hljs-number">4</span>, <span class="hljs-number">4</span>])<br>t3 = torch.stack([tensor,tensor],dim=<span class="hljs-number">1</span>)<br>t3<br>&gt;&gt; tensor([[[-<span class="hljs-number">1.3974</span>,  <span class="hljs-number">0.0000</span>, -<span class="hljs-number">0.5416</span>, -<span class="hljs-number">0.9584</span>],<br>&gt;&gt;          [-<span class="hljs-number">1.3974</span>,  <span class="hljs-number">0.0000</span>, -<span class="hljs-number">0.5416</span>, -<span class="hljs-number">0.9584</span>]],<br>&gt;&gt; <br>&gt;&gt;         [[-<span class="hljs-number">0.5710</span>,  <span class="hljs-number">0.0000</span>, -<span class="hljs-number">0.2144</span>, -<span class="hljs-number">0.8668</span>],<br>&gt;&gt;          [-<span class="hljs-number">0.5710</span>,  <span class="hljs-number">0.0000</span>, -<span class="hljs-number">0.2144</span>, -<span class="hljs-number">0.8668</span>]],<br>&gt;&gt; <br>&gt;&gt;         [[ <span class="hljs-number">0.2884</span>,  <span class="hljs-number">0.0000</span>,  <span class="hljs-number">0.1403</span>, -<span class="hljs-number">0.4693</span>],<br>&gt;&gt;          [ <span class="hljs-number">0.2884</span>,  <span class="hljs-number">0.0000</span>,  <span class="hljs-number">0.1403</span>, -<span class="hljs-number">0.4693</span>]],<br>&gt;&gt; <br>&gt;&gt;         [[-<span class="hljs-number">0.4992</span>,  <span class="hljs-number">0.0000</span>,  <span class="hljs-number">0.1507</span>,  <span class="hljs-number">1.9419</span>],<br>&gt;&gt;          [-<span class="hljs-number">0.4992</span>,  <span class="hljs-number">0.0000</span>,  <span class="hljs-number">0.1507</span>,  <span class="hljs-number">1.9419</span>]]])<br>t3.shape<br>&gt;&gt; torch.Size([<span class="hljs-number">4</span>, <span class="hljs-number">2</span>, <span class="hljs-number">4</span>])<br>t4 = torch.stack([tensor,tensor],dim=<span class="hljs-number">2</span>)<br>t4<br>&gt;&gt; tensor([[[-<span class="hljs-number">1.3974</span>, -<span class="hljs-number">1.3974</span>],<br>&gt;&gt;          [ <span class="hljs-number">0.0000</span>,  <span class="hljs-number">0.0000</span>],<br>&gt;&gt;          [-<span class="hljs-number">0.5416</span>, -<span class="hljs-number">0.5416</span>],<br>&gt;&gt;          [-<span class="hljs-number">0.9584</span>, -<span class="hljs-number">0.9584</span>]],<br>&gt;&gt; <br>&gt;&gt;         [[-<span class="hljs-number">0.5710</span>, -<span class="hljs-number">0.5710</span>],<br>&gt;&gt;          [ <span class="hljs-number">0.0000</span>,  <span class="hljs-number">0.0000</span>],<br>&gt;&gt;          [-<span class="hljs-number">0.2144</span>, -<span class="hljs-number">0.2144</span>],<br>&gt;&gt;          [-<span class="hljs-number">0.8668</span>, -<span class="hljs-number">0.8668</span>]],<br>&gt;&gt; <br>&gt;&gt;         [[ <span class="hljs-number">0.2884</span>,  <span class="hljs-number">0.2884</span>],<br>&gt;&gt;          [ <span class="hljs-number">0.0000</span>,  <span class="hljs-number">0.0000</span>],<br>&gt;&gt;          [ <span class="hljs-number">0.1403</span>,  <span class="hljs-number">0.1403</span>],<br>&gt;&gt;          [-<span class="hljs-number">0.4693</span>, -<span class="hljs-number">0.4693</span>]],<br>&gt;&gt; <br>&gt;&gt;         [[-<span class="hljs-number">0.4992</span>, -<span class="hljs-number">0.4992</span>],<br>&gt;&gt;          [ <span class="hljs-number">0.0000</span>,  <span class="hljs-number">0.0000</span>],<br>&gt;&gt;          [ <span class="hljs-number">0.1507</span>,  <span class="hljs-number">0.1507</span>],<br>&gt;&gt;          [ <span class="hljs-number">1.9419</span>,  <span class="hljs-number">1.9419</span>]]])<br>t4.shape<br>&gt;&gt; torch.Size([<span class="hljs-number">4</span>, <span class="hljs-number">4</span>, <span class="hljs-number">2</span>])<br></code></pre></td></tr></table></figure>
+
+<p>注意 <code>stack</code> 和 <code>cat</code> 的区别：<code>cat</code> 在哪个维度上合并就增加哪个维度的大小，而 <code>stack</code> 则新增一个维度。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">##数学操作</span><br><span class="hljs-comment">###矩阵相乘</span><br>y1 = tensor @ tensor.T<br>y2 = tensor.matmul(tensor.T)<br>y1 == y2<br>&gt;&gt; tensor([[<span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>],<br>&gt;&gt;         [<span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>],<br>&gt;&gt;         [<span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>],<br>&gt;&gt;         [<span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>]])<br>y3 = torch.rand_like(tensor) <span class="hljs-comment">##4*4 * 4*4 = 4*4</span><br>torch.matmul(tensor,tensor.T,out=y3) == y1<br><br><span class="hljs-comment">###按元素相乘</span><br>&gt;&gt; tensor([[<span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>],<br>&gt;&gt;         [<span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>],<br>&gt;&gt;         [<span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>],<br>&gt;&gt;         [<span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>]])<br>z1 = tensor * tensor<br>z2 = tensor.mul(tensor)<br>z1 == z2<br>&gt;&gt; tensor([[<span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>],<br>&gt;&gt;         [<span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>],<br>&gt;&gt;         [<span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>],<br>&gt;&gt;         [<span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>]])<br>z3 = torch.rand_like(tensor)<br>torch.mul(tensor,tensor,out=z3) == z1<br><br><span class="hljs-comment">##单元素tensor可以使用 item 转换为python数值</span><br>&gt;&gt; tensor([[<span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>],<br>&gt;&gt;         [<span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>],<br>&gt;&gt;         [<span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>],<br>&gt;&gt;         [<span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>, <span class="hljs-literal">True</span>]])<br>agg = tensor.<span class="hljs-built_in">sum</span>()<br>agg_item = agg.item()<br>agg_item,<span class="hljs-built_in">type</span>(agg_item)<br><br><span class="hljs-comment">##原位操作 带下划线的函数</span><br>&gt;&gt; (-<span class="hljs-number">2.996830940246582</span>, &lt;<span class="hljs-keyword">class</span> <span class="hljs-string">&#x27;float&#x27;</span>&gt;)<br>tensor = torch.tensor([<span class="hljs-number">1</span>,<span class="hljs-number">2</span>])<br>tensor.add(<span class="hljs-number">4</span>)<br>&gt;&gt; tensor([<span class="hljs-number">5</span>, <span class="hljs-number">6</span>])<br>tensor<br>&gt;&gt; tensor([<span class="hljs-number">1</span>, <span class="hljs-number">2</span>])<br>tensor.add_(<span class="hljs-number">4</span>)<br>&gt;&gt; tensor([<span class="hljs-number">5</span>, <span class="hljs-number">6</span>])<br>tensor<br>&gt;&gt; tensor([<span class="hljs-number">5</span>, <span class="hljs-number">6</span>])<br></code></pre></td></tr></table></figure>
+
+<h3 id="和-Numpy-数组间共享内存"><a href="#和-Numpy-数组间共享内存" class="headerlink" title="和 Numpy 数组间共享内存"></a>和 Numpy 数组间共享内存</h3><p>CPU 和 NumPy 数组上的 tensor 可以共享它们的底层内存位置，改变一个也会改变另一个：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">##Tensor to NumPy array</span><br>t = torch.ones(<span class="hljs-number">5</span>)<br>t<br>&gt;&gt; tensor([<span class="hljs-number">1.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">1.</span>])<br>n = t.numpy()<br>n<br><br><span class="hljs-comment">###tensor 改变 numpy array也会改变</span><br>&gt;&gt; array([<span class="hljs-number">1.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">1.</span>], dtype=float32)<br>t.add_(<span class="hljs-number">1</span>)<br>&gt;&gt; tensor([<span class="hljs-number">2.</span>, <span class="hljs-number">2.</span>, <span class="hljs-number">2.</span>, <span class="hljs-number">2.</span>, <span class="hljs-number">2.</span>])<br>t<br>&gt;&gt; tensor([<span class="hljs-number">2.</span>, <span class="hljs-number">2.</span>, <span class="hljs-number">2.</span>, <span class="hljs-number">2.</span>, <span class="hljs-number">2.</span>])<br>n<br><br><span class="hljs-comment">##NumPy array to Tensor</span><br>&gt;&gt; array([<span class="hljs-number">2.</span>, <span class="hljs-number">2.</span>, <span class="hljs-number">2.</span>, <span class="hljs-number">2.</span>, <span class="hljs-number">2.</span>], dtype=float32)<br>n = np.ones(<span class="hljs-number">5</span>)<br>t = torch.from_numpy(n)<br><br>np.add(n,<span class="hljs-number">1</span>,out=n)<br>&gt;&gt; array([<span class="hljs-number">2.</span>, <span class="hljs-number">2.</span>, <span class="hljs-number">2.</span>, <span class="hljs-number">2.</span>, <span class="hljs-number">2.</span>])<br>n<br>&gt;&gt; array([<span class="hljs-number">2.</span>, <span class="hljs-number">2.</span>, <span class="hljs-number">2.</span>, <span class="hljs-number">2.</span>, <span class="hljs-number">2.</span>])<br>t<br>&gt;&gt; tensor([<span class="hljs-number">2.</span>, <span class="hljs-number">2.</span>, <span class="hljs-number">2.</span>, <span class="hljs-number">2.</span>, <span class="hljs-number">2.</span>], dtype=torch.float64)<br></code></pre></td></tr></table></figure>
+
+<h2 id="数据集和数据载入（DATASETS-amp-DATALOADERS）"><a href="#数据集和数据载入（DATASETS-amp-DATALOADERS）" class="headerlink" title="数据集和数据载入（DATASETS &amp; DATALOADERS）"></a>数据集和数据载入（DATASETS &amp; DATALOADERS）</h2><p>pytorch 提供了两个数据读入和获取的接口：<code>torch.utils.data.DataLoader</code> 和<br><code>torch.utils.data.Dataset</code>；<code>Dataset</code> 存储了样本和对应的标签，<code>DataLoader</code> 封装了一个对 <code>Dataset</code><br>的迭代器，可以方便的获取样本。</p>
+<h3 id="载入数据集"><a href="#载入数据集" class="headerlink" title="载入数据集"></a>载入数据集</h3><p>Pytorch 提供了一些提前已经读入的常用数据集，比如 FashionMNIST；下面是读入 FashionMNIST 数据集的示例：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> torch<br><span class="hljs-keyword">from</span> torch.utils.data <span class="hljs-keyword">import</span> Dataset<br><span class="hljs-keyword">from</span> torchvision <span class="hljs-keyword">import</span> datasets<br><span class="hljs-keyword">from</span> torchvision.transforms <span class="hljs-keyword">import</span> ToTensor<br><span class="hljs-keyword">import</span> matplotlib.pyplot <span class="hljs-keyword">as</span> plt<br><br><br>training_data = datasets.FashionMNIST(<br>    root=<span class="hljs-string">&quot;data&quot;</span>,<br>    train=<span class="hljs-literal">True</span>,<br>    download=<span class="hljs-literal">True</span>,<br>    transform=ToTensor()<br>)<br><br>test_data = datasets.FashionMNIST(<br>    root=<span class="hljs-string">&quot;data&quot;</span>,<br>    train=<span class="hljs-literal">False</span>,<br>    download=<span class="hljs-literal">True</span>,<br>    transform=ToTensor()<br>)<br><br>training_data<br>&gt;&gt; Dataset FashionMNIST<br>&gt;&gt;     Number of datapoints: <span class="hljs-number">60000</span><br>&gt;&gt;     Root location: data<br>&gt;&gt;     Split: Train<br>&gt;&gt;     StandardTransform<br>&gt;&gt; Transform: ToTensor()<br></code></pre></td></tr></table></figure>
+
+<p>主要有以下的参数：</p>
+<ul>
+<li><code>root</code>：训练集&#x2F;测试集存放的位置 </li>
+<li><code>train</code>：是训练集还是测试集</li>
+<li><code>download</code>：当在 <code>root</code> 中找不到数据时是否从网络上下载 </li>
+<li><code>transform</code>（转化样本）&#x2F;<code>target_transform</code>（转化标签）：如何对数据进行转化处理</li>
+</ul>
+<h3 id="迭代和可视化数据集"><a href="#迭代和可视化数据集" class="headerlink" title="迭代和可视化数据集"></a>迭代和可视化数据集</h3><p>我们可以像列表一样索引 <code>Datasets</code>:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><code class="hljs python">labels_map = &#123;<br>    <span class="hljs-number">0</span>: <span class="hljs-string">&quot;T-Shirt&quot;</span>,<br>    <span class="hljs-number">1</span>: <span class="hljs-string">&quot;Trouser&quot;</span>,<br>    <span class="hljs-number">2</span>: <span class="hljs-string">&quot;Pullover&quot;</span>,<br>    <span class="hljs-number">3</span>: <span class="hljs-string">&quot;Dress&quot;</span>,<br>    <span class="hljs-number">4</span>: <span class="hljs-string">&quot;Coat&quot;</span>,<br>    <span class="hljs-number">5</span>: <span class="hljs-string">&quot;Sandal&quot;</span>,<br>    <span class="hljs-number">6</span>: <span class="hljs-string">&quot;Shirt&quot;</span>,<br>    <span class="hljs-number">7</span>: <span class="hljs-string">&quot;Sneaker&quot;</span>,<br>    <span class="hljs-number">8</span>: <span class="hljs-string">&quot;Bag&quot;</span>,<br>    <span class="hljs-number">9</span>: <span class="hljs-string">&quot;Ankle Boot&quot;</span>,<br>&#125;<br>figure = plt.figure(figsize=(<span class="hljs-number">8</span>, <span class="hljs-number">8</span>))<br>cols, rows = <span class="hljs-number">3</span>, <span class="hljs-number">3</span><br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">1</span>, cols * rows + <span class="hljs-number">1</span>):<br>    sample_idx = torch.randint(<span class="hljs-built_in">len</span>(training_data), size=(<span class="hljs-number">1</span>,)).item()<span class="hljs-comment">##随机抽一个图像</span><br>    img, label = training_data[sample_idx]<br>    figure.add_subplot(rows, cols, i)<br>    plt.title(labels_map[label])<br>    plt.axis(<span class="hljs-string">&quot;off&quot;</span>)<br>    plt.imshow(img.squeeze(), cmap=<span class="hljs-string">&quot;gray&quot;</span>)<br>&gt;&gt; &lt;AxesSubplot:&gt;<br>&gt;&gt; Text(<span class="hljs-number">0.5</span>, <span class="hljs-number">1.0</span>, <span class="hljs-string">&#x27;Ankle Boot&#x27;</span>)<br>&gt;&gt; (<span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>)<br>&gt;&gt; &lt;matplotlib.image.AxesImage <span class="hljs-built_in">object</span> at <span class="hljs-number">0x000001CF910C5220</span>&gt;<br>&gt;&gt; &lt;AxesSubplot:&gt;<br>&gt;&gt; Text(<span class="hljs-number">0.5</span>, <span class="hljs-number">1.0</span>, <span class="hljs-string">&#x27;T-Shirt&#x27;</span>)<br>&gt;&gt; (<span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>)<br>&gt;&gt; &lt;matplotlib.image.AxesImage <span class="hljs-built_in">object</span> at <span class="hljs-number">0x000001CF911009A0</span>&gt;<br>&gt;&gt; &lt;AxesSubplot:&gt;<br>&gt;&gt; Text(<span class="hljs-number">0.5</span>, <span class="hljs-number">1.0</span>, <span class="hljs-string">&#x27;Ankle Boot&#x27;</span>)<br>&gt;&gt; (<span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>)<br>&gt;&gt; &lt;matplotlib.image.AxesImage <span class="hljs-built_in">object</span> at <span class="hljs-number">0x000001CF91139160</span>&gt;<br>&gt;&gt; &lt;AxesSubplot:&gt;<br>&gt;&gt; Text(<span class="hljs-number">0.5</span>, <span class="hljs-number">1.0</span>, <span class="hljs-string">&#x27;Trouser&#x27;</span>)<br>&gt;&gt; (<span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>)<br>&gt;&gt; &lt;matplotlib.image.AxesImage <span class="hljs-built_in">object</span> at <span class="hljs-number">0x000001CF911688E0</span>&gt;<br>&gt;&gt; &lt;AxesSubplot:&gt;<br>&gt;&gt; Text(<span class="hljs-number">0.5</span>, <span class="hljs-number">1.0</span>, <span class="hljs-string">&#x27;Pullover&#x27;</span>)<br>&gt;&gt; (<span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>)<br>&gt;&gt; &lt;matplotlib.image.AxesImage <span class="hljs-built_in">object</span> at <span class="hljs-number">0x000001CF911A20A0</span>&gt;<br>&gt;&gt; &lt;AxesSubplot:&gt;<br>&gt;&gt; Text(<span class="hljs-number">0.5</span>, <span class="hljs-number">1.0</span>, <span class="hljs-string">&#x27;Trouser&#x27;</span>)<br>&gt;&gt; (<span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>)<br>&gt;&gt; &lt;matplotlib.image.AxesImage <span class="hljs-built_in">object</span> at <span class="hljs-number">0x000001CF911DDC10</span>&gt;<br>&gt;&gt; &lt;AxesSubplot:&gt;<br>&gt;&gt; Text(<span class="hljs-number">0.5</span>, <span class="hljs-number">1.0</span>, <span class="hljs-string">&#x27;Trouser&#x27;</span>)<br>&gt;&gt; (<span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>)<br>&gt;&gt; &lt;matplotlib.image.AxesImage <span class="hljs-built_in">object</span> at <span class="hljs-number">0x000001CF9121A3D0</span>&gt;<br>&gt;&gt; &lt;AxesSubplot:&gt;<br>&gt;&gt; Text(<span class="hljs-number">0.5</span>, <span class="hljs-number">1.0</span>, <span class="hljs-string">&#x27;Bag&#x27;</span>)<br>&gt;&gt; (<span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>)<br>&gt;&gt; &lt;matplotlib.image.AxesImage <span class="hljs-built_in">object</span> at <span class="hljs-number">0x000001CF9123E790</span>&gt;<br>&gt;&gt; &lt;AxesSubplot:&gt;<br>&gt;&gt; Text(<span class="hljs-number">0.5</span>, <span class="hljs-number">1.0</span>, <span class="hljs-string">&#x27;T-Shirt&#x27;</span>)<br>&gt;&gt; (<span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>)<br>&gt;&gt; &lt;matplotlib.image.AxesImage <span class="hljs-built_in">object</span> at <span class="hljs-number">0x000001CF9126EF10</span>&gt;<br>plt.show()<br></code></pre></td></tr></table></figure>
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/unnamed-chunk-26-1.png" srcset="/img/loading.gif" lazyload width="768" />
+
+<h3 id="创建自定义数据集"><a href="#创建自定义数据集" class="headerlink" title="创建自定义数据集"></a>创建自定义数据集</h3><p>一个自定义的 Dataset 类需要实现 3 个函数：<code>__int__</code>, <code>__len__</code>, 和 <code>__getitem__</code>；下面是自定义的 FashionMNIST 数据集，图片存在 <code>img_dir</code> 目录下，标签存在 <code>annotations_file</code> 文件中：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> os<br><span class="hljs-keyword">import</span> pandas <span class="hljs-keyword">as</span> pd<br><span class="hljs-keyword">from</span> torchvision.io <span class="hljs-keyword">import</span> read_image<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">CustomImageDataset</span>(<span class="hljs-title class_ inherited__">Dataset</span>):<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, annotations_file, img_dir, transform=<span class="hljs-literal">None</span>, target_transform=<span class="hljs-literal">None</span></span>):<br>        self.img_labels = pd.read_csv(annotations_file)<br>        self.img_dir = img_dir<br>        self.transform = transform<br>        self.target_transform = target_transform<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__len__</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-keyword">return</span> <span class="hljs-built_in">len</span>(self.img_labels)<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__getitem__</span>(<span class="hljs-params">self, idx</span>):<br>        img_path = os.path.join(self.img_dir, self.img_labels.iloc[idx, <span class="hljs-number">0</span>])<span class="hljs-comment">##annotations_file第一列是文件名</span><br>        image = read_image(img_path)<span class="hljs-comment">##read_image 可以自动转tensor</span><br>        label = self.img_labels.iloc[idx, <span class="hljs-number">1</span>]<span class="hljs-comment">##第二列是标签</span><br>        <span class="hljs-keyword">if</span> self.transform:<br>            image = self.transform(image)<br>        <span class="hljs-keyword">if</span> self.target_transform:<br>            label = self.target_transform(label)<br>        <span class="hljs-keyword">return</span> image, label<br></code></pre></td></tr></table></figure>
+
+<p><code>__init__</code> 函数会在实例化 Dataset 对象时运行，初始化包含图片和标签的路径以及对样本和标签的转化，这里标签数据第一列为样本数据的文件名，第二列是对应的标签，类似：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python">tshirt1.jpg, <span class="hljs-number">0</span><br>tshirt2.jpg, <span class="hljs-number">0</span><br>......<br>ankleboot999.jpg, <span class="hljs-number">9</span><br></code></pre></td></tr></table></figure>
+
+<p><code>__len__</code> 函数返回的是数据集的大小（有多少个样本）；<code>__getitem__</code> 函数读入并返回给定索引（idx）的样本。</p>
+<h3 id="使用-DataLoader-准备训练的数据"><a href="#使用-DataLoader-准备训练的数据" class="headerlink" title="使用 DataLoader 准备训练的数据"></a>使用 <code>DataLoader</code> 准备训练的数据</h3><p><code>Dataset</code> 每次只能返回一个样本的数据和标签，但是在训练模型时，通常的情况是：一次性传入一个<br><code>minibatch</code> 的样本，在一个 <code>epoch</code> 结束时打乱数据再进行下一个 <code>epoch</code>来减少模型的过拟合，<code>DataLoader</code> 可以简化这个流程：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> torch.utils.data <span class="hljs-keyword">import</span> DataLoader<br><br>train_dataloader = DataLoader(training_data, batch_size=<span class="hljs-number">64</span>, shuffle=<span class="hljs-literal">True</span>)<br>test_dataloader = DataLoader(test_data, batch_size=<span class="hljs-number">64</span>, shuffle=<span class="hljs-literal">True</span>)<br></code></pre></td></tr></table></figure>
+
+<h4 id="通过-DatatLoader-进行迭代"><a href="#通过-DatatLoader-进行迭代" class="headerlink" title="通过 DatatLoader 进行迭代"></a>通过 <code>DatatLoader</code> 进行迭代</h4><p>通过 <code>DatatLoader</code> 载入数据后就可以对该数据进行迭代，每一次迭代会返回大小为 <code>batch_size</code> 的训练样本和相应的标签，<code>shuffle=True</code> 表示在迭代完整个数据后（一个 epoch）对数据进行打乱再进行下一个 epoch：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># Display image and label.</span><br>train_features, train_labels = <span class="hljs-built_in">next</span>(<span class="hljs-built_in">iter</span>(train_dataloader))<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;Feature batch shape: <span class="hljs-subst">&#123;train_features.size()&#125;</span>&quot;</span>)<br>&gt;&gt; Feature batch shape: torch.Size([<span class="hljs-number">64</span>, <span class="hljs-number">1</span>, <span class="hljs-number">28</span>, <span class="hljs-number">28</span>])<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;Labels batch shape: <span class="hljs-subst">&#123;train_labels.size()&#125;</span>&quot;</span>)<br>&gt;&gt; Labels batch shape: torch.Size([<span class="hljs-number">64</span>])<br>img = train_features[<span class="hljs-number">0</span>].squeeze()<br>label = train_labels[<span class="hljs-number">0</span>]<br>plt.imshow(img, cmap=<span class="hljs-string">&quot;gray&quot;</span>)<br>&gt;&gt; &lt;matplotlib.image.AxesImage <span class="hljs-built_in">object</span> at <span class="hljs-number">0x000001CF9241E5E0</span>&gt;<br>plt.show()<br></code></pre></td></tr></table></figure>
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/unnamed-chunk-26-3.png" srcset="/img/loading.gif" lazyload width="768" />
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;Label: <span class="hljs-subst">&#123;label&#125;</span>&quot;</span>)<br>&gt;&gt; Label: <span class="hljs-number">3</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="转化（Transforms）"><a href="#转化（Transforms）" class="headerlink" title="转化（Transforms）"></a>转化（Transforms）</h2><p>大多情况下，数据要经过一定的预处理才可以作为模型的输入进行训练，这个过程就是 transform。下面以FashionMNIST 数据集的 transform 为例：</p>
+<p>FashionMNIST 的特征是 PIL 格式的，而标签是整数，因此需要将特征转化为 tensor，标签转化为 one-hot 编码的 tensor，分别使用 torchvision.transforms 中的 <code>ToTensor</code> 和 <code>Lambda</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> torch<br><span class="hljs-keyword">from</span> torchvision <span class="hljs-keyword">import</span> datasets<br><span class="hljs-keyword">from</span> torchvision.transforms <span class="hljs-keyword">import</span> ToTensor, Lambda<br><br>ds = datasets.FashionMNIST(<br>    root=<span class="hljs-string">&quot;data&quot;</span>,<br>    train=<span class="hljs-literal">True</span>,<br>    download=<span class="hljs-literal">True</span>,<br>    transform=ToTensor(),<br>    target_transform=Lambda(<span class="hljs-keyword">lambda</span> y: torch.zeros(<span class="hljs-number">10</span>, dtype=torch.<span class="hljs-built_in">float</span>).scatter_(<span class="hljs-number">0</span>, torch.tensor(y), value=<span class="hljs-number">1</span>))<br>)<br></code></pre></td></tr></table></figure>
+
+<p><code>ToTensor</code> 除了转化 tensor 外，还将图像的像素值缩放到 [0,1] 上；<code>Lambda</code> 函数可以用 lambda 匿名函数作为参数进行操作。</p>
+<h2 id="构建神经网络模型"><a href="#构建神经网络模型" class="headerlink" title="构建神经网络模型"></a>构建神经网络模型</h2><p>神经网络是由许多层或者叫模块构成的，<code>torch.nn</code> 提供了所有构建神经网络所需的组件，在 Pytorch 中每一个模块都是 <code>nn.Module</code> 的子类，并且一个深度网络自身就是一个由其他模块组成的模块。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> os<br><span class="hljs-keyword">import</span> torch<br><span class="hljs-keyword">from</span> torch <span class="hljs-keyword">import</span> nn<br><span class="hljs-keyword">from</span> torch.utils.data <span class="hljs-keyword">import</span> DataLoader<br><span class="hljs-keyword">from</span> torchvision <span class="hljs-keyword">import</span> datasets, transforms<br><br><span class="hljs-comment">##查看是否有GPU</span><br>device = <span class="hljs-string">&#x27;cuda&#x27;</span> <span class="hljs-keyword">if</span> torch.cuda.is_available() <span class="hljs-keyword">else</span> <span class="hljs-string">&#x27;cpu&#x27;</span><br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;Using &#123;&#125; device&#x27;</span>.<span class="hljs-built_in">format</span>(device))<br>&gt;&gt; Using cuda device<br></code></pre></td></tr></table></figure>
+
+<h3 id="定义类"><a href="#定义类" class="headerlink" title="定义类"></a>定义类</h3><p>通过继承 <code>nn.Module</code> 来定义我们自己的神经网络，在 <code>__init__</code> 中初始化神经网络层，每一个 <code>nn.Module</code> 的亚类都需要实现对输入数据的 <code>forward</code> 方法：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">NeuralNetwork</span>(nn.Module):<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-built_in">super</span>(NeuralNetwork, self).__init__()<span class="hljs-comment">##调用父类中的初始化</span><br>        self.flatten = nn.Flatten()<br>        self.linear_relu_stack = nn.Sequential(<br>            nn.Linear(<span class="hljs-number">28</span>*<span class="hljs-number">28</span>, <span class="hljs-number">512</span>),<br>            nn.ReLU(),<br>            nn.Linear(<span class="hljs-number">512</span>, <span class="hljs-number">512</span>),<br>            nn.ReLU(),<br>            nn.Linear(<span class="hljs-number">512</span>, <span class="hljs-number">10</span>),<br>            nn.ReLU()<br>        )<span class="hljs-comment">##神经网络架构</span><br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">forward</span>(<span class="hljs-params">self, x</span>):<span class="hljs-comment">##前向传播操作</span><br>        x = self.flatten(x)<br>        logits = self.linear_relu_stack(x)<br>        <span class="hljs-keyword">return</span> logits<br>      <br></code></pre></td></tr></table></figure>
+
+<p>接下来就需要创建一个 <code>NeuralNetwork</code> 实例，并将其移到 <code>device</code> 上（如果有GPU）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs python">model = NeuralNetwork().to(device)<br><span class="hljs-built_in">print</span>(model)<br>&gt;&gt; NeuralNetwork(<br>&gt;&gt;   (flatten): Flatten(start_dim=<span class="hljs-number">1</span>, end_dim=-<span class="hljs-number">1</span>)<br>&gt;&gt;   (linear_relu_stack): Sequential(<br>&gt;&gt;     (<span class="hljs-number">0</span>): Linear(in_features=<span class="hljs-number">784</span>, out_features=<span class="hljs-number">512</span>, bias=<span class="hljs-literal">True</span>)<br>&gt;&gt;     (<span class="hljs-number">1</span>): ReLU()<br>&gt;&gt;     (<span class="hljs-number">2</span>): Linear(in_features=<span class="hljs-number">512</span>, out_features=<span class="hljs-number">512</span>, bias=<span class="hljs-literal">True</span>)<br>&gt;&gt;     (<span class="hljs-number">3</span>): ReLU()<br>&gt;&gt;     (<span class="hljs-number">4</span>): Linear(in_features=<span class="hljs-number">512</span>, out_features=<span class="hljs-number">10</span>, bias=<span class="hljs-literal">True</span>)<br>&gt;&gt;     (<span class="hljs-number">5</span>): ReLU()<br>&gt;&gt;   )<br>&gt;&gt; )<br></code></pre></td></tr></table></figure>
+
+<p>当将数据传入模型时，模型会自动执行 <code>forword</code> 方法，上面的模型返回的是 1*10 的 tensor，表示每类的原始预测值，需要使用 <code>nn.Softmax</code> 将其转化为概率值：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs python">X = torch.rand(<span class="hljs-number">1</span>, <span class="hljs-number">28</span>, <span class="hljs-number">28</span>, device=device)<br>logits = model(X)<br>pred_probab = nn.Softmax(dim=<span class="hljs-number">1</span>)(logits) <span class="hljs-comment">##在维度1 上使得所有值和为1</span><br>y_pred = pred_probab.argmax(dim=<span class="hljs-number">1</span>)<span class="hljs-comment">##在维度1上找到最大值的索引</span><br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;Predicted class: <span class="hljs-subst">&#123;y_pred&#125;</span>&quot;</span>)<br>&gt;&gt; Predicted <span class="hljs-keyword">class</span>: tensor([<span class="hljs-number">7</span>], device=<span class="hljs-string">&#x27;cuda:0&#x27;</span>)<br></code></pre></td></tr></table></figure>
+
+<h3 id="模型层"><a href="#模型层" class="headerlink" title="模型层"></a>模型层</h3><p>现在我们来看一下上面构建的模型的各个层，以大小为 3 的 minibatch 为例：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">input_image = torch.rand(<span class="hljs-number">3</span>,<span class="hljs-number">28</span>,<span class="hljs-number">28</span>)<br><span class="hljs-built_in">print</span>(input_image.size())<br>&gt;&gt; torch.Size([<span class="hljs-number">3</span>, <span class="hljs-number">28</span>, <span class="hljs-number">28</span>])<br></code></pre></td></tr></table></figure>
+
+<p>首先是 <code>nn.Flatten</code> 层，将每一个二维的 28*28 的图片转化为连续的 784 个像素值（batch 维度维持不变，也就是只对每个图片操作）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python">flatten = nn.Flatten()<br>flat_image = flatten(input_image)<br><span class="hljs-built_in">print</span>(flat_image.size())<br>&gt;&gt; torch.Size([<span class="hljs-number">3</span>, <span class="hljs-number">784</span>])<br></code></pre></td></tr></table></figure>
+
+<p>接着是线性层，对输入数据使用其存储的权重和偏置进行线性转化：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python">layer1 = nn.Linear(in_features=<span class="hljs-number">28</span>*<span class="hljs-number">28</span>, out_features=<span class="hljs-number">20</span>)<br>hidden1 = layer1(flat_image)<br><span class="hljs-built_in">print</span>(hidden1.size())<br>&gt;&gt; torch.Size([<span class="hljs-number">3</span>, <span class="hljs-number">20</span>])<br></code></pre></td></tr></table></figure>
+
+<p>然后是非线性的激活函数，这里使用的是 <code>nn.ReLu</code> :</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;Before ReLU: <span class="hljs-subst">&#123;hidden1&#125;</span>\n\n&quot;</span>)<br>&gt;&gt; Before ReLU: tensor([[ <span class="hljs-number">0.0523</span>, -<span class="hljs-number">0.1083</span>,  <span class="hljs-number">0.2858</span>,  <span class="hljs-number">0.1203</span>,  <span class="hljs-number">0.0551</span>, -<span class="hljs-number">0.1314</span>,  <span class="hljs-number">0.3096</span>, -<span class="hljs-number">0.5887</span>,<br>&gt;&gt;          -<span class="hljs-number">0.6137</span>,  <span class="hljs-number">0.2250</span>, -<span class="hljs-number">0.0138</span>, -<span class="hljs-number">0.3449</span>,  <span class="hljs-number">0.1049</span>, -<span class="hljs-number">0.3507</span>, -<span class="hljs-number">0.1467</span>,  <span class="hljs-number">0.1690</span>,<br>&gt;&gt;          -<span class="hljs-number">0.1686</span>,  <span class="hljs-number">0.5031</span>, -<span class="hljs-number">0.7191</span>,  <span class="hljs-number">0.0630</span>],<br>&gt;&gt;         [-<span class="hljs-number">0.0315</span>, -<span class="hljs-number">0.2344</span>,  <span class="hljs-number">0.2104</span>,  <span class="hljs-number">0.0119</span>,  <span class="hljs-number">0.3207</span>,  <span class="hljs-number">0.1959</span>,  <span class="hljs-number">0.2715</span>, -<span class="hljs-number">0.3763</span>,<br>&gt;&gt;          -<span class="hljs-number">0.6927</span>,  <span class="hljs-number">0.1180</span>,  <span class="hljs-number">0.0326</span>, -<span class="hljs-number">0.0591</span>,  <span class="hljs-number">0.1555</span>, -<span class="hljs-number">0.3325</span>, -<span class="hljs-number">0.0991</span>,  <span class="hljs-number">0.0538</span>,<br>&gt;&gt;          -<span class="hljs-number">0.0325</span>,  <span class="hljs-number">0.0603</span>, -<span class="hljs-number">0.6778</span>,  <span class="hljs-number">0.1263</span>],<br>&gt;&gt;         [ <span class="hljs-number">0.0870</span>, -<span class="hljs-number">0.0861</span>,  <span class="hljs-number">0.1531</span>,  <span class="hljs-number">0.1096</span>,  <span class="hljs-number">0.1239</span>,  <span class="hljs-number">0.2402</span>, -<span class="hljs-number">0.0497</span>, -<span class="hljs-number">0.3567</span>,<br>&gt;&gt;          -<span class="hljs-number">0.4211</span>,  <span class="hljs-number">0.0606</span>, -<span class="hljs-number">0.0933</span>, -<span class="hljs-number">0.2004</span>, -<span class="hljs-number">0.1123</span>, -<span class="hljs-number">0.1470</span>, -<span class="hljs-number">0.1331</span>, -<span class="hljs-number">0.2290</span>,<br>&gt;&gt;          -<span class="hljs-number">0.2558</span>,  <span class="hljs-number">0.2107</span>, -<span class="hljs-number">0.5791</span>,  <span class="hljs-number">0.3495</span>]], grad_fn=&lt;AddmmBackward&gt;)<br>hidden1 = nn.ReLU()(hidden1)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;After ReLU: <span class="hljs-subst">&#123;hidden1&#125;</span>&quot;</span>)<br>&gt;&gt; After ReLU: tensor([[<span class="hljs-number">0.0523</span>, <span class="hljs-number">0.0000</span>, <span class="hljs-number">0.2858</span>, <span class="hljs-number">0.1203</span>, <span class="hljs-number">0.0551</span>, <span class="hljs-number">0.0000</span>, <span class="hljs-number">0.3096</span>, <span class="hljs-number">0.0000</span>, <span class="hljs-number">0.0000</span>,<br>&gt;&gt;          <span class="hljs-number">0.2250</span>, <span class="hljs-number">0.0000</span>, <span class="hljs-number">0.0000</span>, <span class="hljs-number">0.1049</span>, <span class="hljs-number">0.0000</span>, <span class="hljs-number">0.0000</span>, <span class="hljs-number">0.1690</span>, <span class="hljs-number">0.0000</span>, <span class="hljs-number">0.5031</span>,<br>&gt;&gt;          <span class="hljs-number">0.0000</span>, <span class="hljs-number">0.0630</span>],<br>&gt;&gt;         [<span class="hljs-number">0.0000</span>, <span class="hljs-number">0.0000</span>, <span class="hljs-number">0.2104</span>, <span class="hljs-number">0.0119</span>, <span class="hljs-number">0.3207</span>, <span class="hljs-number">0.1959</span>, <span class="hljs-number">0.2715</span>, <span class="hljs-number">0.0000</span>, <span class="hljs-number">0.0000</span>,<br>&gt;&gt;          <span class="hljs-number">0.1180</span>, <span class="hljs-number">0.0326</span>, <span class="hljs-number">0.0000</span>, <span class="hljs-number">0.1555</span>, <span class="hljs-number">0.0000</span>, <span class="hljs-number">0.0000</span>, <span class="hljs-number">0.0538</span>, <span class="hljs-number">0.0000</span>, <span class="hljs-number">0.0603</span>,<br>&gt;&gt;          <span class="hljs-number">0.0000</span>, <span class="hljs-number">0.1263</span>],<br>&gt;&gt;         [<span class="hljs-number">0.0870</span>, <span class="hljs-number">0.0000</span>, <span class="hljs-number">0.1531</span>, <span class="hljs-number">0.1096</span>, <span class="hljs-number">0.1239</span>, <span class="hljs-number">0.2402</span>, <span class="hljs-number">0.0000</span>, <span class="hljs-number">0.0000</span>, <span class="hljs-number">0.0000</span>,<br>&gt;&gt;          <span class="hljs-number">0.0606</span>, <span class="hljs-number">0.0000</span>, <span class="hljs-number">0.0000</span>, <span class="hljs-number">0.0000</span>, <span class="hljs-number">0.0000</span>, <span class="hljs-number">0.0000</span>, <span class="hljs-number">0.0000</span>, <span class="hljs-number">0.0000</span>, <span class="hljs-number">0.2107</span>,<br>&gt;&gt;          <span class="hljs-number">0.0000</span>, <span class="hljs-number">0.3495</span>]], grad_fn=&lt;ReluBackward0&gt;)<br></code></pre></td></tr></table></figure>
+
+<p>最后这些线性层和非线性层以一定的顺序被放在 <code>nn.Sequential</code> 容器中：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs python">seq_modules = nn.Sequential(<br>    flatten,<br>    layer1,<br>    nn.ReLU(),<br>    nn.Linear(<span class="hljs-number">20</span>, <span class="hljs-number">10</span>)<br>)<br>input_image = torch.rand(<span class="hljs-number">3</span>,<span class="hljs-number">28</span>,<span class="hljs-number">28</span>)<br>logits = seq_modules(input_image)<br></code></pre></td></tr></table></figure>
+
+<h3 id="模型参数"><a href="#模型参数" class="headerlink" title="模型参数"></a>模型参数</h3><p><code>nn.Module</code> 的子类会自动追踪在模型对象中定义的所有字段，并且可以使用 <code>parameters()</code> 和 <code>named_parameters()</code> 方法来获取模型的参数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Model structure: &quot;</span>, model, <span class="hljs-string">&quot;\n\n&quot;</span>)<br>&gt;&gt; Model structure:  NeuralNetwork(<br>&gt;&gt;   (flatten): Flatten(start_dim=<span class="hljs-number">1</span>, end_dim=-<span class="hljs-number">1</span>)<br>&gt;&gt;   (linear_relu_stack): Sequential(<br>&gt;&gt;     (<span class="hljs-number">0</span>): Linear(in_features=<span class="hljs-number">784</span>, out_features=<span class="hljs-number">512</span>, bias=<span class="hljs-literal">True</span>)<br>&gt;&gt;     (<span class="hljs-number">1</span>): ReLU()<br>&gt;&gt;     (<span class="hljs-number">2</span>): Linear(in_features=<span class="hljs-number">512</span>, out_features=<span class="hljs-number">512</span>, bias=<span class="hljs-literal">True</span>)<br>&gt;&gt;     (<span class="hljs-number">3</span>): ReLU()<br>&gt;&gt;     (<span class="hljs-number">4</span>): Linear(in_features=<span class="hljs-number">512</span>, out_features=<span class="hljs-number">10</span>, bias=<span class="hljs-literal">True</span>)<br>&gt;&gt;     (<span class="hljs-number">5</span>): ReLU()<br>&gt;&gt;   )<br>&gt;&gt; )<br><span class="hljs-keyword">for</span> name, param <span class="hljs-keyword">in</span> model.named_parameters():<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;Layer: <span class="hljs-subst">&#123;name&#125;</span> | Size: <span class="hljs-subst">&#123;param.size()&#125;</span> | Values : <span class="hljs-subst">&#123;param[:<span class="hljs-number">2</span>]&#125;</span> \n&quot;</span>)<br>&gt;&gt; Layer: linear_relu_stack<span class="hljs-number">.0</span>.weight | Size: torch.Size([<span class="hljs-number">512</span>, <span class="hljs-number">784</span>]) | Values : tensor([[-<span class="hljs-number">0.0164</span>, -<span class="hljs-number">0.0271</span>, -<span class="hljs-number">0.0350</span>,  ...,  <span class="hljs-number">0.0217</span>,  <span class="hljs-number">0.0249</span>,  <span class="hljs-number">0.0046</span>],<br>&gt;&gt;         [ <span class="hljs-number">0.0234</span>, -<span class="hljs-number">0.0130</span>, -<span class="hljs-number">0.0324</span>,  ...,  <span class="hljs-number">0.0176</span>,  <span class="hljs-number">0.0005</span>, -<span class="hljs-number">0.0079</span>]],<br>&gt;&gt;        device=<span class="hljs-string">&#x27;cuda:0&#x27;</span>, grad_fn=&lt;SliceBackward&gt;) <br>&gt;&gt; <br>&gt;&gt; Layer: linear_relu_stack<span class="hljs-number">.0</span>.bias | Size: torch.Size([<span class="hljs-number">512</span>]) | Values : tensor([-<span class="hljs-number">0.0350</span>, -<span class="hljs-number">0.0063</span>], device=<span class="hljs-string">&#x27;cuda:0&#x27;</span>, grad_fn=&lt;SliceBackward&gt;) <br>&gt;&gt; <br>&gt;&gt; Layer: linear_relu_stack<span class="hljs-number">.2</span>.weight | Size: torch.Size([<span class="hljs-number">512</span>, <span class="hljs-number">512</span>]) | Values : tensor([[ <span class="hljs-number">0.0141</span>,  <span class="hljs-number">0.0015</span>,  <span class="hljs-number">0.0391</span>,  ..., -<span class="hljs-number">0.0240</span>,  <span class="hljs-number">0.0044</span>, -<span class="hljs-number">0.0037</span>],<br>&gt;&gt;         [ <span class="hljs-number">0.0396</span>,  <span class="hljs-number">0.0321</span>, -<span class="hljs-number">0.0239</span>,  ..., -<span class="hljs-number">0.0277</span>, -<span class="hljs-number">0.0196</span>, -<span class="hljs-number">0.0199</span>]],<br>&gt;&gt;        device=<span class="hljs-string">&#x27;cuda:0&#x27;</span>, grad_fn=&lt;SliceBackward&gt;) <br>&gt;&gt; <br>&gt;&gt; Layer: linear_relu_stack<span class="hljs-number">.2</span>.bias | Size: torch.Size([<span class="hljs-number">512</span>]) | Values : tensor([<span class="hljs-number">0.0313</span>, <span class="hljs-number">0.0194</span>], device=<span class="hljs-string">&#x27;cuda:0&#x27;</span>, grad_fn=&lt;SliceBackward&gt;) <br>&gt;&gt; <br>&gt;&gt; Layer: linear_relu_stack<span class="hljs-number">.4</span>.weight | Size: torch.Size([<span class="hljs-number">10</span>, <span class="hljs-number">512</span>]) | Values : tensor([[ <span class="hljs-number">0.0255</span>, -<span class="hljs-number">0.0100</span>,  <span class="hljs-number">0.0135</span>,  ..., -<span class="hljs-number">0.0103</span>, -<span class="hljs-number">0.0210</span>,  <span class="hljs-number">0.0378</span>],<br>&gt;&gt;         [-<span class="hljs-number">0.0066</span>,  <span class="hljs-number">0.0378</span>,  <span class="hljs-number">0.0037</span>,  ...,  <span class="hljs-number">0.0146</span>,  <span class="hljs-number">0.0090</span>, -<span class="hljs-number">0.0166</span>]],<br>&gt;&gt;        device=<span class="hljs-string">&#x27;cuda:0&#x27;</span>, grad_fn=&lt;SliceBackward&gt;) <br>&gt;&gt; <br>&gt;&gt; Layer: linear_relu_stack<span class="hljs-number">.4</span>.bias | Size: torch.Size([<span class="hljs-number">10</span>]) | Values : tensor([<span class="hljs-number">0.0075</span>, <span class="hljs-number">0.0051</span>], device=<span class="hljs-string">&#x27;cuda:0&#x27;</span>, grad_fn=&lt;SliceBackward&gt;)<br></code></pre></td></tr></table></figure>
+
+<h2 id="自动微分"><a href="#自动微分" class="headerlink" title="自动微分"></a>自动微分</h2><p>Pytorch 内置的微分引擎是 <code>torch.autograd</code> ,支持任何计算图的梯度自动计算，下面是一个简单的单层神经网络的例子，输入是 <code>x</code>，输出是 <code>y</code>，参数是 <code>w</code> 和 <code>b</code>:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> torch<br><br>x = torch.ones(<span class="hljs-number">5</span>)  <span class="hljs-comment"># 输入</span><br>y = torch.zeros(<span class="hljs-number">3</span>)  <span class="hljs-comment"># 标签</span><br>w = torch.randn(<span class="hljs-number">5</span>, <span class="hljs-number">3</span>, requires_grad=<span class="hljs-literal">True</span>)<span class="hljs-comment">##权重</span><br>b = torch.randn(<span class="hljs-number">3</span>, requires_grad=<span class="hljs-literal">True</span>)<span class="hljs-comment">##偏置</span><br>z = torch.matmul(x, w)+b<span class="hljs-comment">##前向传播</span><br>loss = torch.nn.functional.binary_cross_entropy_with_logits(z, y)<span class="hljs-comment">##损失函数</span><br></code></pre></td></tr></table></figure>
+
+<p>这个神经网络的计算图如下：</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/comp-graph.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>w</code> 和 <code>b</code> 是我们需要优化的参数，所以要计算损失函数对这些参数的梯度，因此这些参数的 <code>requires_grad</code> 就要设置为 True（也可以在创建 tensor 后使用 <code>x.requires_grad_(True)</code> 来设置）。</p>
+<p>在计算图中每个节点的计算（如加&#x2F;减，乘等）的函数都是 <code>Funtion</code> 类的一个对象，这个对象知道如何进行前向运算以及在反向传播中如何计算导数（比如在反向传播中加法节点将上游的值原封不动地输出到下游，见<a target="_blank" rel="noopener" href="https://wutaoblog.com.cn/2021/01/03/deep_learning/">深度学习入门</a>），这些函数对象被存储在 tensor 的 <code>grad_fn</code> 属性中：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;Gradient function for z =&#x27;</span>,z.grad_fn)<br>&gt;&gt; Gradient function <span class="hljs-keyword">for</span> z = &lt;AddBackward0 <span class="hljs-built_in">object</span> at <span class="hljs-number">0x000001CF917BE730</span>&gt;<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;Gradient function for loss =&#x27;</span>, loss.grad_fn)<br>&gt;&gt; Gradient function <span class="hljs-keyword">for</span> loss = &lt;BinaryCrossEntropyWithLogitsBackward <span class="hljs-built_in">object</span> at <span class="hljs-number">0x000001CF917BE7F0</span>&gt;<br></code></pre></td></tr></table></figure>
+
+<p>那么怎么计算损失函数对这些参数的梯度呢？在 Pytorch 中很简单：只需要调用<code>loss.backward</code> 就可以了：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs python">loss.backward()<br><span class="hljs-built_in">print</span>(w.grad)<br>&gt;&gt; tensor([[<span class="hljs-number">0.3163</span>, <span class="hljs-number">0.3305</span>, <span class="hljs-number">0.0401</span>],<br>&gt;&gt;         [<span class="hljs-number">0.3163</span>, <span class="hljs-number">0.3305</span>, <span class="hljs-number">0.0401</span>],<br>&gt;&gt;         [<span class="hljs-number">0.3163</span>, <span class="hljs-number">0.3305</span>, <span class="hljs-number">0.0401</span>],<br>&gt;&gt;         [<span class="hljs-number">0.3163</span>, <span class="hljs-number">0.3305</span>, <span class="hljs-number">0.0401</span>],<br>&gt;&gt;         [<span class="hljs-number">0.3163</span>, <span class="hljs-number">0.3305</span>, <span class="hljs-number">0.0401</span>]])<br><span class="hljs-built_in">print</span>(b.grad)<br>&gt;&gt; tensor([<span class="hljs-number">0.3163</span>, <span class="hljs-number">0.3305</span>, <span class="hljs-number">0.0401</span>])<br></code></pre></td></tr></table></figure>
+
+<p>需要注意的是：在给定的计算图上只能使用 <code>backward</code> 进行一次梯度计算：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">loss.backward()<br>&gt;&gt; Error <span class="hljs-keyword">in</span> py_call_impl(<span class="hljs-built_in">callable</span>, dots$args, dots$keywords): RuntimeError: Trying to backward through the graph a second time (<span class="hljs-keyword">or</span> directly access saved variables after they have already been freed). Saved intermediate values of the graph are freed when you call .backward() <span class="hljs-keyword">or</span> autograd.grad(). Specify retain_graph=<span class="hljs-literal">True</span> <span class="hljs-keyword">if</span> you need to backward through the graph a second time <span class="hljs-keyword">or</span> <span class="hljs-keyword">if</span> you need to access saved variables after calling backward.<br></code></pre></td></tr></table></figure>
+
+<p>如果想要在相同的计算图上多次调用 <code>backward</code>，就需要在第一次调用 <code>backward</code> 时加上 <code>retain_graph=True</code> 的选项：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs python">x = torch.ones(<span class="hljs-number">5</span>)  <span class="hljs-comment"># 输入</span><br>y = torch.zeros(<span class="hljs-number">3</span>)  <span class="hljs-comment"># 标签</span><br>w = torch.randn(<span class="hljs-number">5</span>, <span class="hljs-number">3</span>, requires_grad=<span class="hljs-literal">True</span>)<span class="hljs-comment">##权重</span><br>b = torch.randn(<span class="hljs-number">3</span>, requires_grad=<span class="hljs-literal">True</span>)<span class="hljs-comment">##偏置</span><br>z = torch.matmul(x, w)+b<span class="hljs-comment">##前向传播</span><br>loss = torch.nn.functional.binary_cross_entropy_with_logits(z, y)<br>loss.backward(retain_graph=<span class="hljs-literal">True</span>)<br>loss.backward(retain_graph=<span class="hljs-literal">True</span>)<br></code></pre></td></tr></table></figure>
+
+<p>另外，当第二次调用 <code>backward</code> 时，梯度会累加，因此要计算正确的梯度需要将之前的梯度清零（在实际训练模型中，<code>optimizer</code> 会帮我们干这件事）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-built_in">print</span>(w.grad)<br>&gt;&gt; tensor([[<span class="hljs-number">0.5726</span>, <span class="hljs-number">0.2259</span>, <span class="hljs-number">0.6100</span>],<br>&gt;&gt;         [<span class="hljs-number">0.5726</span>, <span class="hljs-number">0.2259</span>, <span class="hljs-number">0.6100</span>],<br>&gt;&gt;         [<span class="hljs-number">0.5726</span>, <span class="hljs-number">0.2259</span>, <span class="hljs-number">0.6100</span>],<br>&gt;&gt;         [<span class="hljs-number">0.5726</span>, <span class="hljs-number">0.2259</span>, <span class="hljs-number">0.6100</span>],<br>&gt;&gt;         [<span class="hljs-number">0.5726</span>, <span class="hljs-number">0.2259</span>, <span class="hljs-number">0.6100</span>]])<br>loss.backward(retain_graph=<span class="hljs-literal">True</span>)<br><span class="hljs-built_in">print</span>(w.grad)<br>&gt;&gt; tensor([[<span class="hljs-number">0.8589</span>, <span class="hljs-number">0.3389</span>, <span class="hljs-number">0.9150</span>],<br>&gt;&gt;         [<span class="hljs-number">0.8589</span>, <span class="hljs-number">0.3389</span>, <span class="hljs-number">0.9150</span>],<br>&gt;&gt;         [<span class="hljs-number">0.8589</span>, <span class="hljs-number">0.3389</span>, <span class="hljs-number">0.9150</span>],<br>&gt;&gt;         [<span class="hljs-number">0.8589</span>, <span class="hljs-number">0.3389</span>, <span class="hljs-number">0.9150</span>],<br>&gt;&gt;         [<span class="hljs-number">0.8589</span>, <span class="hljs-number">0.3389</span>, <span class="hljs-number">0.9150</span>]])<br></code></pre></td></tr></table></figure>
+
+<p>设置了 <code>requires_grad=True</code> 的参数默认都会记录其计算图的路径并支持梯度的计算，但是有些时候我们并不想要这个属性，比如已经训练好了模型，想要将其应用到测试集上就只需要前向的计算就行了（不追踪梯度的前向运算更有效率）；可以将计算代码放到 <code>torch.no_grad()</code> 块中就会停止追踪计算：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python">z = torch.matmul(x, w)+b<br><span class="hljs-built_in">print</span>(z.requires_grad)<br>&gt;&gt; <span class="hljs-literal">True</span><br><span class="hljs-keyword">with</span> torch.no_grad():<br>    z = torch.matmul(x, w)+b<br><span class="hljs-built_in">print</span>(z.requires_grad)<br>&gt;&gt; <span class="hljs-literal">False</span><br></code></pre></td></tr></table></figure>
+
+<p>另一种选择是对 tensor 使用 <code>detach</code> 方法：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs python">z = torch.matmul(x, w)+b<br><span class="hljs-built_in">print</span>(z.requires_grad)<br>&gt;&gt; <span class="hljs-literal">True</span><br>z_det = z.detach()<br><span class="hljs-built_in">print</span>(z_det.requires_grad)<br>&gt;&gt; <span class="hljs-literal">False</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="优化模型参数"><a href="#优化模型参数" class="headerlink" title="优化模型参数"></a>优化模型参数</h2><p>通过前面的步骤，我们已经有了数据和模型，接下来就要通过在数据上优化参数来训练（train），验证（validate）和检测（test）。</p>
+<h3 id="超参数"><a href="#超参数" class="headerlink" title="超参数"></a>超参数</h3><p>超参数是可以控制模型优化过程的可调节的参数，超参数是需要人为调整的，不能从数据中自动学习得到，不同的超参数会影响模型训练和收敛速度（关于超参数调试见后面）；这里定义 3 个超参数：数据迭代的次数（epoch），批量大小（batch size）和学习率（learning rate）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">learning_rate = <span class="hljs-number">1e-3</span><br>batch_size = <span class="hljs-number">64</span><br>epochs = <span class="hljs-number">5</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="优化循环"><a href="#优化循环" class="headerlink" title="优化循环"></a>优化循环</h3><p>当我们设置好了超参数之后就可以通过一个循环来训练优化模型，每一个优化循环的迭代称为一个 epoch；每一个 epoch 都有两个步骤：</p>
+<ul>
+<li>训练循环：对整个训练数据进行迭代，优化参数</li>
+<li>验证步骤：在验证集上进行测试，检查模型性能是否提升</li>
+</ul>
+<p>下面是这两个部分的代码实现：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">train_loop</span>(<span class="hljs-params">dataloader, model, loss_fn, optimizer</span>):<br>    size = <span class="hljs-built_in">len</span>(dataloader.dataset)<br>    <span class="hljs-keyword">for</span> batch, (X, y) <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(dataloader):<br>        X = X.to(device)<br>        y = y.to(device)<br>        <span class="hljs-comment"># Compute prediction and loss</span><br>        pred = model(X)<br>        loss = loss_fn(pred, y)<br><br>        <span class="hljs-comment"># Backpropagation</span><br>        optimizer.zero_grad()<span class="hljs-comment">##每次优化前要清零，不然梯度会累加</span><br>        loss.backward()<span class="hljs-comment">##反向传播，计算梯度</span><br>        optimizer.step()<span class="hljs-comment">##更新参数</span><br><br>        <span class="hljs-keyword">if</span> batch % <span class="hljs-number">100</span> == <span class="hljs-number">0</span>:<span class="hljs-comment">##每100个batch打印一下信息</span><br>            loss, current = loss.item(), batch * <span class="hljs-built_in">len</span>(X)<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;loss: <span class="hljs-subst">&#123;loss:&gt;7f&#125;</span>  [<span class="hljs-subst">&#123;current:&gt;5d&#125;</span>/<span class="hljs-subst">&#123;size:&gt;5d&#125;</span>]&quot;</span>)<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">test_loop</span>(<span class="hljs-params">dataloader, model, loss_fn</span>):<br>    size = <span class="hljs-built_in">len</span>(dataloader.dataset)<br>    num_batches = <span class="hljs-built_in">len</span>(dataloader)<br>    test_loss, correct = <span class="hljs-number">0</span>, <span class="hljs-number">0</span><br><br>    <span class="hljs-keyword">with</span> torch.no_grad():<br>        <span class="hljs-keyword">for</span> X, y <span class="hljs-keyword">in</span> dataloader:<br>            X = X.to(device)<br>            y = y.to(device)<br>            pred = model(X)<br>            test_loss += loss_fn(pred, y).item()<span class="hljs-comment">##每个batch的loss相加</span><br>            correct += (pred.argmax(<span class="hljs-number">1</span>) == y).<span class="hljs-built_in">type</span>(torch.<span class="hljs-built_in">float</span>).<span class="hljs-built_in">sum</span>().item()<br><br>    test_loss /= num_batches<span class="hljs-comment">##取平均</span><br>    correct /= size<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;Test Error: \n Accuracy: <span class="hljs-subst">&#123;(<span class="hljs-number">100</span>*correct):&gt;<span class="hljs-number">0.1</span>f&#125;</span>%, Avg loss: <span class="hljs-subst">&#123;test_loss:&gt;8f&#125;</span> \n&quot;</span>)<br></code></pre></td></tr></table></figure>
+
+<p>由于这是个多分类问题，所以损失函数选择交叉熵损失：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># Initialize the loss function</span><br>loss_fn = nn.CrossEntropyLoss()<br></code></pre></td></tr></table></figure>
+
+<p>优化器选择随机梯度下降（SGD）：<code>torch.optim.SGD</code>，需要提供要优化的模型参数和学习率：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)<br></code></pre></td></tr></table></figure>
+
+<p>接下来就可以训练了：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br></pre></td><td class="code"><pre><code class="hljs python">epochs = <span class="hljs-number">10</span><br><span class="hljs-keyword">for</span> t <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(epochs):<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;Epoch <span class="hljs-subst">&#123;t+<span class="hljs-number">1</span>&#125;</span>\n-------------------------------&quot;</span>)<br>    train_loop(train_dataloader, model, loss_fn, optimizer)<br>    test_loop(test_dataloader, model, loss_fn)<br>&gt;&gt; Epoch <span class="hljs-number">1</span><br>&gt;&gt; -------------------------------<br>&gt;&gt; loss: <span class="hljs-number">2.306926</span>  [    <span class="hljs-number">0</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">2.297123</span>  [ <span class="hljs-number">6400</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">2.291222</span>  [<span class="hljs-number">12800</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">2.284291</span>  [<span class="hljs-number">19200</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">2.266220</span>  [<span class="hljs-number">25600</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">2.266951</span>  [<span class="hljs-number">32000</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">2.247694</span>  [<span class="hljs-number">38400</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">2.223377</span>  [<span class="hljs-number">44800</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">2.203081</span>  [<span class="hljs-number">51200</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">2.202767</span>  [<span class="hljs-number">57600</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; Test Error: <br>&gt;&gt;  Accuracy: <span class="hljs-number">52.3</span>%, Avg loss: <span class="hljs-number">2.200312</span> <br>&gt;&gt; <br>&gt;&gt; Epoch <span class="hljs-number">2</span><br>&gt;&gt; -------------------------------<br>&gt;&gt; loss: <span class="hljs-number">2.203640</span>  [    <span class="hljs-number">0</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">2.207824</span>  [ <span class="hljs-number">6400</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">2.145190</span>  [<span class="hljs-number">12800</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">2.144182</span>  [<span class="hljs-number">19200</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">2.161016</span>  [<span class="hljs-number">25600</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">2.118622</span>  [<span class="hljs-number">32000</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">2.149072</span>  [<span class="hljs-number">38400</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">2.105933</span>  [<span class="hljs-number">44800</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">2.085976</span>  [<span class="hljs-number">51200</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.978651</span>  [<span class="hljs-number">57600</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; Test Error: <br>&gt;&gt;  Accuracy: <span class="hljs-number">53.3</span>%, Avg loss: <span class="hljs-number">2.048256</span> <br>&gt;&gt; <br>&gt;&gt; Epoch <span class="hljs-number">3</span><br>&gt;&gt; -------------------------------<br>&gt;&gt; loss: <span class="hljs-number">2.045080</span>  [    <span class="hljs-number">0</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">2.035074</span>  [ <span class="hljs-number">6400</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.953637</span>  [<span class="hljs-number">12800</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.910037</span>  [<span class="hljs-number">19200</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">2.020058</span>  [<span class="hljs-number">25600</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.988134</span>  [<span class="hljs-number">32000</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">2.021082</span>  [<span class="hljs-number">38400</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.978815</span>  [<span class="hljs-number">44800</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.801217</span>  [<span class="hljs-number">51200</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.817578</span>  [<span class="hljs-number">57600</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; Test Error: <br>&gt;&gt;  Accuracy: <span class="hljs-number">55.2</span>%, Avg loss: <span class="hljs-number">1.841357</span> <br>&gt;&gt; <br>&gt;&gt; Epoch <span class="hljs-number">4</span><br>&gt;&gt; -------------------------------<br>&gt;&gt; loss: <span class="hljs-number">1.791114</span>  [    <span class="hljs-number">0</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.774542</span>  [ <span class="hljs-number">6400</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.920177</span>  [<span class="hljs-number">12800</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.805154</span>  [<span class="hljs-number">19200</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.847489</span>  [<span class="hljs-number">25600</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.698445</span>  [<span class="hljs-number">32000</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.779692</span>  [<span class="hljs-number">38400</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.583771</span>  [<span class="hljs-number">44800</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.377952</span>  [<span class="hljs-number">51200</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.661736</span>  [<span class="hljs-number">57600</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; Test Error: <br>&gt;&gt;  Accuracy: <span class="hljs-number">57.9</span>%, Avg loss: <span class="hljs-number">1.632644</span> <br>&gt;&gt; <br>&gt;&gt; Epoch <span class="hljs-number">5</span><br>&gt;&gt; -------------------------------<br>&gt;&gt; loss: <span class="hljs-number">1.743047</span>  [    <span class="hljs-number">0</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.628604</span>  [ <span class="hljs-number">6400</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.772539</span>  [<span class="hljs-number">12800</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.722733</span>  [<span class="hljs-number">19200</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.706047</span>  [<span class="hljs-number">25600</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.456557</span>  [<span class="hljs-number">32000</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.356653</span>  [<span class="hljs-number">38400</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.608426</span>  [<span class="hljs-number">44800</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.525072</span>  [<span class="hljs-number">51200</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.375649</span>  [<span class="hljs-number">57600</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; Test Error: <br>&gt;&gt;  Accuracy: <span class="hljs-number">60.2</span>%, Avg loss: <span class="hljs-number">1.468750</span> <br>&gt;&gt; <br>&gt;&gt; Epoch <span class="hljs-number">6</span><br>&gt;&gt; -------------------------------<br>&gt;&gt; loss: <span class="hljs-number">1.545837</span>  [    <span class="hljs-number">0</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.597548</span>  [ <span class="hljs-number">6400</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.662136</span>  [<span class="hljs-number">12800</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.390470</span>  [<span class="hljs-number">19200</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.871670</span>  [<span class="hljs-number">25600</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.244840</span>  [<span class="hljs-number">32000</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.359863</span>  [<span class="hljs-number">38400</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.307094</span>  [<span class="hljs-number">44800</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.402576</span>  [<span class="hljs-number">51200</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.375248</span>  [<span class="hljs-number">57600</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; Test Error: <br>&gt;&gt;  Accuracy: <span class="hljs-number">60.9</span>%, Avg loss: <span class="hljs-number">1.345098</span> <br>&gt;&gt; <br>&gt;&gt; Epoch <span class="hljs-number">7</span><br>&gt;&gt; -------------------------------<br>&gt;&gt; loss: <span class="hljs-number">1.422368</span>  [    <span class="hljs-number">0</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.434490</span>  [ <span class="hljs-number">6400</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.286219</span>  [<span class="hljs-number">12800</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.351996</span>  [<span class="hljs-number">19200</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.357883</span>  [<span class="hljs-number">25600</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.230724</span>  [<span class="hljs-number">32000</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.410875</span>  [<span class="hljs-number">38400</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.027635</span>  [<span class="hljs-number">44800</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.359871</span>  [<span class="hljs-number">51200</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.364859</span>  [<span class="hljs-number">57600</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; Test Error: <br>&gt;&gt;  Accuracy: <span class="hljs-number">61.9</span>%, Avg loss: <span class="hljs-number">1.255917</span> <br>&gt;&gt; <br>&gt;&gt; Epoch <span class="hljs-number">8</span><br>&gt;&gt; -------------------------------<br>&gt;&gt; loss: <span class="hljs-number">1.235713</span>  [    <span class="hljs-number">0</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.044062</span>  [ <span class="hljs-number">6400</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.162858</span>  [<span class="hljs-number">12800</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.220107</span>  [<span class="hljs-number">19200</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.291631</span>  [<span class="hljs-number">25600</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">0.966984</span>  [<span class="hljs-number">32000</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.059310</span>  [<span class="hljs-number">38400</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.355727</span>  [<span class="hljs-number">44800</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.302162</span>  [<span class="hljs-number">51200</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.444875</span>  [<span class="hljs-number">57600</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; Test Error: <br>&gt;&gt;  Accuracy: <span class="hljs-number">63.0</span>%, Avg loss: <span class="hljs-number">1.195613</span> <br>&gt;&gt; <br>&gt;&gt; Epoch <span class="hljs-number">9</span><br>&gt;&gt; -------------------------------<br>&gt;&gt; loss: <span class="hljs-number">0.986301</span>  [    <span class="hljs-number">0</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.011468</span>  [ <span class="hljs-number">6400</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.181765</span>  [<span class="hljs-number">12800</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.380456</span>  [<span class="hljs-number">19200</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.152233</span>  [<span class="hljs-number">25600</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.146567</span>  [<span class="hljs-number">32000</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.255965</span>  [<span class="hljs-number">38400</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.355518</span>  [<span class="hljs-number">44800</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.049245</span>  [<span class="hljs-number">51200</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.128320</span>  [<span class="hljs-number">57600</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; Test Error: <br>&gt;&gt;  Accuracy: <span class="hljs-number">63.6</span>%, Avg loss: <span class="hljs-number">1.151816</span> <br>&gt;&gt; <br>&gt;&gt; Epoch <span class="hljs-number">10</span><br>&gt;&gt; -------------------------------<br>&gt;&gt; loss: <span class="hljs-number">1.179832</span>  [    <span class="hljs-number">0</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.270620</span>  [ <span class="hljs-number">6400</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.147824</span>  [<span class="hljs-number">12800</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.163859</span>  [<span class="hljs-number">19200</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.227105</span>  [<span class="hljs-number">25600</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.204818</span>  [<span class="hljs-number">32000</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.303981</span>  [<span class="hljs-number">38400</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.032624</span>  [<span class="hljs-number">44800</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.061971</span>  [<span class="hljs-number">51200</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; loss: <span class="hljs-number">1.084357</span>  [<span class="hljs-number">57600</span>/<span class="hljs-number">60000</span>]<br>&gt;&gt; Test Error: <br>&gt;&gt;  Accuracy: <span class="hljs-number">64.3</span>%, Avg loss: <span class="hljs-number">1.116730</span><br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Done!&quot;</span>)<br>&gt;&gt; Done!<br></code></pre></td></tr></table></figure>
+
+<h2 id="储存和读取模型"><a href="#储存和读取模型" class="headerlink" title="储存和读取模型"></a>储存和读取模型</h2><p>第一种方法就是使用 <code>torch.save</code> 存储模型的参数（state_dict）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">for</span> name, param <span class="hljs-keyword">in</span> model.named_parameters():<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;Layer: <span class="hljs-subst">&#123;name&#125;</span> | Size: <span class="hljs-subst">&#123;param.size()&#125;</span> | Values : <span class="hljs-subst">&#123;param[:<span class="hljs-number">2</span>]&#125;</span> \n&quot;</span>)<br>&gt;&gt; Layer: linear_relu_stack<span class="hljs-number">.0</span>.weight | Size: torch.Size([<span class="hljs-number">512</span>, <span class="hljs-number">784</span>]) | Values : tensor([[-<span class="hljs-number">0.0164</span>, -<span class="hljs-number">0.0271</span>, -<span class="hljs-number">0.0350</span>,  ...,  <span class="hljs-number">0.0217</span>,  <span class="hljs-number">0.0249</span>,  <span class="hljs-number">0.0046</span>],<br>&gt;&gt;         [ <span class="hljs-number">0.0234</span>, -<span class="hljs-number">0.0130</span>, -<span class="hljs-number">0.0324</span>,  ...,  <span class="hljs-number">0.0173</span>,  <span class="hljs-number">0.0004</span>, -<span class="hljs-number">0.0079</span>]],<br>&gt;&gt;        device=<span class="hljs-string">&#x27;cuda:0&#x27;</span>, grad_fn=&lt;SliceBackward&gt;) <br>&gt;&gt; <br>&gt;&gt; Layer: linear_relu_stack<span class="hljs-number">.0</span>.bias | Size: torch.Size([<span class="hljs-number">512</span>]) | Values : tensor([-<span class="hljs-number">0.0350</span>, -<span class="hljs-number">0.0040</span>], device=<span class="hljs-string">&#x27;cuda:0&#x27;</span>, grad_fn=&lt;SliceBackward&gt;) <br>&gt;&gt; <br>&gt;&gt; Layer: linear_relu_stack<span class="hljs-number">.2</span>.weight | Size: torch.Size([<span class="hljs-number">512</span>, <span class="hljs-number">512</span>]) | Values : tensor([[ <span class="hljs-number">0.0141</span>,  <span class="hljs-number">0.0018</span>,  <span class="hljs-number">0.0393</span>,  ..., -<span class="hljs-number">0.0243</span>,  <span class="hljs-number">0.0044</span>, -<span class="hljs-number">0.0037</span>],<br>&gt;&gt;         [ <span class="hljs-number">0.0396</span>,  <span class="hljs-number">0.0318</span>, -<span class="hljs-number">0.0239</span>,  ..., -<span class="hljs-number">0.0278</span>, -<span class="hljs-number">0.0201</span>, -<span class="hljs-number">0.0202</span>]],<br>&gt;&gt;        device=<span class="hljs-string">&#x27;cuda:0&#x27;</span>, grad_fn=&lt;SliceBackward&gt;) <br>&gt;&gt; <br>&gt;&gt; Layer: linear_relu_stack<span class="hljs-number">.2</span>.bias | Size: torch.Size([<span class="hljs-number">512</span>]) | Values : tensor([<span class="hljs-number">0.0341</span>, <span class="hljs-number">0.0185</span>], device=<span class="hljs-string">&#x27;cuda:0&#x27;</span>, grad_fn=&lt;SliceBackward&gt;) <br>&gt;&gt; <br>&gt;&gt; Layer: linear_relu_stack<span class="hljs-number">.4</span>.weight | Size: torch.Size([<span class="hljs-number">10</span>, <span class="hljs-number">512</span>]) | Values : tensor([[ <span class="hljs-number">0.0248</span>, -<span class="hljs-number">0.0103</span>,  <span class="hljs-number">0.0497</span>,  ..., -<span class="hljs-number">0.0248</span>, -<span class="hljs-number">0.0431</span>,  <span class="hljs-number">0.0532</span>],<br>&gt;&gt;         [-<span class="hljs-number">0.0075</span>,  <span class="hljs-number">0.0374</span>, -<span class="hljs-number">0.0252</span>,  ...,  <span class="hljs-number">0.0573</span>,  <span class="hljs-number">0.0476</span>, -<span class="hljs-number">0.0564</span>]],<br>&gt;&gt;        device=<span class="hljs-string">&#x27;cuda:0&#x27;</span>, grad_fn=&lt;SliceBackward&gt;) <br>&gt;&gt; <br>&gt;&gt; Layer: linear_relu_stack<span class="hljs-number">.4</span>.bias | Size: torch.Size([<span class="hljs-number">10</span>]) | Values : tensor([<span class="hljs-number">0.0304</span>, <span class="hljs-number">0.0557</span>], device=<span class="hljs-string">&#x27;cuda:0&#x27;</span>, grad_fn=&lt;SliceBackward&gt;)<br>torch.save(model.state_dict(), <span class="hljs-string">&#x27;model_weights.pth&#x27;</span>)<br></code></pre></td></tr></table></figure>
+
+<p>在载入模型的时候需要先创建一个相同模型的实例，然后在使用<br><code>load_state_dict()</code> 方法载入模型的参数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><code class="hljs python">model = NeuralNetwork()<br><span class="hljs-keyword">for</span> name, param <span class="hljs-keyword">in</span> model.named_parameters():<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;Layer: <span class="hljs-subst">&#123;name&#125;</span> | Size: <span class="hljs-subst">&#123;param.size()&#125;</span> | Values : <span class="hljs-subst">&#123;param[:<span class="hljs-number">2</span>]&#125;</span> \n&quot;</span>)<br>    <br>&gt;&gt; Layer: linear_relu_stack<span class="hljs-number">.0</span>.weight | Size: torch.Size([<span class="hljs-number">512</span>, <span class="hljs-number">784</span>]) | Values : tensor([[ <span class="hljs-number">0.0238</span>, -<span class="hljs-number">0.0081</span>,  <span class="hljs-number">0.0160</span>,  ..., -<span class="hljs-number">0.0083</span>, -<span class="hljs-number">0.0010</span>, -<span class="hljs-number">0.0024</span>],<br>&gt;&gt;         [ <span class="hljs-number">0.0100</span>,  <span class="hljs-number">0.0321</span>, -<span class="hljs-number">0.0217</span>,  ...,  <span class="hljs-number">0.0226</span>, -<span class="hljs-number">0.0264</span>,  <span class="hljs-number">0.0076</span>]],<br>&gt;&gt;        grad_fn=&lt;SliceBackward&gt;) <br>&gt;&gt; <br>&gt;&gt; Layer: linear_relu_stack<span class="hljs-number">.0</span>.bias | Size: torch.Size([<span class="hljs-number">512</span>]) | Values : tensor([-<span class="hljs-number">0.0054</span>,  <span class="hljs-number">0.0092</span>], grad_fn=&lt;SliceBackward&gt;) <br>&gt;&gt; <br>&gt;&gt; Layer: linear_relu_stack<span class="hljs-number">.2</span>.weight | Size: torch.Size([<span class="hljs-number">512</span>, <span class="hljs-number">512</span>]) | Values : tensor([[-<span class="hljs-number">0.0226</span>,  <span class="hljs-number">0.0203</span>, -<span class="hljs-number">0.0223</span>,  ...,  <span class="hljs-number">0.0067</span>, -<span class="hljs-number">0.0291</span>, -<span class="hljs-number">0.0129</span>],<br>&gt;&gt;         [-<span class="hljs-number">0.0428</span>,  <span class="hljs-number">0.0410</span>, -<span class="hljs-number">0.0325</span>,  ...,  <span class="hljs-number">0.0424</span>,  <span class="hljs-number">0.0010</span>, -<span class="hljs-number">0.0367</span>]],<br>&gt;&gt;        grad_fn=&lt;SliceBackward&gt;) <br>&gt;&gt; <br>&gt;&gt; Layer: linear_relu_stack<span class="hljs-number">.2</span>.bias | Size: torch.Size([<span class="hljs-number">512</span>]) | Values : tensor([ <span class="hljs-number">0.0299</span>, -<span class="hljs-number">0.0382</span>], grad_fn=&lt;SliceBackward&gt;) <br>&gt;&gt; <br>&gt;&gt; Layer: linear_relu_stack<span class="hljs-number">.4</span>.weight | Size: torch.Size([<span class="hljs-number">10</span>, <span class="hljs-number">512</span>]) | Values : tensor([[ <span class="hljs-number">0.0154</span>, -<span class="hljs-number">0.0093</span>,  <span class="hljs-number">0.0043</span>,  ...,  <span class="hljs-number">0.0269</span>,  <span class="hljs-number">0.0015</span>,  <span class="hljs-number">0.0145</span>],<br>&gt;&gt;         [-<span class="hljs-number">0.0316</span>, -<span class="hljs-number">0.0201</span>, -<span class="hljs-number">0.0111</span>,  ..., -<span class="hljs-number">0.0192</span>, -<span class="hljs-number">0.0140</span>, -<span class="hljs-number">0.0011</span>]],<br>&gt;&gt;        grad_fn=&lt;SliceBackward&gt;) <br>&gt;&gt; <br>&gt;&gt; Layer: linear_relu_stack<span class="hljs-number">.4</span>.bias | Size: torch.Size([<span class="hljs-number">10</span>]) | Values : tensor([-<span class="hljs-number">0.0373</span>, -<span class="hljs-number">0.0201</span>], grad_fn=&lt;SliceBackward&gt;)<br>            <br>model.load_state_dict(torch.load(<span class="hljs-string">&#x27;model_weights.pth&#x27;</span>))<br>&gt;&gt; &lt;All keys matched successfully&gt;<br><br><span class="hljs-keyword">for</span> name, param <span class="hljs-keyword">in</span> model.named_parameters():<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;Layer: <span class="hljs-subst">&#123;name&#125;</span> | Size: <span class="hljs-subst">&#123;param.size()&#125;</span> | Values : <span class="hljs-subst">&#123;param[:<span class="hljs-number">2</span>]&#125;</span> \n&quot;</span>)<br>&gt;&gt; Layer: linear_relu_stack<span class="hljs-number">.0</span>.weight | Size: torch.Size([<span class="hljs-number">512</span>, <span class="hljs-number">784</span>]) | Values : tensor([[-<span class="hljs-number">0.0164</span>, -<span class="hljs-number">0.0271</span>, -<span class="hljs-number">0.0350</span>,  ...,  <span class="hljs-number">0.0217</span>,  <span class="hljs-number">0.0249</span>,  <span class="hljs-number">0.0046</span>],<br>&gt;&gt;         [ <span class="hljs-number">0.0234</span>, -<span class="hljs-number">0.0130</span>, -<span class="hljs-number">0.0324</span>,  ...,  <span class="hljs-number">0.0173</span>,  <span class="hljs-number">0.0004</span>, -<span class="hljs-number">0.0079</span>]],<br>&gt;&gt;        grad_fn=&lt;SliceBackward&gt;) <br>&gt;&gt; <br>&gt;&gt; Layer: linear_relu_stack<span class="hljs-number">.0</span>.bias | Size: torch.Size([<span class="hljs-number">512</span>]) | Values : tensor([-<span class="hljs-number">0.0350</span>, -<span class="hljs-number">0.0040</span>], grad_fn=&lt;SliceBackward&gt;) <br>&gt;&gt; <br>&gt;&gt; Layer: linear_relu_stack<span class="hljs-number">.2</span>.weight | Size: torch.Size([<span class="hljs-number">512</span>, <span class="hljs-number">512</span>]) | Values : tensor([[ <span class="hljs-number">0.0141</span>,  <span class="hljs-number">0.0018</span>,  <span class="hljs-number">0.0393</span>,  ..., -<span class="hljs-number">0.0243</span>,  <span class="hljs-number">0.0044</span>, -<span class="hljs-number">0.0037</span>],<br>&gt;&gt;         [ <span class="hljs-number">0.0396</span>,  <span class="hljs-number">0.0318</span>, -<span class="hljs-number">0.0239</span>,  ..., -<span class="hljs-number">0.0278</span>, -<span class="hljs-number">0.0201</span>, -<span class="hljs-number">0.0202</span>]],<br>&gt;&gt;        grad_fn=&lt;SliceBackward&gt;) <br>&gt;&gt; <br>&gt;&gt; Layer: linear_relu_stack<span class="hljs-number">.2</span>.bias | Size: torch.Size([<span class="hljs-number">512</span>]) | Values : tensor([<span class="hljs-number">0.0341</span>, <span class="hljs-number">0.0185</span>], grad_fn=&lt;SliceBackward&gt;) <br>&gt;&gt; <br>&gt;&gt; Layer: linear_relu_stack<span class="hljs-number">.4</span>.weight | Size: torch.Size([<span class="hljs-number">10</span>, <span class="hljs-number">512</span>]) | Values : tensor([[ <span class="hljs-number">0.0248</span>, -<span class="hljs-number">0.0103</span>,  <span class="hljs-number">0.0497</span>,  ..., -<span class="hljs-number">0.0248</span>, -<span class="hljs-number">0.0431</span>,  <span class="hljs-number">0.0532</span>],<br>&gt;&gt;         [-<span class="hljs-number">0.0075</span>,  <span class="hljs-number">0.0374</span>, -<span class="hljs-number">0.0252</span>,  ...,  <span class="hljs-number">0.0573</span>,  <span class="hljs-number">0.0476</span>, -<span class="hljs-number">0.0564</span>]],<br>&gt;&gt;        grad_fn=&lt;SliceBackward&gt;) <br>&gt;&gt; <br>&gt;&gt; Layer: linear_relu_stack<span class="hljs-number">.4</span>.bias | Size: torch.Size([<span class="hljs-number">10</span>]) | Values : tensor([<span class="hljs-number">0.0304</span>, <span class="hljs-number">0.0557</span>], grad_fn=&lt;SliceBackward&gt;)<br></code></pre></td></tr></table></figure>
+
+<p>注意：如果我们要在测试集进行计算，需要先 <code>model.eval()</code> 转换为评价模型而不是训练模式（在训练与测试中有些设置不一样，比如 dropout 是在训练中使用，防止模型过拟合，但是如果在评价中也使用 dropout，会造成结果的不稳定）。</p>
+<p>另一种方法是直接使用 <code>torch.save</code> 和 <code>torch.load</code> 来存储和读入模型（使用了 python 的 pickle 模块）。</p>
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" class="category-chain-item">深度学习</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E7%BC%96%E7%A8%8B/">#编程</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Pytorch 基础</div>
+      <div>http://example.com/2021/07/21/pytorch_tutorial/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Wu Tao</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2021年7月21日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/08/05/linux_tips/" title="Linux &amp; R Tips">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Linux &amp; R Tips</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/07/15/mastering_shiny_part2/" title="Shiny基础-2">
+                        <span class="hidden-mobile">Shiny基础-2</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="waline"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#waline', function() {
+      Fluid.utils.createCssLink('https://cdn.jsdelivr.net/npm/@waline/client@0.14.8/dist/waline.min.css')
+      Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/@waline/client@0.14.8/dist/waline.min.js', function() {
+        var options = Object.assign(
+          {"serverURL":"https://comments-flax.vercel.app","path":"window.location.pathname","meta":["nick","mail","link"],"requiredMeta":["nick"],"lang":"zh-CN","emoji":["https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo"],"dark":"html[data-user-color-scheme=\"dark\"]","wordLimit":0,"pageSize":10},
+          {
+            el: '#waline',
+            path: window.location.pathname
+          }
+        )
+        Waline.init(options);
+        Fluid.utils.waitElementVisible('#waline .vcontent', () => {
+          var imgSelector = '#waline .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/tocbot@4.12.2/dist/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        MathJax = {
+          tex    : {
+            inlineMath: { '[+]': [['$', '$']] }
+          },
+          loader : {
+            
+          },
+          options: {
+            renderActions: {
+              findScript    : [10, doc => {
+                document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                  const display = !!node.type.match(/; *mode=display/);
+                  const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                  const text = document.createTextNode('');
+                  node.parentNode.replaceChild(text, node);
+                  math.start = { node: text, delim: '', n: 0 };
+                  math.end = { node: text, delim: '', n: 0 };
+                  doc.math.push(math);
+                });
+              }, '', false],
+              insertedScript: [200, () => {
+                document.querySelectorAll('mjx-container').forEach(node => {
+                  let target = node.parentNode;
+                  if (target.nodeName.toLowerCase() === 'li') {
+                    target.parentNode.classList.add('has-jax');
+                  }
+                });
+              }, '', false]
+            }
+          }
+        };
+      </script>
+    
+
+  <script  src="https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

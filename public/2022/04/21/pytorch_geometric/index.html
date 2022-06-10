@@ -1,0 +1,960 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=light>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/DNA.png">
+  <link rel="icon" href="/img/DNA.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Wu Tao">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Pytorch geometric 学习及实践">
+<meta property="og:type" content="article">
+<meta property="og:title" content="利用 Pytorch geometric 构建图神经网络">
+<meta property="og:url" content="http://example.com/2022/04/21/pytorch_geometric/index.html">
+<meta property="og:site_name" content="wutao&#39;s blog">
+<meta property="og:description" content="Pytorch geometric 学习及实践">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/pyg2.png">
+<meta property="article:published_time" content="2022-04-21T11:14:18.000Z">
+<meta property="article:modified_time" content="2022-05-22T00:11:31.439Z">
+<meta property="article:author" content="Wu Tao">
+<meta property="article:tag" content="深度学习">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/img/pyg2.png">
+  
+  
+  
+  <title>利用 Pytorch geometric 构建图神经网络 - wutao&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.1","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"R","line_number":true,"lib":"highlightjs","highlightjs":{"style":"Stackoverflow Light","style_dark":"light"},"prismjs":{"style":"default","preprocess":true}},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"A5lchRnum84Yumu5pVOSoVN8-MdYXbMMI","app_key":"runF3Mxw7648v64CISxiqMs8","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>wutao&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="利用 Pytorch geometric 构建图神经网络"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        Wu Tao
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-04-21 19:14" pubdate>
+          2022年4月21日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          22k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          188 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">利用 Pytorch geometric 构建图神经网络</h1>
+            
+            <div class="markdown-body">
+              
+              <p>Pytorch geometric 学习及实践</p>
+<span id="more"></span>
+
+<h2 id="安装-Pytorch-geometric"><a href="#安装-Pytorch-geometric" class="headerlink" title="安装 Pytorch geometric"></a>安装 Pytorch geometric</h2><p>需要先安装 <code>pytorch</code> ，检查安装的版本：</p>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs haskell"><span class="hljs-keyword">import</span> torch<br><span class="hljs-keyword">import</span> os<br><span class="hljs-title">print</span>(<span class="hljs-string">&quot;PyTorch has version &#123;&#125;&quot;</span>.format(torch.__version__))<br><span class="hljs-meta">#PyTorch has version 1.10.1+cu102</span><br></code></pre></td></tr></table></figure>
+
+<p>根据 Pytorch 和 cuda 的版本选择相应的 <code>torch-scatter</code> 和 <code>torch-sparse</code> 包 （网络原因安装不了，因此手动下载 whl 文件安装）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">!pip install torch_scatter-<span class="hljs-number">2.0</span><span class="hljs-number">.9</span>-cp36-cp36m-linux_x86_64.whl <span class="hljs-comment">#-f https://data.pyg.org/whl/torch-1.10.1+cu102.html</span><br>!pip install torch_sparse-<span class="hljs-number">0.6</span><span class="hljs-number">.12</span>-cp36-cp36m-linux_x86_64.whl <span class="hljs-comment">#-f https://data.pyg.org/whl/torch-1.10.1+cu102.html</span><br>!pip install torch-geometric<br></code></pre></td></tr></table></figure>
+
+<h2 id="基础用法"><a href="#基础用法" class="headerlink" title="基础用法"></a>基础用法</h2><h3 id="图的数据操作"><a href="#图的数据操作" class="headerlink" title="图的数据操作"></a>图的数据操作</h3><p>在 <code>PyG</code> 中一个图就是 <code>torch_geometric.data.Data</code> 对象的一个实例，该对象默认有下面的一些属性：</p>
+<ul>
+<li><code>data.x</code> : 节点的特征矩阵，形状是 [节点的数量，节点特征的数量]</li>
+<li><code>data.edge_index</code> : 以 COO 格式存储的图的连接性，形状是 [2，边的数量]，数据类型是 <code>torch.long</code> ，两个维度上相应的元素构成边连接的两个节点</li>
+</ul>
+<p>下面以一个 3 个节点，4条边构成的无权重的无向图为例：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> torch<br><span class="hljs-keyword">from</span> torch_geometric.data <span class="hljs-keyword">import</span> Data<br><br>edge_index = torch.tensor([[<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>],<br>                           [<span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">2</span>, <span class="hljs-number">1</span>]], dtype=torch.long)<br>x = torch.tensor([[-<span class="hljs-number">1</span>], [<span class="hljs-number">0</span>], [<span class="hljs-number">1</span>]], dtype=torch.<span class="hljs-built_in">float</span>)<br><br>data = Data(x=x, edge_index=edge_index)<br>data<br><span class="hljs-comment">#Data(x=[3, 1], edge_index=[2, 4])</span><br></code></pre></td></tr></table></figure>
+
+<p>这个 <code>edge_index</code> 表示 0 和1有边相连，1和2有边相连，<code>x</code> 表示每个节点的特征，这里每个节点的特征只有一个元素，可以用下图来表示：</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/graph-20220422211728-1te7ub8.svg" srcset="/img/loading.gif" lazyload></p>
+<p>注意除了使用这种在不同维度相应位置表示边的两个节点，也可以使用一个节点对构成的列表表示一个边，此时需要将上面的格式进行转置后再 <code>contiguous</code> 操作：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs python">data = Data(x=x, edge_index=edge_index.t().contiguous())<br>data <br><span class="hljs-comment">#Data(x=[3, 1], edge_index=[4, 2])</span><br><br>edge_index.t().contiguous()<br><span class="hljs-comment">#tensor([[0, 1],</span><br><span class="hljs-comment">#        [1, 0],</span><br><span class="hljs-comment">#        [1, 2],</span><br><span class="hljs-comment">#        [2, 1]])</span><br></code></pre></td></tr></table></figure>
+
+<div class="note note-warning">
+            <p>为什么要.contiguous()? 因为转置后的数据在内存中是不连续的，后续如果使用 view改变shape就会报错</p>
+          </div>
+
+<p><code>Data</code> 对象还提供了一些有用的函数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-built_in">print</span>(data.keys)<span class="hljs-comment">## Data 和 python 中字典的行为类似，因此有键和值</span><br><span class="hljs-comment">#[&#x27;x&#x27;, &#x27;edge_index&#x27;]</span><br><br><span class="hljs-built_in">print</span>(data[<span class="hljs-string">&#x27;x&#x27;</span>])<span class="hljs-comment">##相当于打印字典的值</span><br><span class="hljs-comment">#tensor([[-1.],</span><br><span class="hljs-comment">#        [ 0.],</span><br><span class="hljs-comment">#        [ 1.]])</span><br><br><span class="hljs-keyword">for</span> key, item <span class="hljs-keyword">in</span> data:<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;<span class="hljs-subst">&#123;key&#125;</span> found in data&#x27;</span>)<span class="hljs-comment">##也可以像字典一样遍历</span><br><span class="hljs-comment">#x found in data</span><br><span class="hljs-comment">#edge_index found in data</span><br><br><span class="hljs-string">&#x27;edge_attr&#x27;</span> <span class="hljs-keyword">in</span> data<br><span class="hljs-comment">#False</span><br><br><span class="hljs-comment">##一些图属性的函数</span><br>data.num_nodes<br><span class="hljs-comment">#3</span><br><br>data.num_edges<br><span class="hljs-comment">#4</span><br><br>data.num_node_features<br><span class="hljs-comment">#1</span><br><br>data.has_isolated_nodes()<br><span class="hljs-comment">#False</span><br><br>data.has_self_loops()<br><span class="hljs-comment">#False</span><br><br>data.is_directed()<br><span class="hljs-comment">#False</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="常用数据集"><a href="#常用数据集" class="headerlink" title="常用数据集"></a>常用数据集</h3><p>PyG 包含一些常用的图数据集，初始化一个数据集会自动下载数据并处理成上面所说的 <code>Data</code> 格式，比如下载 <code>ENZYMES</code> 数据集（包含 6个类的600 个图）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> torch_geometric.datasets <span class="hljs-keyword">import</span> TUDataset<br>dataset = TUDataset(root=<span class="hljs-string">&#x27;/tmp/ENZYMES&#x27;</span>, name=<span class="hljs-string">&#x27;ENZYMES&#x27;</span>)<br></code></pre></td></tr></table></figure>
+
+<p>可能由于这个数据在国外，由于网络的原因下不下来，因此我手动下载了这个数据（数据在<a target="_blank" rel="noopener" href="https://ls11-www.cs.tu-dortmund.de/people/morris/graphkerneldatasets/">这里</a> 下载）然后建了个 Gitee 仓库存放这个数据，接着指定 <code>TUDataset</code> 的 URL，就可以成功下载并载入数据了 ：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> torch_geometric.datasets <span class="hljs-keyword">import</span> TUDataset<br>TUDataset.url = <span class="hljs-string">&#x27;https://gitee.com/wt12318/graphkerneldatasets/raw/master/&#x27;</span><br>dataset = TUDataset(root=<span class="hljs-string">&#x27;./&#x27;</span>, name=<span class="hljs-string">&#x27;ENZYMES&#x27;</span>)<br><br><span class="hljs-comment">#Downloading https://gitee.com/wt12318/graphkerneldatasets/raw/master//ENZYMES.zip</span><br><span class="hljs-comment">#Extracting ./ENZYMES/ENZYMES.zip</span><br><span class="hljs-comment">#Processing...</span><br><span class="hljs-comment">#Done!</span><br></code></pre></td></tr></table></figure>
+
+<p>可以查看这个数据集的一些属性：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-built_in">len</span>(dataset)<span class="hljs-comment">##数据集大小</span><br><span class="hljs-comment">#600</span><br>dataset.num_classes<span class="hljs-comment">##数据集类别</span><br><span class="hljs-comment">#6</span><br>dataset.num_node_features<span class="hljs-comment">##节点特征维度</span><br><span class="hljs-comment">#3</span><br></code></pre></td></tr></table></figure>
+
+<p>可以直接用索引获取数据集中单个的图：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs python">data = dataset[<span class="hljs-number">0</span>]<br>data<br><span class="hljs-comment">#Data(edge_index=[2, 168], x=[37, 3], y=[1])## 1 表示这个图的类别</span><br><br><span class="hljs-comment">##这个 data 就是 Data 对象了</span><br>data.is_undirected()<br><span class="hljs-comment">#True</span><br>data.num_edges<br><span class="hljs-comment">#168</span><br>data.num_nodes<br><span class="hljs-comment">#37</span><br></code></pre></td></tr></table></figure>
+
+<p>也可以使用切片来获取数据集中的多个图，这样我们就可以方便的划分训练集和测试集：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs python">train_dataset = dataset[:<span class="hljs-number">540</span>]<br>test_dataset = dataset[<span class="hljs-number">540</span>:]<br>train_dataset <br><span class="hljs-comment">#ENZYMES(540)</span><br>test_dataset <br><span class="hljs-comment">#ENZYMES(60)</span><br><br><span class="hljs-comment">##还可以进行随机打乱</span><br>dataset = dataset.shuffle()<br><span class="hljs-comment">##和下面操作一样</span><br>perm = torch.randperm(<span class="hljs-built_in">len</span>(dataset))<br>dataset = dataset[perm]<br></code></pre></td></tr></table></figure>
+
+<p>这个数据集是用来对图进行分类任务的，因为每个图有一个标签，下面再看一个节点任务的数据集 <code>Cora</code> (半监督节点分类问题，数据在<a target="_blank" rel="noopener" href="https://github.com/kimiyoung/planetoid">这里</a>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> torch_geometric.datasets <span class="hljs-keyword">import</span> Planetoid<br>Planetoid.url = <span class="hljs-string">&quot;https://gitee.com/wt12318/graphkerneldatasets/raw/master/Planetoid/data/&quot;</span><br>dataset = Planetoid(root=<span class="hljs-string">&#x27;./&#x27;</span>, name=<span class="hljs-string">&#x27;Cora&#x27;</span>)<br><br>Downloading https://gitee.com/wt12318/graphkerneldatasets/raw/master/Planetoid/data//ind.cora.x<br>Downloading https://gitee.com/wt12318/graphkerneldatasets/raw/master/Planetoid/data//ind.cora.tx<br>Downloading https://gitee.com/wt12318/graphkerneldatasets/raw/master/Planetoid/data//ind.cora.allx<br>Downloading https://gitee.com/wt12318/graphkerneldatasets/raw/master/Planetoid/data//ind.cora.y<br>Downloading https://gitee.com/wt12318/graphkerneldatasets/raw/master/Planetoid/data//ind.cora.ty<br>Downloading https://gitee.com/wt12318/graphkerneldatasets/raw/master/Planetoid/data//ind.cora.ally<br>Downloading https://gitee.com/wt12318/graphkerneldatasets/raw/master/Planetoid/data//ind.cora.graph<br>Downloading https://gitee.com/wt12318/graphkerneldatasets/raw/master/Planetoid/data//ind.cora.test.index<br>Processing...<br>Done!<br></code></pre></td></tr></table></figure>
+
+<p>查看数据集：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-built_in">len</span>(dataset)<br><span class="hljs-comment">#1</span><br>dataset.num_classes<br><span class="hljs-comment">#7</span><br>dataset.num_node_features<br><span class="hljs-comment">#1433</span><br><br><span class="hljs-comment">##可以看到这个数据集只有一个图</span><br>data = dataset[<span class="hljs-number">0</span>]<br>data<br><span class="hljs-comment">#Data(x=[2708, 1433], edge_index=[2, 10556], y=[2708], train_mask=[2708], val_mask=[2708], test_mask=[2708])</span><br><br>data.is_undirected()<br><span class="hljs-comment">#True</span><br></code></pre></td></tr></table></figure>
+
+<p>可以看到这个图是一个无向图，并且不像上面那个图，这个图对每个 x 都有一个 y，也就是节点层面的分类问题，这里多了  3 个 key：</p>
+<ul>
+<li><code>train_mask</code> : 用来训练的节点</li>
+<li><code>val_mask</code> ：用来验证的节点（进行 early stopping）</li>
+<li><code>test_mask</code> ：用来测试的节点</li>
+</ul>
+<p>这些都是布尔值的列表：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python">data.train_mask<br><span class="hljs-comment">##tensor([ True,  True,  True,  ..., False, False, False])</span><br><br><span class="hljs-comment">##看看有多少个</span><br>data.train_mask.<span class="hljs-built_in">sum</span>().item()<br><span class="hljs-comment">#140</span><br>data.val_mask.<span class="hljs-built_in">sum</span>().item()<br><span class="hljs-comment">#500</span><br>data.test_mask.<span class="hljs-built_in">sum</span>().item()<br><span class="hljs-comment">#1000</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="小批量"><a href="#小批量" class="headerlink" title="小批量"></a>小批量</h3><p>神经网络训练时一般是以批量作为单位，PyG 通过  <code>torch_geometric.loader.DataLoader</code> 将 <code>edge_index</code> ，特征和目标值连接在一起形成特定的批量大小：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> torch_geometric.loader <span class="hljs-keyword">import</span> DataLoader<br><span class="hljs-keyword">from</span> torch_geometric.datasets <span class="hljs-keyword">import</span> TUDataset<br>TUDataset.url = <span class="hljs-string">&#x27;https://gitee.com/wt12318/graphkerneldatasets/raw/master/&#x27;</span><br>dataset = TUDataset(root=<span class="hljs-string">&#x27;./&#x27;</span>, name=<span class="hljs-string">&#x27;ENZYMES&#x27;</span>,use_node_attr=<span class="hljs-literal">True</span>)<br>loader = DataLoader(dataset, batch_size=<span class="hljs-number">32</span>, shuffle=<span class="hljs-literal">True</span>)<br><br><span class="hljs-keyword">for</span> batch <span class="hljs-keyword">in</span> loader:<br>    <span class="hljs-built_in">print</span>(batch)<br><br>DataBatch(edge_index=[<span class="hljs-number">2</span>, <span class="hljs-number">3590</span>], x=[<span class="hljs-number">904</span>, <span class="hljs-number">21</span>], y=[<span class="hljs-number">32</span>], batch=[<span class="hljs-number">904</span>], ptr=[<span class="hljs-number">33</span>])<br>DataBatch(edge_index=[<span class="hljs-number">2</span>, <span class="hljs-number">4218</span>], x=[<span class="hljs-number">1081</span>, <span class="hljs-number">21</span>], y=[<span class="hljs-number">32</span>], batch=[<span class="hljs-number">1081</span>], ptr=[<span class="hljs-number">33</span>])<br>DataBatch(edge_index=[<span class="hljs-number">2</span>, <span class="hljs-number">3810</span>], x=[<span class="hljs-number">962</span>, <span class="hljs-number">21</span>], y=[<span class="hljs-number">32</span>], batch=[<span class="hljs-number">962</span>], ptr=[<span class="hljs-number">33</span>])<br>DataBatch(edge_index=[<span class="hljs-number">2</span>, <span class="hljs-number">4276</span>], x=[<span class="hljs-number">1221</span>, <span class="hljs-number">21</span>], y=[<span class="hljs-number">32</span>], batch=[<span class="hljs-number">1221</span>], ptr=[<span class="hljs-number">33</span>])<br>DataBatch(edge_index=[<span class="hljs-number">2</span>, <span class="hljs-number">3714</span>], x=[<span class="hljs-number">952</span>, <span class="hljs-number">21</span>], y=[<span class="hljs-number">32</span>], batch=[<span class="hljs-number">952</span>], ptr=[<span class="hljs-number">33</span>])<br>DataBatch(edge_index=[<span class="hljs-number">2</span>, <span class="hljs-number">3670</span>], x=[<span class="hljs-number">933</span>, <span class="hljs-number">21</span>], y=[<span class="hljs-number">32</span>], batch=[<span class="hljs-number">933</span>], ptr=[<span class="hljs-number">33</span>])<br>DataBatch(edge_index=[<span class="hljs-number">2</span>, <span class="hljs-number">4142</span>], x=[<span class="hljs-number">1133</span>, <span class="hljs-number">21</span>], y=[<span class="hljs-number">32</span>], batch=[<span class="hljs-number">1133</span>], ptr=[<span class="hljs-number">33</span>])<br>DataBatch(edge_index=[<span class="hljs-number">2</span>, <span class="hljs-number">4180</span>], x=[<span class="hljs-number">1058</span>, <span class="hljs-number">21</span>], y=[<span class="hljs-number">32</span>], batch=[<span class="hljs-number">1058</span>], ptr=[<span class="hljs-number">33</span>])<br>DataBatch(edge_index=[<span class="hljs-number">2</span>, <span class="hljs-number">3902</span>], x=[<span class="hljs-number">1033</span>, <span class="hljs-number">21</span>], y=[<span class="hljs-number">32</span>], batch=[<span class="hljs-number">1033</span>], ptr=[<span class="hljs-number">33</span>])<br>DataBatch(edge_index=[<span class="hljs-number">2</span>, <span class="hljs-number">4004</span>], x=[<span class="hljs-number">1084</span>, <span class="hljs-number">21</span>], y=[<span class="hljs-number">32</span>], batch=[<span class="hljs-number">1084</span>], ptr=[<span class="hljs-number">33</span>])<br>DataBatch(edge_index=[<span class="hljs-number">2</span>, <span class="hljs-number">4136</span>], x=[<span class="hljs-number">1115</span>, <span class="hljs-number">21</span>], y=[<span class="hljs-number">32</span>], batch=[<span class="hljs-number">1115</span>], ptr=[<span class="hljs-number">33</span>])<br>DataBatch(edge_index=[<span class="hljs-number">2</span>, <span class="hljs-number">3710</span>], x=[<span class="hljs-number">938</span>, <span class="hljs-number">21</span>], y=[<span class="hljs-number">32</span>], batch=[<span class="hljs-number">938</span>], ptr=[<span class="hljs-number">33</span>])<br>DataBatch(edge_index=[<span class="hljs-number">2</span>, <span class="hljs-number">3764</span>], x=[<span class="hljs-number">1036</span>, <span class="hljs-number">21</span>], y=[<span class="hljs-number">32</span>], batch=[<span class="hljs-number">1036</span>], ptr=[<span class="hljs-number">33</span>])<br>DataBatch(edge_index=[<span class="hljs-number">2</span>, <span class="hljs-number">3842</span>], x=[<span class="hljs-number">982</span>, <span class="hljs-number">21</span>], y=[<span class="hljs-number">32</span>], batch=[<span class="hljs-number">982</span>], ptr=[<span class="hljs-number">33</span>])<br>DataBatch(edge_index=[<span class="hljs-number">2</span>, <span class="hljs-number">4088</span>], x=[<span class="hljs-number">1052</span>, <span class="hljs-number">21</span>], y=[<span class="hljs-number">32</span>], batch=[<span class="hljs-number">1052</span>], ptr=[<span class="hljs-number">33</span>])<br>DataBatch(edge_index=[<span class="hljs-number">2</span>, <span class="hljs-number">4342</span>], x=[<span class="hljs-number">1246</span>, <span class="hljs-number">21</span>], y=[<span class="hljs-number">32</span>], batch=[<span class="hljs-number">1246</span>], ptr=[<span class="hljs-number">33</span>])<br>DataBatch(edge_index=[<span class="hljs-number">2</span>, <span class="hljs-number">4196</span>], x=[<span class="hljs-number">1080</span>, <span class="hljs-number">21</span>], y=[<span class="hljs-number">32</span>], batch=[<span class="hljs-number">1080</span>], ptr=[<span class="hljs-number">33</span>])<br>DataBatch(edge_index=[<span class="hljs-number">2</span>, <span class="hljs-number">3974</span>], x=[<span class="hljs-number">1014</span>, <span class="hljs-number">21</span>], y=[<span class="hljs-number">32</span>], batch=[<span class="hljs-number">1014</span>], ptr=[<span class="hljs-number">33</span>])<br>DataBatch(edge_index=[<span class="hljs-number">2</span>, <span class="hljs-number">3006</span>], x=[<span class="hljs-number">756</span>, <span class="hljs-number">21</span>], y=[<span class="hljs-number">24</span>], batch=[<span class="hljs-number">756</span>], ptr=[<span class="hljs-number">25</span>])<br></code></pre></td></tr></table></figure>
+
+<p><code>torch_geometric.data.Batch</code> 对象继承自 <code>Data</code> 对象，并且多了一个 <code>batch</code>  的属性，<code>batch</code> 是一个向量，和该批量中节点的大小是一致的，每一个元素表示相应的节点属于该批量中哪个图：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><code class="hljs python">batch[<span class="hljs-string">&quot;batch&quot;</span>]<span class="hljs-comment">##最后一个批量大小为24，也就是有24个图</span><br><br>tensor([ <span class="hljs-number">0</span>,  <span class="hljs-number">0</span>,  <span class="hljs-number">0</span>,  <span class="hljs-number">0</span>,  <span class="hljs-number">0</span>,  <span class="hljs-number">0</span>,  <span class="hljs-number">0</span>,  <span class="hljs-number">0</span>,  <span class="hljs-number">0</span>,  <span class="hljs-number">0</span>,  <span class="hljs-number">0</span>,  <span class="hljs-number">0</span>,  <span class="hljs-number">0</span>,  <span class="hljs-number">0</span>,  <span class="hljs-number">0</span>,  <span class="hljs-number">0</span>,  <span class="hljs-number">0</span>,  <span class="hljs-number">0</span>,<br>         <span class="hljs-number">1</span>,  <span class="hljs-number">1</span>,  <span class="hljs-number">1</span>,  <span class="hljs-number">1</span>,  <span class="hljs-number">1</span>,  <span class="hljs-number">1</span>,  <span class="hljs-number">1</span>,  <span class="hljs-number">1</span>,  <span class="hljs-number">2</span>,  <span class="hljs-number">2</span>,  <span class="hljs-number">2</span>,  <span class="hljs-number">2</span>,  <span class="hljs-number">2</span>,  <span class="hljs-number">2</span>,  <span class="hljs-number">2</span>,  <span class="hljs-number">2</span>,  <span class="hljs-number">2</span>,  <span class="hljs-number">2</span>,<br>         <span class="hljs-number">2</span>,  <span class="hljs-number">2</span>,  <span class="hljs-number">2</span>,  <span class="hljs-number">2</span>,  <span class="hljs-number">2</span>,  <span class="hljs-number">2</span>,  <span class="hljs-number">2</span>,  <span class="hljs-number">2</span>,  <span class="hljs-number">2</span>,  <span class="hljs-number">2</span>,  <span class="hljs-number">3</span>,  <span class="hljs-number">3</span>,  <span class="hljs-number">3</span>,  <span class="hljs-number">3</span>,  <span class="hljs-number">3</span>,  <span class="hljs-number">3</span>,  <span class="hljs-number">3</span>,  <span class="hljs-number">3</span>,<br>         <span class="hljs-number">3</span>,  <span class="hljs-number">3</span>,  <span class="hljs-number">3</span>,  <span class="hljs-number">3</span>,  <span class="hljs-number">3</span>,  <span class="hljs-number">3</span>,  <span class="hljs-number">3</span>,  <span class="hljs-number">3</span>,  <span class="hljs-number">3</span>,  <span class="hljs-number">3</span>,  <span class="hljs-number">3</span>,  <span class="hljs-number">3</span>,  <span class="hljs-number">3</span>,  <span class="hljs-number">3</span>,  <span class="hljs-number">3</span>,  <span class="hljs-number">3</span>,  <span class="hljs-number">3</span>,  <span class="hljs-number">3</span>,<br>         <span class="hljs-number">3</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,<br>         <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,<br>         <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">5</span>,  <span class="hljs-number">5</span>,  <span class="hljs-number">5</span>,  <span class="hljs-number">5</span>,  <span class="hljs-number">5</span>,  <span class="hljs-number">5</span>,  <span class="hljs-number">5</span>,  <span class="hljs-number">5</span>,  <span class="hljs-number">5</span>,  <span class="hljs-number">5</span>,<br>         <span class="hljs-number">5</span>,  <span class="hljs-number">5</span>,  <span class="hljs-number">5</span>,  <span class="hljs-number">5</span>,  <span class="hljs-number">5</span>,  <span class="hljs-number">5</span>,  <span class="hljs-number">5</span>,  <span class="hljs-number">5</span>,  <span class="hljs-number">5</span>,  <span class="hljs-number">5</span>,  <span class="hljs-number">5</span>,  <span class="hljs-number">5</span>,  <span class="hljs-number">5</span>,  <span class="hljs-number">5</span>,  <span class="hljs-number">5</span>,  <span class="hljs-number">5</span>,  <span class="hljs-number">5</span>,  <span class="hljs-number">5</span>,<br>         <span class="hljs-number">5</span>,  <span class="hljs-number">5</span>,  <span class="hljs-number">5</span>,  <span class="hljs-number">5</span>,  <span class="hljs-number">5</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">6</span>,<br>         <span class="hljs-number">6</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">6</span>,<br>         <span class="hljs-number">6</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">7</span>,  <span class="hljs-number">7</span>,  <span class="hljs-number">7</span>,  <span class="hljs-number">7</span>,  <span class="hljs-number">7</span>,  <span class="hljs-number">7</span>,  <span class="hljs-number">7</span>,<br>         <span class="hljs-number">7</span>,  <span class="hljs-number">7</span>,  <span class="hljs-number">7</span>,  <span class="hljs-number">7</span>,  <span class="hljs-number">7</span>,  <span class="hljs-number">7</span>,  <span class="hljs-number">7</span>,  <span class="hljs-number">7</span>,  <span class="hljs-number">7</span>,  <span class="hljs-number">7</span>,  <span class="hljs-number">7</span>,  <span class="hljs-number">7</span>,  <span class="hljs-number">7</span>,  <span class="hljs-number">7</span>,  <span class="hljs-number">7</span>,  <span class="hljs-number">7</span>,  <span class="hljs-number">7</span>,  <span class="hljs-number">7</span>,<br>         <span class="hljs-number">7</span>,  <span class="hljs-number">7</span>,  <span class="hljs-number">7</span>,  <span class="hljs-number">7</span>,  <span class="hljs-number">7</span>,  <span class="hljs-number">7</span>,  <span class="hljs-number">7</span>,  <span class="hljs-number">7</span>,  <span class="hljs-number">7</span>,  <span class="hljs-number">7</span>,  <span class="hljs-number">7</span>,  <span class="hljs-number">7</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,<br>         <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,<br>         <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,<br>         <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">9</span>,  <span class="hljs-number">9</span>,  <span class="hljs-number">9</span>,  <span class="hljs-number">9</span>,  <span class="hljs-number">9</span>,  <span class="hljs-number">9</span>,  <span class="hljs-number">9</span>,  <span class="hljs-number">9</span>,  <span class="hljs-number">9</span>,  <span class="hljs-number">9</span>,<br>         <span class="hljs-number">9</span>,  <span class="hljs-number">9</span>,  <span class="hljs-number">9</span>,  <span class="hljs-number">9</span>,  <span class="hljs-number">9</span>,  <span class="hljs-number">9</span>,  <span class="hljs-number">9</span>,  <span class="hljs-number">9</span>,  <span class="hljs-number">9</span>,  <span class="hljs-number">9</span>,  <span class="hljs-number">9</span>,  <span class="hljs-number">9</span>,  <span class="hljs-number">9</span>,  <span class="hljs-number">9</span>,  <span class="hljs-number">9</span>,  <span class="hljs-number">9</span>,  <span class="hljs-number">9</span>, <span class="hljs-number">10</span>,<br>        <span class="hljs-number">10</span>, <span class="hljs-number">10</span>, <span class="hljs-number">10</span>, <span class="hljs-number">10</span>, <span class="hljs-number">10</span>, <span class="hljs-number">10</span>, <span class="hljs-number">10</span>, <span class="hljs-number">10</span>, <span class="hljs-number">10</span>, <span class="hljs-number">10</span>, <span class="hljs-number">10</span>, <span class="hljs-number">10</span>, <span class="hljs-number">10</span>, <span class="hljs-number">10</span>, <span class="hljs-number">10</span>, <span class="hljs-number">10</span>, <span class="hljs-number">10</span>, <span class="hljs-number">10</span>,<br>        <span class="hljs-number">10</span>, <span class="hljs-number">10</span>, <span class="hljs-number">10</span>, <span class="hljs-number">10</span>, <span class="hljs-number">10</span>, <span class="hljs-number">10</span>, <span class="hljs-number">10</span>, <span class="hljs-number">10</span>, <span class="hljs-number">10</span>, <span class="hljs-number">10</span>, <span class="hljs-number">10</span>, <span class="hljs-number">10</span>, <span class="hljs-number">10</span>, <span class="hljs-number">10</span>, <span class="hljs-number">10</span>, <span class="hljs-number">11</span>, <span class="hljs-number">11</span>, <span class="hljs-number">11</span>,<br>        <span class="hljs-number">11</span>, <span class="hljs-number">11</span>, <span class="hljs-number">11</span>, <span class="hljs-number">11</span>, <span class="hljs-number">11</span>, <span class="hljs-number">11</span>, <span class="hljs-number">11</span>, <span class="hljs-number">11</span>, <span class="hljs-number">11</span>, <span class="hljs-number">11</span>, <span class="hljs-number">11</span>, <span class="hljs-number">11</span>, <span class="hljs-number">11</span>, <span class="hljs-number">11</span>, <span class="hljs-number">11</span>, <span class="hljs-number">11</span>, <span class="hljs-number">11</span>, <span class="hljs-number">11</span>,<br>        <span class="hljs-number">11</span>, <span class="hljs-number">11</span>, <span class="hljs-number">11</span>, <span class="hljs-number">11</span>, <span class="hljs-number">11</span>, <span class="hljs-number">12</span>, <span class="hljs-number">12</span>, <span class="hljs-number">12</span>, <span class="hljs-number">12</span>, <span class="hljs-number">12</span>, <span class="hljs-number">12</span>, <span class="hljs-number">12</span>, <span class="hljs-number">12</span>, <span class="hljs-number">12</span>, <span class="hljs-number">12</span>, <span class="hljs-number">12</span>, <span class="hljs-number">12</span>, <span class="hljs-number">12</span>,<br>        <span class="hljs-number">12</span>, <span class="hljs-number">12</span>, <span class="hljs-number">12</span>, <span class="hljs-number">12</span>, <span class="hljs-number">12</span>, <span class="hljs-number">12</span>, <span class="hljs-number">12</span>, <span class="hljs-number">12</span>, <span class="hljs-number">12</span>, <span class="hljs-number">12</span>, <span class="hljs-number">12</span>, <span class="hljs-number">12</span>, <span class="hljs-number">12</span>, <span class="hljs-number">12</span>, <span class="hljs-number">12</span>, <span class="hljs-number">12</span>, <span class="hljs-number">12</span>, <span class="hljs-number">12</span>,<br>        <span class="hljs-number">12</span>, <span class="hljs-number">12</span>, <span class="hljs-number">12</span>, <span class="hljs-number">12</span>, <span class="hljs-number">12</span>, <span class="hljs-number">12</span>, <span class="hljs-number">12</span>, <span class="hljs-number">12</span>, <span class="hljs-number">12</span>, <span class="hljs-number">12</span>, <span class="hljs-number">13</span>, <span class="hljs-number">13</span>, <span class="hljs-number">13</span>, <span class="hljs-number">13</span>, <span class="hljs-number">13</span>, <span class="hljs-number">13</span>, <span class="hljs-number">13</span>, <span class="hljs-number">13</span>,<br>        <span class="hljs-number">13</span>, <span class="hljs-number">13</span>, <span class="hljs-number">13</span>, <span class="hljs-number">13</span>, <span class="hljs-number">13</span>, <span class="hljs-number">13</span>, <span class="hljs-number">13</span>, <span class="hljs-number">13</span>, <span class="hljs-number">13</span>, <span class="hljs-number">13</span>, <span class="hljs-number">14</span>, <span class="hljs-number">14</span>, <span class="hljs-number">14</span>, <span class="hljs-number">14</span>, <span class="hljs-number">14</span>, <span class="hljs-number">14</span>, <span class="hljs-number">14</span>, <span class="hljs-number">14</span>,<br>        <span class="hljs-number">14</span>, <span class="hljs-number">14</span>, <span class="hljs-number">14</span>, <span class="hljs-number">14</span>, <span class="hljs-number">14</span>, <span class="hljs-number">14</span>, <span class="hljs-number">14</span>, <span class="hljs-number">14</span>, <span class="hljs-number">14</span>, <span class="hljs-number">14</span>, <span class="hljs-number">14</span>, <span class="hljs-number">14</span>, <span class="hljs-number">14</span>, <span class="hljs-number">14</span>, <span class="hljs-number">14</span>, <span class="hljs-number">14</span>, <span class="hljs-number">14</span>, <span class="hljs-number">14</span>,<br>        <span class="hljs-number">14</span>, <span class="hljs-number">14</span>, <span class="hljs-number">14</span>, <span class="hljs-number">14</span>, <span class="hljs-number">14</span>, <span class="hljs-number">14</span>, <span class="hljs-number">14</span>, <span class="hljs-number">14</span>, <span class="hljs-number">14</span>, <span class="hljs-number">14</span>, <span class="hljs-number">14</span>, <span class="hljs-number">14</span>, <span class="hljs-number">14</span>, <span class="hljs-number">14</span>, <span class="hljs-number">15</span>, <span class="hljs-number">15</span>, <span class="hljs-number">15</span>, <span class="hljs-number">15</span>,<br>        <span class="hljs-number">15</span>, <span class="hljs-number">15</span>, <span class="hljs-number">15</span>, <span class="hljs-number">15</span>, <span class="hljs-number">15</span>, <span class="hljs-number">15</span>, <span class="hljs-number">15</span>, <span class="hljs-number">15</span>, <span class="hljs-number">15</span>, <span class="hljs-number">15</span>, <span class="hljs-number">15</span>, <span class="hljs-number">15</span>, <span class="hljs-number">15</span>, <span class="hljs-number">15</span>, <span class="hljs-number">15</span>, <span class="hljs-number">15</span>, <span class="hljs-number">15</span>, <span class="hljs-number">15</span>,<br>        <span class="hljs-number">15</span>, <span class="hljs-number">15</span>, <span class="hljs-number">15</span>, <span class="hljs-number">15</span>, <span class="hljs-number">15</span>, <span class="hljs-number">15</span>, <span class="hljs-number">15</span>, <span class="hljs-number">15</span>, <span class="hljs-number">15</span>, <span class="hljs-number">15</span>, <span class="hljs-number">15</span>, <span class="hljs-number">15</span>, <span class="hljs-number">15</span>, <span class="hljs-number">15</span>, <span class="hljs-number">15</span>, <span class="hljs-number">15</span>, <span class="hljs-number">15</span>, <span class="hljs-number">15</span>,<br>        <span class="hljs-number">15</span>, <span class="hljs-number">16</span>, <span class="hljs-number">16</span>, <span class="hljs-number">16</span>, <span class="hljs-number">16</span>, <span class="hljs-number">16</span>, <span class="hljs-number">16</span>, <span class="hljs-number">16</span>, <span class="hljs-number">16</span>, <span class="hljs-number">16</span>, <span class="hljs-number">16</span>, <span class="hljs-number">16</span>, <span class="hljs-number">16</span>, <span class="hljs-number">16</span>, <span class="hljs-number">16</span>, <span class="hljs-number">16</span>, <span class="hljs-number">16</span>, <span class="hljs-number">16</span>,<br>        <span class="hljs-number">16</span>, <span class="hljs-number">16</span>, <span class="hljs-number">16</span>, <span class="hljs-number">16</span>, <span class="hljs-number">16</span>, <span class="hljs-number">16</span>, <span class="hljs-number">17</span>, <span class="hljs-number">17</span>, <span class="hljs-number">17</span>, <span class="hljs-number">17</span>, <span class="hljs-number">17</span>, <span class="hljs-number">17</span>, <span class="hljs-number">17</span>, <span class="hljs-number">17</span>, <span class="hljs-number">17</span>, <span class="hljs-number">17</span>, <span class="hljs-number">17</span>, <span class="hljs-number">17</span>,<br>        <span class="hljs-number">17</span>, <span class="hljs-number">17</span>, <span class="hljs-number">17</span>, <span class="hljs-number">17</span>, <span class="hljs-number">17</span>, <span class="hljs-number">17</span>, <span class="hljs-number">17</span>, <span class="hljs-number">17</span>, <span class="hljs-number">17</span>, <span class="hljs-number">17</span>, <span class="hljs-number">17</span>, <span class="hljs-number">17</span>, <span class="hljs-number">17</span>, <span class="hljs-number">17</span>, <span class="hljs-number">17</span>, <span class="hljs-number">17</span>, <span class="hljs-number">18</span>, <span class="hljs-number">18</span>,<br>        <span class="hljs-number">18</span>, <span class="hljs-number">18</span>, <span class="hljs-number">18</span>, <span class="hljs-number">18</span>, <span class="hljs-number">18</span>, <span class="hljs-number">18</span>, <span class="hljs-number">18</span>, <span class="hljs-number">18</span>, <span class="hljs-number">18</span>, <span class="hljs-number">18</span>, <span class="hljs-number">18</span>, <span class="hljs-number">18</span>, <span class="hljs-number">18</span>, <span class="hljs-number">18</span>, <span class="hljs-number">18</span>, <span class="hljs-number">18</span>, <span class="hljs-number">18</span>, <span class="hljs-number">18</span>,<br>        <span class="hljs-number">18</span>, <span class="hljs-number">18</span>, <span class="hljs-number">18</span>, <span class="hljs-number">18</span>, <span class="hljs-number">18</span>, <span class="hljs-number">19</span>, <span class="hljs-number">19</span>, <span class="hljs-number">19</span>, <span class="hljs-number">19</span>, <span class="hljs-number">19</span>, <span class="hljs-number">19</span>, <span class="hljs-number">19</span>, <span class="hljs-number">19</span>, <span class="hljs-number">19</span>, <span class="hljs-number">19</span>, <span class="hljs-number">19</span>, <span class="hljs-number">19</span>, <span class="hljs-number">19</span>,<br>        <span class="hljs-number">19</span>, <span class="hljs-number">19</span>, <span class="hljs-number">19</span>, <span class="hljs-number">19</span>, <span class="hljs-number">19</span>, <span class="hljs-number">19</span>, <span class="hljs-number">19</span>, <span class="hljs-number">19</span>, <span class="hljs-number">19</span>, <span class="hljs-number">19</span>, <span class="hljs-number">19</span>, <span class="hljs-number">19</span>, <span class="hljs-number">19</span>, <span class="hljs-number">19</span>, <span class="hljs-number">19</span>, <span class="hljs-number">19</span>, <span class="hljs-number">19</span>, <span class="hljs-number">19</span>,<br>        <span class="hljs-number">19</span>, <span class="hljs-number">19</span>, <span class="hljs-number">19</span>, <span class="hljs-number">19</span>, <span class="hljs-number">19</span>, <span class="hljs-number">19</span>, <span class="hljs-number">19</span>, <span class="hljs-number">19</span>, <span class="hljs-number">19</span>, <span class="hljs-number">19</span>, <span class="hljs-number">19</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>,<br>        <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>,<br>        <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">21</span>,<br>        <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>,<br>        <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>,<br>        <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">22</span>,<br>        <span class="hljs-number">22</span>, <span class="hljs-number">22</span>, <span class="hljs-number">22</span>, <span class="hljs-number">22</span>, <span class="hljs-number">22</span>, <span class="hljs-number">22</span>, <span class="hljs-number">22</span>, <span class="hljs-number">22</span>, <span class="hljs-number">22</span>, <span class="hljs-number">22</span>, <span class="hljs-number">22</span>, <span class="hljs-number">22</span>, <span class="hljs-number">22</span>, <span class="hljs-number">23</span>, <span class="hljs-number">23</span>, <span class="hljs-number">23</span>, <span class="hljs-number">23</span>, <span class="hljs-number">23</span>,<br>        <span class="hljs-number">23</span>, <span class="hljs-number">23</span>, <span class="hljs-number">23</span>, <span class="hljs-number">23</span>, <span class="hljs-number">23</span>, <span class="hljs-number">23</span>, <span class="hljs-number">23</span>, <span class="hljs-number">23</span>, <span class="hljs-number">23</span>, <span class="hljs-number">23</span>, <span class="hljs-number">23</span>, <span class="hljs-number">23</span>, <span class="hljs-number">23</span>, <span class="hljs-number">23</span>, <span class="hljs-number">23</span>, <span class="hljs-number">23</span>, <span class="hljs-number">23</span>, <span class="hljs-number">23</span>])<br></code></pre></td></tr></table></figure>
+
+<p>比如我们可以根据这个特征来计算每个图中每个特征的均值：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> torch_scatter <span class="hljs-keyword">import</span> scatter_mean<br>x = scatter_mean(batch.x, batch.batch, dim=<span class="hljs-number">0</span>)<br>x.size()<br><span class="hljs-comment">#torch.Size([24, 21])</span><br></code></pre></td></tr></table></figure>
+
+<p><code>scatter_mean</code> 就是对 batch 中相同的值（也就是每个图）计算 x 在维度 0 上的均值（也就是每个特征对所有节点的均值）。</p>
+<h3 id="GNN"><a href="#GNN" class="headerlink" title="GNN"></a>GNN</h3><p>以 Cora 引用数据集作为例子，实现一个2层的图卷积神经网络（GCN）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> torch_geometric.datasets <span class="hljs-keyword">import</span> Planetoid<br><br><span class="hljs-comment">##载入数据</span><br>Planetoid.url = <span class="hljs-string">&quot;https://gitee.com/wt12318/graphkerneldatasets/raw/master/Planetoid/data/&quot;</span><br>dataset = Planetoid(root=<span class="hljs-string">&#x27;./&#x27;</span>, name=<span class="hljs-string">&#x27;Cora&#x27;</span>)<br><br><span class="hljs-keyword">import</span> torch<br><span class="hljs-keyword">import</span> torch.nn.functional <span class="hljs-keyword">as</span> F<br><span class="hljs-keyword">from</span> torch_geometric.nn <span class="hljs-keyword">import</span> GCNConv<br><br><span class="hljs-comment">##构建 GCN</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">GCN</span>(torch.nn.Module):<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-built_in">super</span>().__init__()<br>        self.conv1 = GCNConv(dataset.num_node_features, <span class="hljs-number">16</span>)<br>        self.conv2 = GCNConv(<span class="hljs-number">16</span>, dataset.num_classes)<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">forward</span>(<span class="hljs-params">self, data</span>):<br>        x, edge_index = data.x, data.edge_index<br><br>        x = self.conv1(x, edge_index)<br>        x = F.relu(x)<br>        x = F.dropout(x, training=self.training)<br>        x = self.conv2(x, edge_index)<br><br>        <span class="hljs-keyword">return</span> F.log_softmax(x, dim=<span class="hljs-number">1</span>)<br></code></pre></td></tr></table></figure>
+
+<p>注意 GCN 和 CNN 不同，层数和表达能力并不一定相关，GCN 的层数只是指收集离节点多远的邻居节点的信息。并且图神经网络最终得到的是节点的 embedding，因此在构建GCN 的时候变化的 embedding 的维度（<code>num_node_features</code> , 16, <code>num_classes</code>），输入的是节点以及图的结构（<code>edge_index</code>）。接下来进行训练 200 个 epochs：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs python">device = torch.device(<span class="hljs-string">&#x27;cuda&#x27;</span> <span class="hljs-keyword">if</span> torch.cuda.is_available() <span class="hljs-keyword">else</span> <span class="hljs-string">&#x27;cpu&#x27;</span>)<br>model = GCN().to(device)<br>data = dataset[<span class="hljs-number">0</span>].to(device)<br>optimizer = torch.optim.Adam(model.parameters(), lr=<span class="hljs-number">0.01</span>, weight_decay=<span class="hljs-number">5e-4</span>)<br><br>model.train()<br><span class="hljs-keyword">for</span> epoch <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">200</span>):<br>    optimizer.zero_grad()<br>    out = model(data)<br>    loss = F.nll_loss(out[data.train_mask], data.y[data.train_mask])<br>    loss.backward()<br>    optimizer.step()<br></code></pre></td></tr></table></figure>
+
+<p>在测试节点上进行评估模型：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs python">model.<span class="hljs-built_in">eval</span>()<br>pred = model(data).argmax(dim=<span class="hljs-number">1</span>)<br>correct = (pred[data.test_mask] == data.y[data.test_mask]).<span class="hljs-built_in">sum</span>()<br>acc = <span class="hljs-built_in">int</span>(correct) / <span class="hljs-built_in">int</span>(data.test_mask.<span class="hljs-built_in">sum</span>())<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;Accuracy: <span class="hljs-subst">&#123;acc:<span class="hljs-number">.4</span>f&#125;</span>&#x27;</span>)<br><span class="hljs-comment">##Accuracy: 0.7970</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="创建信息传播网络"><a href="#创建信息传播网络" class="headerlink" title="创建信息传播网络"></a>创建信息传播网络</h2><p>网络中的信息传播可以类比于图像上的卷积操作，都是收集邻居节点（像素）的信息：<br>$$<br>x_i^{(k)} &#x3D; \gamma^{(k)} ( x_i^{(k-1)}, \square_{j \in N(i)} , \phi^{(k)}(x_i^{(k-1)}, x_j^{(k-1)},e_{j,i}) ),<br>$$<br>$\square$ 表示可微的置换不变函数（也就是打乱元素的次序不改变函数的输出，比如 sum，mean，max 等），$\gamma$ 和 $\phi$ 都表示可微的函数（比如用多层感知机拟合的函数）。</p>
+<h3 id="MessagePassing-基础类"><a href="#MessagePassing-基础类" class="headerlink" title="MessagePassing 基础类"></a>MessagePassing 基础类</h3><p>PyG 提供了 <code>MessagePassing</code> 基础类，通过自动的进行信息传播从而构建神经网络；用户只需要定义函数 $\phi$，也就是 <code>message()</code>，$\gamma$，也就是 <code>update()</code>，和聚合的方法，也就是上面的 $\square$，可以是：<code>aggr=&quot;add&quot;</code>, <code>aggr=&quot;mean&quot;</code> 或者 <code>aggr=&quot;max&quot;</code>。这个过程在下面一些方法的帮助下完成：</p>
+<ul>
+<li><code>MessagePassing(aggr=&quot;add&quot;, flow=&quot;source_to_target&quot;, node_dim=-2)</code>：定义了聚合的方式（add，mean，max）和信息流动的方向（source_to_target 或者 target_to_source，中心节点也就是需要 embedding 的节点是 target，邻居节点为 source）以及 node_dim 为信息聚合的维度</li>
+<li><code>MessagePassing.propagate(edge_index, size=None, **kwargs)</code>：信息传播，在内部依次调用 <code>message</code>，<code>aggregate</code> 和 <code>update</code></li>
+<li><code>MessagePassing.message(...)</code>：相当于 $\phi$ 函数，注意传递给 <code>propagate</code> 的张量会先先添加 i 和 j 的下标转化成相应的节点然后再传递给 <code>message</code> （i 表示中心节点，j 表示邻居节点）</li>
+<li><code>MessagePassing.update(aggr_out, ...)</code>：相当于 $\gamma$ ，接受 <code>aggregation</code> 的输出和其他传给 <code>propagate</code> 的参数</li>
+</ul>
+<p>下面看两个例子：</p>
+<h4 id="GCN-layer"><a href="#GCN-layer" class="headerlink" title="GCN layer"></a>GCN layer</h4><p>GCN 层可以定义为：<br>$$<br>x_i^{(k)} &#x3D; \sum_{j \in N(i) \cup { i }} \frac{1}{\sqrt{\deg(i)} \cdot \sqrt{\deg(j)}} \cdot ( \Theta^{\top} \cdot x_j^{(k-1)} ),<br>$$<br>邻居节点首先由 $\Theta$ 转化，然后根据度进行标准化，接着使用求和作为汇聚函数，可以分成一下几个步骤：</p>
+<ul>
+<li>对邻接矩阵添加自身的边（source 和 target 都是自己，因为上面的式子中 j 包括了 $N(i)\cup{i}$）</li>
+<li>对节点的特征矩阵进行线性转化</li>
+<li>计算标准化系数</li>
+<li>依据标准化系数来标准化节点特征</li>
+<li>求和汇聚</li>
+</ul>
+<p>1-3 步是信息传播之前就可以计算好的：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> torch<br><span class="hljs-keyword">from</span> torch_geometric.nn <span class="hljs-keyword">import</span> MessagePassing<br><span class="hljs-keyword">from</span> torch_geometric.utils <span class="hljs-keyword">import</span> add_self_loops, degree<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">GCNConv</span>(<span class="hljs-title class_ inherited__">MessagePassing</span>):<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, in_channels, out_channels</span>):<br>        <span class="hljs-built_in">super</span>().__init__(aggr=<span class="hljs-string">&#x27;add&#x27;</span>)  <span class="hljs-comment"># &quot;Add&quot; aggregation (Step 5).</span><br>        self.lin = torch.nn.Linear(in_channels, out_channels)<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">forward</span>(<span class="hljs-params">self, x, edge_index</span>):<br>        <span class="hljs-comment"># x has shape [N, in_channels]</span><br>        <span class="hljs-comment"># edge_index has shape [2, E]</span><br><br>        <span class="hljs-comment"># Step 1: Add self-loops to the adjacency matrix.</span><br>        edge_index, _ = add_self_loops(edge_index, num_nodes=x.size(<span class="hljs-number">0</span>))<br><br>        <span class="hljs-comment"># Step 2: Linearly transform node feature matrix.</span><br>        x = self.lin(x)<br><br>        <span class="hljs-comment"># Step 3: Compute normalization.</span><br>        row, col = edge_index<span class="hljs-comment">##将edge_index 拆分成 source (col) 和 target (row)</span><br>        deg = degree(col, x.size(<span class="hljs-number">0</span>), dtype=x.dtype)<span class="hljs-comment">##x.size(0)就是节点的数量</span><br>        deg_inv_sqrt = deg.<span class="hljs-built_in">pow</span>(-<span class="hljs-number">0.5</span>)<br>        deg_inv_sqrt[deg_inv_sqrt == <span class="hljs-built_in">float</span>(<span class="hljs-string">&#x27;inf&#x27;</span>)] = <span class="hljs-number">0</span><br>        norm = deg_inv_sqrt[row] * deg_inv_sqrt[col]<br><br>        <span class="hljs-comment"># Step 4-5: Start propagating messages.</span><br>        <span class="hljs-comment">#print(x.shape)</span><br>        <span class="hljs-comment">#print(x)</span><br>        <span class="hljs-keyword">return</span> self.propagate(edge_index, x=x, norm=norm)<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">message</span>(<span class="hljs-params">self, x_j, norm</span>):<br>        <span class="hljs-comment"># x_j has shape [E, out_channels]</span><br><br>        <span class="hljs-comment"># Step 4: Normalize node features.</span><br>        <span class="hljs-comment">#print(x_j.shape)</span><br>        <span class="hljs-comment">#print(x_j)</span><br>        <span class="hljs-keyword">return</span> norm.view(-<span class="hljs-number">1</span>, <span class="hljs-number">1</span>) * x_j<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs python">edge_index = dataset[<span class="hljs-number">0</span>][<span class="hljs-string">&quot;edge_index&quot;</span>]<br>edge_index<br>tensor([[   <span class="hljs-number">0</span>,    <span class="hljs-number">0</span>,    <span class="hljs-number">0</span>,  ..., <span class="hljs-number">2707</span>, <span class="hljs-number">2707</span>, <span class="hljs-number">2707</span>],<br>        [ <span class="hljs-number">633</span>, <span class="hljs-number">1862</span>, <span class="hljs-number">2582</span>,  ...,  <span class="hljs-number">598</span>, <span class="hljs-number">1473</span>, <span class="hljs-number">2706</span>]])<br>        <br>row, col = edge_index<br>row,col<br>(tensor([   <span class="hljs-number">0</span>,    <span class="hljs-number">0</span>,    <span class="hljs-number">0</span>,  ..., <span class="hljs-number">2707</span>, <span class="hljs-number">2707</span>, <span class="hljs-number">2707</span>]),<br> tensor([ <span class="hljs-number">633</span>, <span class="hljs-number">1862</span>, <span class="hljs-number">2582</span>,  ...,  <span class="hljs-number">598</span>, <span class="hljs-number">1473</span>, <span class="hljs-number">2706</span>]))<br></code></pre></td></tr></table></figure>
+
+<p>需要注意的是我们传入 <code>propagate</code> 的是 x ，也就是所有节点的 embedding，但是在其内部进行了一个 <code>lifted</code> 操作转化成了 <code>lifted</code> 张量 <code>x_j</code> ，这个张量包括每个节点的邻居节点的 embedding，便于进行信息传递，因此我们运行上面加了 <code>print</code> 的代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs python">conv = GCNConv(<span class="hljs-number">1433</span>, <span class="hljs-number">32</span>)<span class="hljs-comment">##实例化</span><br>x = conv(dataset[<span class="hljs-number">0</span>][<span class="hljs-string">&quot;x&quot;</span>], dataset[<span class="hljs-number">0</span>][<span class="hljs-string">&quot;edge_index&quot;</span>])<br>torch.Size([<span class="hljs-number">2708</span>, <span class="hljs-number">32</span>])<span class="hljs-comment">##图中有 2708 个节点</span><br>tensor([[ <span class="hljs-number">0.0352</span>, -<span class="hljs-number">0.0465</span>,  <span class="hljs-number">0.0304</span>,  ..., -<span class="hljs-number">0.0498</span>,  <span class="hljs-number">0.0052</span>, -<span class="hljs-number">0.0351</span>],<br>        [ <span class="hljs-number">0.0118</span>, -<span class="hljs-number">0.0057</span>, -<span class="hljs-number">0.0229</span>,  ..., -<span class="hljs-number">0.0921</span>,  <span class="hljs-number">0.0561</span>, -<span class="hljs-number">0.0387</span>],<br>        [-<span class="hljs-number">0.1651</span>, -<span class="hljs-number">0.0569</span>, -<span class="hljs-number">0.0675</span>,  ...,  <span class="hljs-number">0.0006</span>,  <span class="hljs-number">0.0174</span>, -<span class="hljs-number">0.1239</span>],<br>        ...,<br>        [ <span class="hljs-number">0.0200</span>,  <span class="hljs-number">0.0012</span>, -<span class="hljs-number">0.0240</span>,  ..., -<span class="hljs-number">0.0073</span>,  <span class="hljs-number">0.0137</span>, -<span class="hljs-number">0.0065</span>],<br>        [ <span class="hljs-number">0.0939</span>,  <span class="hljs-number">0.0371</span>, -<span class="hljs-number">0.0670</span>,  ...,  <span class="hljs-number">0.0017</span>, -<span class="hljs-number">0.0460</span>,  <span class="hljs-number">0.0491</span>],<br>        [-<span class="hljs-number">0.0430</span>, -<span class="hljs-number">0.0073</span>,  <span class="hljs-number">0.0501</span>,  ..., -<span class="hljs-number">0.0168</span>,  <span class="hljs-number">0.0014</span>, -<span class="hljs-number">0.0537</span>]],<br>       grad_fn=&lt;AddmmBackward0&gt;)<br>torch.Size([<span class="hljs-number">13264</span>, <span class="hljs-number">32</span>])<br>tensor([[ <span class="hljs-number">0.0352</span>, -<span class="hljs-number">0.0465</span>,  <span class="hljs-number">0.0304</span>,  ..., -<span class="hljs-number">0.0498</span>,  <span class="hljs-number">0.0052</span>, -<span class="hljs-number">0.0351</span>],<br>        [ <span class="hljs-number">0.0352</span>, -<span class="hljs-number">0.0465</span>,  <span class="hljs-number">0.0304</span>,  ..., -<span class="hljs-number">0.0498</span>,  <span class="hljs-number">0.0052</span>, -<span class="hljs-number">0.0351</span>],<br>        [ <span class="hljs-number">0.0352</span>, -<span class="hljs-number">0.0465</span>,  <span class="hljs-number">0.0304</span>,  ..., -<span class="hljs-number">0.0498</span>,  <span class="hljs-number">0.0052</span>, -<span class="hljs-number">0.0351</span>],<br>        ...,<br>        [ <span class="hljs-number">0.0200</span>,  <span class="hljs-number">0.0012</span>, -<span class="hljs-number">0.0240</span>,  ..., -<span class="hljs-number">0.0073</span>,  <span class="hljs-number">0.0137</span>, -<span class="hljs-number">0.0065</span>],<br>        [ <span class="hljs-number">0.0939</span>,  <span class="hljs-number">0.0371</span>, -<span class="hljs-number">0.0670</span>,  ...,  <span class="hljs-number">0.0017</span>, -<span class="hljs-number">0.0460</span>,  <span class="hljs-number">0.0491</span>],<br>        [-<span class="hljs-number">0.0430</span>, -<span class="hljs-number">0.0073</span>,  <span class="hljs-number">0.0501</span>,  ..., -<span class="hljs-number">0.0168</span>,  <span class="hljs-number">0.0014</span>, -<span class="hljs-number">0.0537</span>]],<br>       grad_fn=&lt;IndexSelectBackward0&gt;)<br></code></pre></td></tr></table></figure>
+
+<h4 id="Edge-Convolution"><a href="#Edge-Convolution" class="headerlink" title="Edge Convolution"></a>Edge Convolution</h4><p>EdgeConv 的特点就是在每一层中节点的邻居都可能变化（动态图），也就是每一层都根据上一层更新的节点 embedding 利用 KNN 计算节点的邻居（embedding 距离而不是实际图的连接），除了这个动态图结构之外，EdgeConv 的信息传播和汇聚可以表示为：<br>$$<br>x_i^{(k)} &#x3D; \max_{j \in {N}(i)} h_{\Theta} ( x_i^{(k-1)}, x_j^{(k-1)} - x_i^{(k-1)} )<br>$$<br>$h_{\mathbf{\Theta}}$ 表示 MLP，汇聚函数使用 max：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> torch<br><span class="hljs-keyword">from</span> torch.nn <span class="hljs-keyword">import</span> Sequential <span class="hljs-keyword">as</span> Seq, Linear, ReLU<br><span class="hljs-keyword">from</span> torch_geometric.nn <span class="hljs-keyword">import</span> MessagePassing<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">EdgeConv</span>(<span class="hljs-title class_ inherited__">MessagePassing</span>):<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, in_channels, out_channels</span>):<br>        <span class="hljs-built_in">super</span>().__init__(aggr=<span class="hljs-string">&#x27;max&#x27;</span>) <span class="hljs-comment">#  &quot;Max&quot; aggregation.</span><br>        self.mlp = Seq(Linear(<span class="hljs-number">2</span> * in_channels, out_channels),<br>                       ReLU(),<br>                       Linear(out_channels, out_channels))<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">forward</span>(<span class="hljs-params">self, x, edge_index</span>):<br>        <span class="hljs-comment"># x has shape [N, in_channels]</span><br>        <span class="hljs-comment"># edge_index has shape [2, E]</span><br><br>        <span class="hljs-keyword">return</span> self.propagate(edge_index, x=x)<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">message</span>(<span class="hljs-params">self, x_i, x_j</span>):<br>        <span class="hljs-comment"># x_i has shape [E, in_channels]</span><br>        <span class="hljs-comment"># x_j has shape [E, in_channels]</span><br><br>        tmp = torch.cat([x_i, x_j - x_i], dim=<span class="hljs-number">1</span>)  <span class="hljs-comment"># tmp has shape [E, 2 * in_channels]</span><br>        <span class="hljs-keyword">return</span> self.mlp(tmp)<br></code></pre></td></tr></table></figure>
+
+<p>上面讲过，EdgeConv 在每层都会利用 KNN 来选择邻居节点：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> torch_geometric.nn <span class="hljs-keyword">import</span> knn_graph<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">DynamicEdgeConv</span>(<span class="hljs-title class_ inherited__">EdgeConv</span>):<span class="hljs-comment">##继承上面的类</span><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, in_channels, out_channels, k=<span class="hljs-number">6</span></span>):<br>        <span class="hljs-built_in">super</span>().__init__(in_channels, out_channels)<br>        self.k = k<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">forward</span>(<span class="hljs-params">self, x, batch=<span class="hljs-literal">None</span></span>):<br>        edge_index = knn_graph(x, self.k, batch, loop=<span class="hljs-literal">False</span>, flow=self.flow)<span class="hljs-comment">##选择邻居节点</span><br>        <span class="hljs-keyword">return</span> <span class="hljs-built_in">super</span>().forward(x, edge_index)<span class="hljs-comment">##调用EdgeConv 的forward</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="创建数据集"><a href="#创建数据集" class="headerlink" title="创建数据集"></a>创建数据集</h2><p>PyG 提供了两个类可以用来创建自己的数据集：<code>torch_geometric.data.Dataset</code> 和 <code>torch_geometric.data.InMemoryDataset</code>，<code>InMemoryDataset</code> 继承 <code>Dataset</code> 类，我们可以在数据集能够完全载入内存的情况下使用这个类（比较小）。<code>Dataset</code> 需要传入一个 root 参数，表示数据集的存储位置，<code>root</code> 文件夹需要拆分成两个子文件夹：<code>raw</code> 和 <code>processed</code>，前者存储原始数据或者数据下载的位置，后者存储处理后的数据。除此之外还可以三个数据处理的函数：<code>transform</code> , <code>pre_transform</code> 和 <code>pre_filter</code> ，这些函数默认为 None；<code>transform</code> 函数在获取数据之前对数据进行处理（第一步），因此适合用来进行数据增强的操作，<code>pre_transform</code> 在数据存储之前对数据进行操作，因此适用于只需要进行一次的大型运算，<code>pre_filter</code> 也是在数据存储之前对数据进行筛选。</p>
+<h4 id="InMemoryDataset"><a href="#InMemoryDataset" class="headerlink" title="InMemoryDataset"></a>InMemoryDataset</h4><p>创建 <code>InMemoryDataset</code> 类需要实现下面四个方法：</p>
+<ul>
+<li><code>raw_file_name()</code> ：返回文件名列表，如果这些文件可以在 <code>raw</code> 中找到，就跳过下载步骤</li>
+<li><code>processed_file_names()</code>：返回文件名列表，如果这些文件可以在 <code>processed</code> 中找到，就跳过处理步骤</li>
+<li><code>download()</code>：下载原始数据到 <code>raw</code></li>
+<li><code>process()</code>：处理原始步骤，将其存储到 <code>processed</code> 里面</li>
+</ul>
+<p>关键是 <code>process()</code> 方法，在这里我们需要读取数据并创建 <code>Data</code> 对象的列表（包括节点特征 x，edge index 等），然后存储到 <code>processed</code> 中；因为存储大的 python 列表比较慢，所以在 pyg 中使用 <code>InMemoryDataset.collate</code> 方法将列表整合成一个大的 Data 对象，并额外返回一个 <code>slices</code> 字典：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> torch<br><span class="hljs-keyword">from</span> torch_geometric.data <span class="hljs-keyword">import</span> InMemoryDataset, download_url<br><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyOwnDataset</span>(<span class="hljs-title class_ inherited__">InMemoryDataset</span>):<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, root, transform=<span class="hljs-literal">None</span>, pre_transform=<span class="hljs-literal">None</span>, pre_filter=<span class="hljs-literal">None</span></span>):<br>        <span class="hljs-built_in">super</span>().__init__(root, transform, pre_transform, pre_filter)<br>        self.data, self.slices = torch.load(self.processed_paths[<span class="hljs-number">0</span>])<br><br><span class="hljs-meta">    @property</span><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">raw_file_names</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-keyword">return</span> [<span class="hljs-string">&#x27;some_file_1&#x27;</span>, <span class="hljs-string">&#x27;some_file_2&#x27;</span>, ...]<br><br><span class="hljs-meta">    @property</span><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">processed_file_names</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-keyword">return</span> [<span class="hljs-string">&#x27;data.pt&#x27;</span>]<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">download</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-comment"># Download to `self.raw_dir`.</span><br>        download_url(url, self.raw_dir)<br>        ...<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">process</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-comment"># Read data into huge `Data` list.</span><br>        data_list = [...]<br><br>        <span class="hljs-keyword">if</span> self.pre_filter <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">None</span>:<br>            data_list = [data <span class="hljs-keyword">for</span> data <span class="hljs-keyword">in</span> data_list <span class="hljs-keyword">if</span> self.pre_filter(data)]<br><br>        <span class="hljs-keyword">if</span> self.pre_transform <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">None</span>:<br>            data_list = [self.pre_transform(data) <span class="hljs-keyword">for</span> data <span class="hljs-keyword">in</span> data_list]<br><br>        data, slices = self.collate(data_list)<br>        torch.save((data, slices), self.processed_paths[<span class="hljs-number">0</span>])<br></code></pre></td></tr></table></figure>
+
+<h4 id="Larger-Dataset"><a href="#Larger-Dataset" class="headerlink" title="Larger Dataset"></a>Larger Dataset</h4><p>更一般的情形是创建的数据集并不能全部一次性读入内存，这个时候就需要 <code>Dataset</code> 类，创建该类除了上面几个方法外还需要实现以下两个方法：</p>
+<ul>
+<li><code>len()</code>：返回数据集中样本的数量</li>
+<li><code>get()</code>：读取单个图</li>
+</ul>
+<p>下面是一个从分子数据创建一个 Dataset 数据集的<a target="_blank" rel="noopener" href="https://github.com/deepfindr/gnn-project/blob/main/dataset.py">例子</a>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MoleculeDataset</span>(<span class="hljs-title class_ inherited__">Dataset</span>):<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, root, filename, transform=<span class="hljs-literal">None</span>, pre_transform=<span class="hljs-literal">None</span></span>):<br>        <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">        root = Where the dataset should be stored. This folder is split</span><br><span class="hljs-string">        into raw_dir (downloaded dataset) and processed_dir (processed data). </span><br><span class="hljs-string">        &quot;&quot;&quot;</span><br>        self.filename = filename<br>        <span class="hljs-built_in">super</span>(MoleculeDataset, self).__init__(root, transform, pre_transform)<br>        <br><span class="hljs-meta">    @property</span><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">raw_file_names</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-string">&quot;&quot;&quot; If this file exists in raw_dir, the download is not triggered.</span><br><span class="hljs-string">            (The download func. is not implemented here)  </span><br><span class="hljs-string">        &quot;&quot;&quot;</span><br>        <span class="hljs-keyword">return</span> self.filename<br><br><span class="hljs-meta">    @property</span><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">processed_file_names</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-string">&quot;&quot;&quot; If these files are found in processed_dir, processing is skipped&quot;&quot;&quot;</span><br>        self.data = pd.read_csv(self.raw_paths[<span class="hljs-number">0</span>]).reset_index()<br><br>        <span class="hljs-keyword">return</span> [<span class="hljs-string">f&#x27;data_<span class="hljs-subst">&#123;i&#125;</span>.pt&#x27;</span> <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">list</span>(self.data.index)]<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">download</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-keyword">pass</span><span class="hljs-comment">##不需要下载</span><br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">process</span>(<span class="hljs-params">self</span>):<br>        self.data = pd.read_csv(self.raw_paths[<span class="hljs-number">0</span>])<br>        <span class="hljs-keyword">for</span> index, mol <span class="hljs-keyword">in</span> tqdm(self.data.iterrows(), total=self.data.shape[<span class="hljs-number">0</span>]):<span class="hljs-comment">#tqdm可以显示运行进程</span><br>            mol_obj = Chem.MolFromSmiles(mol[<span class="hljs-string">&quot;smiles&quot;</span>])<br>            <span class="hljs-comment"># Get node features</span><br>            node_feats = self._get_node_features(mol_obj)<br>            <span class="hljs-comment"># Get edge features</span><br>            edge_feats = self._get_edge_features(mol_obj)<br>            <span class="hljs-comment"># Get adjacency info</span><br>            edge_index = self._get_adjacency_info(mol_obj)<br>            <span class="hljs-comment"># Get labels info</span><br>            label = self._get_labels(mol[<span class="hljs-string">&quot;HIV_active&quot;</span>])<br><br>            <span class="hljs-comment"># Create data object</span><br>            data = Data(x=node_feats, <br>                        edge_index=edge_index,<br>                        edge_attr=edge_feats,<br>                        y=label,<br>                        smiles=mol[<span class="hljs-string">&quot;smiles&quot;</span>]<br>                        ) <br>            torch.save(data, <br>                    os.path.join(self.processed_dir, <br>                                 <span class="hljs-string">f&#x27;data_<span class="hljs-subst">&#123;index&#125;</span>.pt&#x27;</span>))<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">_get_node_features</span>(<span class="hljs-params">self, mol</span>):<br>        <span class="hljs-string">&quot;&quot;&quot; </span><br><span class="hljs-string">        This will return a matrix / 2d array of the shape</span><br><span class="hljs-string">        [Number of Nodes, Node Feature size]</span><br><span class="hljs-string">        &quot;&quot;&quot;</span><br>        all_node_feats = []<br>        <span class="hljs-comment">##每个分子生成一个图，节点的特征</span><br>        <span class="hljs-keyword">for</span> atom <span class="hljs-keyword">in</span> mol.GetAtoms():<br>            node_feats = []<br>            <span class="hljs-comment"># Feature 1: Atomic number        </span><br>            node_feats.append(atom.GetAtomicNum())<br>            <span class="hljs-comment"># Feature 2: Atom degree</span><br>            node_feats.append(atom.GetDegree())<br>            <span class="hljs-comment"># Feature 3: Formal charge</span><br>            node_feats.append(atom.GetFormalCharge())<br>            <span class="hljs-comment"># Feature 4: Hybridization</span><br>            node_feats.append(atom.GetHybridization())<br>            <span class="hljs-comment"># Feature 5: Aromaticity</span><br>            node_feats.append(atom.GetIsAromatic())<br>            <span class="hljs-comment"># Feature 6: Total Num Hs</span><br>            node_feats.append(atom.GetTotalNumHs())<br>            <span class="hljs-comment"># Feature 7: Radical Electrons</span><br>            node_feats.append(atom.GetNumRadicalElectrons())<br>            <span class="hljs-comment"># Feature 8: In Ring</span><br>            node_feats.append(atom.IsInRing())<br>            <span class="hljs-comment"># Feature 9: Chirality</span><br>            node_feats.append(atom.GetChiralTag())<br><br>            <span class="hljs-comment"># Append node features to matrix</span><br>            <span class="hljs-comment">##list of li</span><br>            all_node_feats.append(node_feats)<br><br>        all_node_feats = np.asarray(all_node_feats)<br>        <span class="hljs-keyword">return</span> torch.tensor(all_node_feats, dtype=torch.<span class="hljs-built_in">float</span>)<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">_get_edge_features</span>(<span class="hljs-params">self, mol</span>):<br>        <span class="hljs-string">&quot;&quot;&quot; </span><br><span class="hljs-string">        This will return a matrix / 2d array of the shape</span><br><span class="hljs-string">        [Number of edges, Edge Feature size]</span><br><span class="hljs-string">        &quot;&quot;&quot;</span><br>        all_edge_feats = []<br><br>        <span class="hljs-keyword">for</span> bond <span class="hljs-keyword">in</span> mol.GetBonds():<br>            edge_feats = []<br>            <span class="hljs-comment"># Feature 1: Bond type (as double)</span><br>            edge_feats.append(bond.GetBondTypeAsDouble())<br>            <span class="hljs-comment"># Feature 2: Rings</span><br>            edge_feats.append(bond.IsInRing())<br>            <span class="hljs-comment"># Append node features to matrix (twice, per direction)</span><br>            all_edge_feats += [edge_feats, edge_feats]<br><br>        all_edge_feats = np.asarray(all_edge_feats)<br>        <span class="hljs-keyword">return</span> torch.tensor(all_edge_feats, dtype=torch.<span class="hljs-built_in">float</span>)<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">_get_adjacency_info</span>(<span class="hljs-params">self, mol</span>):<br>        <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">        We could also use rdmolops.GetAdjacencyMatrix(mol)</span><br><span class="hljs-string">        but we want to be sure that the order of the indices</span><br><span class="hljs-string">        matches the order of the edge features</span><br><span class="hljs-string">        &quot;&quot;&quot;</span><br>        edge_indices = []<br>        <span class="hljs-keyword">for</span> bond <span class="hljs-keyword">in</span> mol.GetBonds():<br>            i = bond.GetBeginAtomIdx()<br>            j = bond.GetEndAtomIdx()<br>            edge_indices += [[i, j], [j, i]]<br><br>        edge_indices = torch.tensor(edge_indices)<br>        edge_indices = edge_indices.t().to(torch.long).view(<span class="hljs-number">2</span>, -<span class="hljs-number">1</span>)<br>        <span class="hljs-keyword">return</span> edge_indices<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">_get_labels</span>(<span class="hljs-params">self, label</span>):<br>        label = np.asarray([label])<br>        <span class="hljs-keyword">return</span> torch.tensor(label, dtype=torch.int64)<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">len</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-keyword">return</span> self.data.shape[<span class="hljs-number">0</span>]<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">get</span>(<span class="hljs-params">self, idx</span>):<br>        <span class="hljs-string">&quot;&quot;&quot; - Equivalent to __getitem__ in pytorch</span><br><span class="hljs-string">            - Is not needed for PyG&#x27;s InMemoryDataset</span><br><span class="hljs-string">        &quot;&quot;&quot;</span><br>        data = torch.load(os.path.join(self.processed_dir, <br>                                 <span class="hljs-string">f&#x27;data_<span class="hljs-subst">&#123;idx&#125;</span>.pt&#x27;</span>))<br>        <span class="hljs-keyword">return</span> data<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">##目录结构</span><br>!ls -R HIV_data/<br>HIV_data/:<br>raw<br><br>HIV_data/raw:<br>HIV_train.csv<br><br>dataset = MoleculeDataset(root=<span class="hljs-string">&quot;HIV_data&quot;</span>,filename=<span class="hljs-string">&quot;HIV_train.csv&quot;</span>)<br><br>Processing...<br> <span class="hljs-number">84</span>%|████████▎ | <span class="hljs-number">31078</span>/<span class="hljs-number">37128</span> [<span class="hljs-number">00</span>:<span class="hljs-number">38</span>&lt;<span class="hljs-number">00</span>:09, <span class="hljs-number">618.98</span>it/s]RDKit WARNING: [<span class="hljs-number">23</span>:<span class="hljs-number">10</span>:<span class="hljs-number">37</span>] WARNING: <span class="hljs-keyword">not</span> removing hydrogen atom without neighbors<br>RDKit WARNING: [<span class="hljs-number">23</span>:<span class="hljs-number">10</span>:<span class="hljs-number">37</span>] WARNING: <span class="hljs-keyword">not</span> removing hydrogen atom without neighbors<br><span class="hljs-number">100</span>%|██████████| <span class="hljs-number">37128</span>/<span class="hljs-number">37128</span> [<span class="hljs-number">00</span>:<span class="hljs-number">46</span>&lt;<span class="hljs-number">00</span>:<span class="hljs-number">00</span>, <span class="hljs-number">798.75</span>it/s]<br>Done!<br><br><span class="hljs-built_in">print</span>(dataset[<span class="hljs-number">0</span>].edge_index)<br>tensor([[ <span class="hljs-number">0</span>,  <span class="hljs-number">1</span>,  <span class="hljs-number">1</span>,  <span class="hljs-number">2</span>,  <span class="hljs-number">2</span>,  <span class="hljs-number">3</span>,  <span class="hljs-number">3</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">5</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">7</span>,  <span class="hljs-number">7</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">7</span>,  <span class="hljs-number">9</span>,<br>          <span class="hljs-number">9</span>, <span class="hljs-number">10</span>, <span class="hljs-number">10</span>, <span class="hljs-number">11</span>, <span class="hljs-number">11</span>, <span class="hljs-number">12</span>, <span class="hljs-number">12</span>, <span class="hljs-number">13</span>, <span class="hljs-number">12</span>, <span class="hljs-number">14</span>, <span class="hljs-number">14</span>, <span class="hljs-number">15</span>, <span class="hljs-number">15</span>, <span class="hljs-number">16</span>, <span class="hljs-number">16</span>, <span class="hljs-number">17</span>, <span class="hljs-number">17</span>, <span class="hljs-number">18</span>,<br>         <span class="hljs-number">18</span>, <span class="hljs-number">19</span>, <span class="hljs-number">11</span>,  <span class="hljs-number">1</span>, <span class="hljs-number">19</span>, <span class="hljs-number">14</span>,  <span class="hljs-number">9</span>,  <span class="hljs-number">2</span>],<br>        [ <span class="hljs-number">1</span>,  <span class="hljs-number">0</span>,  <span class="hljs-number">2</span>,  <span class="hljs-number">1</span>,  <span class="hljs-number">3</span>,  <span class="hljs-number">2</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">3</span>,  <span class="hljs-number">5</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">4</span>,  <span class="hljs-number">7</span>,  <span class="hljs-number">6</span>,  <span class="hljs-number">8</span>,  <span class="hljs-number">7</span>,  <span class="hljs-number">9</span>,  <span class="hljs-number">7</span>,<br>         <span class="hljs-number">10</span>,  <span class="hljs-number">9</span>, <span class="hljs-number">11</span>, <span class="hljs-number">10</span>, <span class="hljs-number">12</span>, <span class="hljs-number">11</span>, <span class="hljs-number">13</span>, <span class="hljs-number">12</span>, <span class="hljs-number">14</span>, <span class="hljs-number">12</span>, <span class="hljs-number">15</span>, <span class="hljs-number">14</span>, <span class="hljs-number">16</span>, <span class="hljs-number">15</span>, <span class="hljs-number">17</span>, <span class="hljs-number">16</span>, <span class="hljs-number">18</span>, <span class="hljs-number">17</span>,<br>         <span class="hljs-number">19</span>, <span class="hljs-number">18</span>,  <span class="hljs-number">1</span>, <span class="hljs-number">11</span>, <span class="hljs-number">14</span>, <span class="hljs-number">19</span>,  <span class="hljs-number">2</span>,  <span class="hljs-number">9</span>]])<br><br><span class="hljs-built_in">print</span>(dataset[<span class="hljs-number">0</span>].x)<br>tensor([[<span class="hljs-number">6.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">4.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">3.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">0.</span>],<br>        [<span class="hljs-number">6.</span>, <span class="hljs-number">3.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">4.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">0.</span>],<br>        [<span class="hljs-number">6.</span>, <span class="hljs-number">3.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">3.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">0.</span>],<br>        [<span class="hljs-number">7.</span>, <span class="hljs-number">2.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">3.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">0.</span>],<br>        [<span class="hljs-number">6.</span>, <span class="hljs-number">3.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">3.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">0.</span>],<br>        [<span class="hljs-number">7.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">3.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">2.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">0.</span>],<br>        [<span class="hljs-number">7.</span>, <span class="hljs-number">2.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">3.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">0.</span>],<br>        [<span class="hljs-number">6.</span>, <span class="hljs-number">3.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">3.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">0.</span>],<br>        [<span class="hljs-number">7.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">3.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">2.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">0.</span>],<br>        [<span class="hljs-number">6.</span>, <span class="hljs-number">3.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">3.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">0.</span>],<br>        [<span class="hljs-number">6.</span>, <span class="hljs-number">2.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">4.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">2.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">0.</span>],<br>        [<span class="hljs-number">7.</span>, <span class="hljs-number">3.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">3.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">0.</span>],<br>        [<span class="hljs-number">6.</span>, <span class="hljs-number">3.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">3.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">0.</span>],<br>        [<span class="hljs-number">8.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">3.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">0.</span>],<br>        [<span class="hljs-number">6.</span>, <span class="hljs-number">3.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">3.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">0.</span>],<br>        [<span class="hljs-number">6.</span>, <span class="hljs-number">2.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">3.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">0.</span>],<br>        [<span class="hljs-number">6.</span>, <span class="hljs-number">2.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">3.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">0.</span>],<br>        [<span class="hljs-number">6.</span>, <span class="hljs-number">2.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">3.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">0.</span>],<br>        [<span class="hljs-number">6.</span>, <span class="hljs-number">2.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">3.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">0.</span>],<br>        [<span class="hljs-number">6.</span>, <span class="hljs-number">2.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">3.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">0.</span>, <span class="hljs-number">1.</span>, <span class="hljs-number">0.</span>]])<br><br><span class="hljs-built_in">print</span>(dataset[<span class="hljs-number">0</span>].y)<br>tensor([<span class="hljs-number">0</span>])<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p>参考：</p>
+<ul>
+<li><strong>Pytorch geometric</strong> <a target="_blank" rel="noopener" href="https://pytorch-geometric.readthedocs.io/en/latest/notes/introduction.html">文档</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=QLIkOtKS4os&list=PLV8yxwGOxvvoNkzPfCx2i8an--Tkt7O8Z&index=8">GNN Project YouTube</a></li>
+<li><a target="_blank" rel="noopener" href="https://colab.research.google.com/drive/1DIQm9rOx2mT1bZETEeVUThxcrP1RKqAn">Google Colab</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/AntonioLonga/PytorchGeometricTutorial">AntonioLonga&#x2F;PytorchGeometricTutorial: Pytorch Geometric Tutorials (github.com)</a></li>
+</ul>
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" class="category-chain-item">深度学习</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">#深度学习</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>利用 Pytorch geometric 构建图神经网络</div>
+      <div>http://example.com/2022/04/21/pytorch_geometric/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Wu Tao</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年4月21日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/05/07/paper_MTGCN/" title="使用多任务图卷积神经网络改进癌症驱动基因识别">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">使用多任务图卷积神经网络改进癌症驱动基因识别</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/04/02/CS224W_colab/" title="图机器学习实践">
+                        <span class="hidden-mobile">图机器学习实践</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="waline"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#waline', function() {
+      Fluid.utils.createCssLink('https://cdn.jsdelivr.net/npm/@waline/client@0.14.8/dist/waline.min.css')
+      Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/@waline/client@0.14.8/dist/waline.min.js', function() {
+        var options = Object.assign(
+          {"serverURL":"https://comments-flax.vercel.app","path":"window.location.pathname","meta":["nick","mail","link"],"requiredMeta":["nick"],"lang":"zh-CN","emoji":["https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo"],"dark":"html[data-user-color-scheme=\"dark\"]","wordLimit":0,"pageSize":10},
+          {
+            el: '#waline',
+            path: window.location.pathname
+          }
+        )
+        Waline.init(options);
+        Fluid.utils.waitElementVisible('#waline .vcontent', () => {
+          var imgSelector = '#waline .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/tocbot@4.12.2/dist/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        MathJax = {
+          tex    : {
+            inlineMath: { '[+]': [['$', '$']] }
+          },
+          loader : {
+            
+          },
+          options: {
+            renderActions: {
+              findScript    : [10, doc => {
+                document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                  const display = !!node.type.match(/; *mode=display/);
+                  const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                  const text = document.createTextNode('');
+                  node.parentNode.replaceChild(text, node);
+                  math.start = { node: text, delim: '', n: 0 };
+                  math.end = { node: text, delim: '', n: 0 };
+                  doc.math.push(math);
+                });
+              }, '', false],
+              insertedScript: [200, () => {
+                document.querySelectorAll('mjx-container').forEach(node => {
+                  let target = node.parentNode;
+                  if (target.nodeName.toLowerCase() === 'li') {
+                    target.parentNode.classList.add('has-jax');
+                  }
+                });
+              }, '', false]
+            }
+          }
+        };
+      </script>
+    
+
+  <script  src="https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

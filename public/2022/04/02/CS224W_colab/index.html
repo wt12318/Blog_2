@@ -1,0 +1,1835 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=light>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/DNA.png">
+  <link rel="icon" href="/img/DNA.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Wu Tao">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="图机器学习 CS224W Colab 代码">
+<meta property="og:type" content="article">
+<meta property="og:title" content="图机器学习实践">
+<meta property="og:url" content="http://example.com/2022/04/02/CS224W_colab/index.html">
+<meta property="og:site_name" content="wutao&#39;s blog">
+<meta property="og:description" content="图机器学习 CS224W Colab 代码">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/GNN.png">
+<meta property="article:published_time" content="2022-04-02T11:14:18.000Z">
+<meta property="article:modified_time" content="2022-04-25T03:54:15.994Z">
+<meta property="article:author" content="Wu Tao">
+<meta property="article:tag" content="深度学习">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/img/GNN.png">
+  
+  
+  
+  <title>图机器学习实践 - wutao&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.1","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"R","line_number":true,"lib":"highlightjs","highlightjs":{"style":"Stackoverflow Light","style_dark":"light"},"prismjs":{"style":"default","preprocess":true}},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"A5lchRnum84Yumu5pVOSoVN8-MdYXbMMI","app_key":"runF3Mxw7648v64CISxiqMs8","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>wutao&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="图机器学习实践"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        Wu Tao
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-04-02 19:14" pubdate>
+          2022年4月2日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          56k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          470 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">图机器学习实践</h1>
+            
+            <div class="markdown-body">
+              
+              <p>图机器学习 CS224W Colab 代码</p>
+<span id="more"></span>
+
+<h2 id="Colab-1"><a href="#Colab-1" class="headerlink" title="Colab 1"></a>Colab 1</h2><p>这个 colab 分为 3 个部分：</p>
+<ul>
+<li>载入网络科学中经典的图：Karate Club Network 并探索这个图的一些图相关统计量；“空手道俱乐部网络” 有两个俱乐部（由之前的一个俱乐部分裂来的，分裂后的俱乐部各有一个领导），边表示成员之间的社会联系，有 34 个节点</li>
+<li>将图结构转化为 PyTorch 的 Tensor</li>
+<li>建立 node embedding 模型</li>
+</ul>
+<h3 id="Graph-Basics"><a href="#Graph-Basics" class="headerlink" title="Graph Basics"></a>Graph Basics</h3><p>To start, we will load a classic graph in network science, the <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Zachary%27s_karate_club">Karate Club Network</a>. We will explore multiple graph statistics for that graph.</p>
+<p>首先导入 NetworkX 包用于网络的操作：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> networkx <span class="hljs-keyword">as</span> nx<br></code></pre></td></tr></table></figure>
+
+<p>载入 Karate Club Network：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">G = nx.karate_club_graph()<br><span class="hljs-comment"># G is an undirected graph</span><br><span class="hljs-built_in">type</span>(G)<br></code></pre></td></tr></table></figure>
+
+
+<pre><code class="hljs">networkx.classes.graph.Graph
+</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># Visualize the graph</span><br>nx.draw(G, with_labels = <span class="hljs-literal">True</span>)<br></code></pre></td></tr></table></figure>
+
+
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/colab1_7_0.png" srcset="/img/loading.gif" lazyload><br>​    </p>
+<h4 id="Question-1-karate-club-network-的平均自由度是多少？"><a href="#Question-1-karate-club-network-的平均自由度是多少？" class="headerlink" title="Question 1: karate club network 的平均自由度是多少？"></a>Question 1: karate club network 的平均自由度是多少？</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">average_degree</span>(<span class="hljs-params">num_edges, num_nodes</span>):<br>  <span class="hljs-comment"># <span class="hljs-doctag">TODO:</span> Implement this function that takes number of edges</span><br>  <span class="hljs-comment"># and number of nodes, and returns the average node degree of </span><br>  <span class="hljs-comment"># the graph. Round the result to nearest integer (for example </span><br>  <span class="hljs-comment"># 3.3 will be rounded to 3 and 3.7 will be rounded to 4)</span><br><br>  avg_degree = <span class="hljs-number">0</span><br><br>  <span class="hljs-comment">############# Your code here ############</span><br>  avg_degree = <span class="hljs-built_in">round</span>((<span class="hljs-number">2</span> * num_edges) / num_nodes)<br>  <span class="hljs-comment">#########################################</span><br><br>  <span class="hljs-keyword">return</span> avg_degree<br><br>num_edges = G.number_of_edges()<br>num_nodes = G.number_of_nodes()<br>avg_degree = average_degree(num_edges, num_nodes)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Average degree of karate club network is &#123;&#125;&quot;</span>.<span class="hljs-built_in">format</span>(avg_degree))<br></code></pre></td></tr></table></figure>
+
+<pre><code class="hljs">Average degree of karate club network is 5
+</code></pre>
+<h4 id="Question-2-karate-club-network-的平均聚类系数是多少？"><a href="#Question-2-karate-club-network-的平均聚类系数是多少？" class="headerlink" title="Question 2: karate club network 的平均聚类系数是多少？"></a>Question 2: karate club network 的平均聚类系数是多少？</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">average_clustering_coefficient</span>(<span class="hljs-params">G</span>):<br>  <span class="hljs-comment"># <span class="hljs-doctag">TODO:</span> Implement this function that takes a nx.Graph</span><br>  <span class="hljs-comment"># and returns the average clustering coefficient. Round </span><br>  <span class="hljs-comment"># the result to 2 decimal places (for example 3.333 will</span><br>  <span class="hljs-comment"># be rounded to 3.33 and 3.7571 will be rounded to 3.76)</span><br><br>  avg_cluster_coef = <span class="hljs-number">0</span><br><br>  <span class="hljs-comment">############# Your code here ############</span><br>  <span class="hljs-comment">## Note: </span><br>  <span class="hljs-comment">## 1: Please use the appropriate NetworkX clustering function</span><br>  a = nx.clustering(G)<br>  avg_cluster_coef = <span class="hljs-built_in">sum</span>(a.values())/<span class="hljs-built_in">len</span>(a)<br>  avg_cluster_coef = <span class="hljs-built_in">round</span>(avg_cluster_coef,<span class="hljs-number">2</span>)<br><br>  <span class="hljs-comment">#########################################</span><br><br>  <span class="hljs-keyword">return</span> avg_cluster_coef<br><br>avg_cluster_coef = average_clustering_coefficient(G)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Average clustering coefficient of karate club network is &#123;&#125;&quot;</span>.<span class="hljs-built_in">format</span>(avg_cluster_coef))<br></code></pre></td></tr></table></figure>
+
+<pre><code class="hljs">Average clustering coefficient of karate club network is 0.57
+</code></pre>
+<h4 id="Question-3-在一个-PageRank-迭代后，节点-0-的-PageRank-值是多少"><a href="#Question-3-在一个-PageRank-迭代后，节点-0-的-PageRank-值是多少" class="headerlink" title="Question 3: 在一个 PageRank 迭代后，节点 0 的 PageRank 值是多少"></a>Question 3: 在一个 PageRank 迭代后，节点 0 的 PageRank 值是多少</h4><p>PageRank equation: $r_j &#x3D; \sum_{i \rightarrow j} \beta \frac{r_i}{d_i} + (1 - \beta) \frac{1}{N}$</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">one_iter_pagerank</span>(<span class="hljs-params">G, beta, r0, node_id</span>):<br>  <span class="hljs-comment"># <span class="hljs-doctag">TODO:</span> Implement this function that takes a nx.Graph, beta, r0 and node id.</span><br>  <span class="hljs-comment"># The return value r1 is one interation PageRank value for the input node.</span><br>  <span class="hljs-comment"># Please round r1 to 2 decimal places.</span><br><br>  r1 = <span class="hljs-number">0</span><br><br>  <span class="hljs-comment">############# Your code here ############</span><br>  <span class="hljs-comment">## Note: </span><br>  <span class="hljs-comment">## 1: You should not use nx.pagerank</span><br>  <span class="hljs-built_in">sum</span> = <span class="hljs-number">0</span><br>  adj_nodes = <span class="hljs-built_in">list</span>(G[node_id])<br>  <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> adj_nodes:<br>    a = beta * (r0 / <span class="hljs-built_in">dict</span>(G.degree([i]))[i])<br>    <span class="hljs-built_in">sum</span> = <span class="hljs-built_in">sum</span> + a<br>  r1 = <span class="hljs-built_in">sum</span> + (<span class="hljs-number">1</span> - beta) * (<span class="hljs-number">1</span> / G.number_of_nodes()) <br>  r1 = <span class="hljs-built_in">round</span>(r1, <span class="hljs-number">2</span>)<br>  <span class="hljs-comment">#########################################</span><br><br>  <span class="hljs-keyword">return</span> r1<br><br>beta = <span class="hljs-number">0.8</span><br>r0 = <span class="hljs-number">1</span> / G.number_of_nodes()<br>node = <span class="hljs-number">0</span><br>r1 = one_iter_pagerank(G, beta, r0, node)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;The PageRank value for node 0 after one iteration is &#123;&#125;&quot;</span>.<span class="hljs-built_in">format</span>(r1))<br></code></pre></td></tr></table></figure>
+
+<pre><code class="hljs">The PageRank value for node 0 after one iteration is 0.13
+</code></pre>
+<h4 id="Question-4-网络的邻近中心性（closeness-centrality）是多少？"><a href="#Question-4-网络的邻近中心性（closeness-centrality）是多少？" class="headerlink" title="Question 4: 网络的邻近中心性（closeness centrality）是多少？"></a>Question 4: 网络的邻近中心性（closeness centrality）是多少？</h4><p>closeness centrality ： $c(v) &#x3D; \frac{1}{\sum_{u \neq v}\text{shortest path length between } u \text{ and } v}$</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">closeness_centrality</span>(<span class="hljs-params">G, node=<span class="hljs-number">5</span></span>):<br>  <span class="hljs-comment"># <span class="hljs-doctag">TODO:</span> Implement the function that calculates closeness centrality </span><br>  <span class="hljs-comment"># for a node in karate club network. G is the input karate club </span><br>  <span class="hljs-comment"># network and node is the node id in the graph. Please round the </span><br>  <span class="hljs-comment"># closeness centrality result to 2 decimal places.</span><br><br>  closeness = <span class="hljs-number">0</span><br><br>  <span class="hljs-comment">## Note:</span><br>  <span class="hljs-comment">## 1: You can use networkx closeness centrality function.</span><br>  <span class="hljs-comment">## 2: Notice that networkx closeness centrality returns the normalized </span><br>  <span class="hljs-comment">## closeness directly, which is different from the raw (unnormalized) </span><br>  <span class="hljs-comment">## one that we learned in the lecture.</span><br>  normalized = nx.closeness_centrality(G,node)<br>  closeness = normalized / (G.number_of_nodes() - <span class="hljs-number">1</span>)<br>  closeness = <span class="hljs-built_in">round</span>(closeness,<span class="hljs-number">2</span>)<br>  <span class="hljs-comment">#########################################</span><br><br>  <span class="hljs-keyword">return</span> closeness<br><br>node = <span class="hljs-number">5</span><br>closeness = closeness_centrality(G, node=node)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;The node 5 has closeness centrality &#123;&#125;&quot;</span>.<span class="hljs-built_in">format</span>(closeness))<br></code></pre></td></tr></table></figure>
+
+<pre><code class="hljs">The node 5 has closeness centrality 0.01
+</code></pre>
+<h3 id="Graph-to-Tensor"><a href="#Graph-to-Tensor" class="headerlink" title="Graph to Tensor"></a>Graph to Tensor</h3><p>将图结构转化为 PyTorch 的 Tensor，便于进行后续的机器学习操作。</p>
+<p>检测 pytorch 是否按照以及版本：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> torch<br><span class="hljs-built_in">print</span>(torch.__version__)<br></code></pre></td></tr></table></figure>
+
+<pre><code class="hljs">1.10.0+cu111
+</code></pre>
+<h4 id="PyTorch-tensor-basics"><a href="#PyTorch-tensor-basics" class="headerlink" title="PyTorch tensor basics"></a>PyTorch tensor basics</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># Generate 3 x 4 tensor with all ones</span><br>ones = torch.ones(<span class="hljs-number">3</span>, <span class="hljs-number">4</span>)<br><span class="hljs-built_in">print</span>(ones)<br><br><span class="hljs-comment"># Generate 3 x 4 tensor with all zeros</span><br>zeros = torch.zeros(<span class="hljs-number">3</span>, <span class="hljs-number">4</span>)<br><span class="hljs-built_in">print</span>(zeros)<br><br><span class="hljs-comment"># Generate 3 x 4 tensor with random values on the interval [0, 1)</span><br>random_tensor = torch.rand(<span class="hljs-number">3</span>, <span class="hljs-number">4</span>)<br><span class="hljs-built_in">print</span>(random_tensor)<br><br><span class="hljs-comment"># Get the shape of the tensor</span><br><span class="hljs-built_in">print</span>(ones.shape)<br></code></pre></td></tr></table></figure>
+
+<pre><code class="hljs">tensor([[1., 1., 1., 1.],
+        [1., 1., 1., 1.],
+        [1., 1., 1., 1.]])
+tensor([[0., 0., 0., 0.],
+        [0., 0., 0., 0.],
+        [0., 0., 0., 0.]])
+tensor([[0.2417, 0.9127, 0.7875, 0.6463],
+        [0.1192, 0.1317, 0.9079, 0.4481],
+        [0.0022, 0.4382, 0.3800, 0.5075]])
+torch.Size([3, 4])
+</code></pre>
+<p>PyTorch tensor 有数据类型，用 <code>dtype</code> 表示：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># Create a 3 x 4 tensor with all 32-bit floating point zeros</span><br>zeros = torch.zeros(<span class="hljs-number">3</span>, <span class="hljs-number">4</span>, dtype=torch.float32)<br><span class="hljs-built_in">print</span>(zeros.dtype)<br><br><span class="hljs-comment"># Change the tensor dtype to 64-bit integer</span><br>zeros = zeros.<span class="hljs-built_in">type</span>(torch.long)<br><span class="hljs-built_in">print</span>(zeros.dtype)<br></code></pre></td></tr></table></figure>
+
+<pre><code class="hljs">torch.float32
+torch.int64
+</code></pre>
+<h4 id="Question-5-得到-karate-club-network-的边列表并转化为-torch-LongTensor"><a href="#Question-5-得到-karate-club-network-的边列表并转化为-torch-LongTensor" class="headerlink" title="Question 5: 得到 karate club network 的边列表并转化为  torch.LongTensor."></a>Question 5: 得到 karate club network 的边列表并转化为  <code>torch.LongTensor</code>.</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">graph_to_edge_list</span>(<span class="hljs-params">G</span>):<br>  <span class="hljs-comment"># <span class="hljs-doctag">TODO:</span> Implement the function that returns the edge list of</span><br>  <span class="hljs-comment"># an nx.Graph. The returned edge_list should be a list of tuples</span><br>  <span class="hljs-comment"># where each tuple is a tuple representing an edge connected </span><br>  <span class="hljs-comment"># by two nodes.</span><br>  <span class="hljs-comment">## 无向图 (0,1) 和 (1,0) 应该视为一条边</span><br><br>  edge_list = []<br><br>  <span class="hljs-comment">############# Your code here ############</span><br>  nodes = <span class="hljs-built_in">list</span>(G.nodes())<br>  <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> nodes:<br>    <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> <span class="hljs-built_in">list</span>(G[i]):<br>      <span class="hljs-keyword">if</span> (i,j)[::-<span class="hljs-number">1</span>] <span class="hljs-keyword">in</span> edge_list:<br>        <span class="hljs-keyword">continue</span> <br>      edge_list.append((i,j))<br>  <span class="hljs-comment">#########################################</span><br><br>  <span class="hljs-keyword">return</span> edge_list<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">edge_list_to_tensor</span>(<span class="hljs-params">edge_list</span>):<br>  <span class="hljs-comment"># <span class="hljs-doctag">TODO:</span> Implement the function that transforms the edge_list to</span><br>  <span class="hljs-comment"># tensor. The input edge_list is a list of tuples and the resulting</span><br>  <span class="hljs-comment"># tensor should have the shape [2 x len(edge_list)].##为什么要变成 2 * len(edge_list)</span><br><br>  edge_index = torch.tensor([])<br><br>  <span class="hljs-comment">############# Your code here ############</span><br>  edge_index = torch.tensor(edge_list).T<br>  <span class="hljs-comment">#########################################</span><br><br>  <span class="hljs-keyword">return</span> edge_index<br><br>pos_edge_list = graph_to_edge_list(G)<br>pos_edge_index = edge_list_to_tensor(pos_edge_list)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;The pos_edge_index tensor has shape &#123;&#125;&quot;</span>.<span class="hljs-built_in">format</span>(pos_edge_index.shape))<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;The pos_edge_index tensor has sum value &#123;&#125;&quot;</span>.<span class="hljs-built_in">format</span>(torch.<span class="hljs-built_in">sum</span>(pos_edge_index)))<br></code></pre></td></tr></table></figure>
+
+<pre><code class="hljs">The pos_edge_index tensor has shape torch.Size([2, 78])
+The pos_edge_index tensor has sum value 2535
+</code></pre>
+<h4 id="Question-6-实现抽样负例边的函数并回答哪些边（edge-1-to-edge-5）是负例边"><a href="#Question-6-实现抽样负例边的函数并回答哪些边（edge-1-to-edge-5）是负例边" class="headerlink" title="Question 6: 实现抽样负例边的函数并回答哪些边（edge_1 to edge_5）是负例边"></a>Question 6: 实现抽样负例边的函数并回答哪些边（edge_1 to edge_5）是负例边</h4><p>负例边就是在图中并不存在的边，其标签也就是0。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> random<br><span class="hljs-keyword">from</span> itertools <span class="hljs-keyword">import</span> compress<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">sample_negative_edges</span>(<span class="hljs-params">G, num_neg_samples</span>):<br>  <span class="hljs-comment"># <span class="hljs-doctag">TODO:</span> Implement the function that returns a list of negative edges.</span><br>  <span class="hljs-comment"># The number of sampled negative edges is num_neg_samples. You do not</span><br>  <span class="hljs-comment"># need to consider the corner case when the number of possible negative edges</span><br>  <span class="hljs-comment"># is less than num_neg_samples. It should be ok as long as your implementation </span><br>  <span class="hljs-comment"># works on the karate club network. In this implementation, self loops should </span><br>  <span class="hljs-comment"># not be considered as either a positive or negative edge. Also, notice that </span><br>  <span class="hljs-comment"># the karate club network is an undirected graph, if (0, 1) is a positive </span><br>  <span class="hljs-comment"># edge, do you think (1, 0) can be a negative one?</span><br><br>  neg_edge_list = []<br><br>  <span class="hljs-comment">############# Your code here ############</span><br>  <span class="hljs-comment">##先得到所有的neg edges</span><br>  <span class="hljs-comment">###对于每个节点找出图中与其不相连的其他所有节点，构成 neg edge</span><br>  nodes = <span class="hljs-built_in">list</span>(G.nodes()) <br>  <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> nodes:<br>    node_tmp = nodes.copy()<br>    node_tmp.remove(i)<br>    neg_nodes = <span class="hljs-built_in">list</span>(compress(node_tmp, [j <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> <span class="hljs-built_in">list</span>(G[i]) <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> node_tmp]))<br>    <span class="hljs-keyword">for</span> k <span class="hljs-keyword">in</span> neg_nodes:<br>      <span class="hljs-keyword">if</span> (i,k)[::-<span class="hljs-number">1</span>] <span class="hljs-keyword">in</span> neg_edge_list:<br>        <span class="hljs-keyword">continue</span> <br>      neg_edge_list.append((i,k))<br>  <span class="hljs-comment">##对所有的neg edge list 进行抽样</span><br>  neg_edge_list = random.sample(neg_edge_list,num_neg_samples)<br>  <span class="hljs-comment">#########################################</span><br><br>  <span class="hljs-keyword">return</span> neg_edge_list<br><br><span class="hljs-comment"># Sample 78 negative edges</span><br>neg_edge_list = sample_negative_edges(G, <span class="hljs-built_in">len</span>(pos_edge_list))<br><br><span class="hljs-comment"># Transform the negative edge list to tensor</span><br>neg_edge_index = edge_list_to_tensor(neg_edge_list)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;The neg_edge_index tensor has shape &#123;&#125;&quot;</span>.<span class="hljs-built_in">format</span>(neg_edge_index.shape))<br><br><span class="hljs-comment"># Which of following edges can be negative ones?</span><br>edge_1 = (<span class="hljs-number">7</span>, <span class="hljs-number">1</span>)<br>edge_2 = (<span class="hljs-number">1</span>, <span class="hljs-number">33</span>)<br>edge_3 = (<span class="hljs-number">33</span>, <span class="hljs-number">22</span>)<br>edge_4 = (<span class="hljs-number">0</span>, <span class="hljs-number">4</span>)<br>edge_5 = (<span class="hljs-number">4</span>, <span class="hljs-number">2</span>)<br><br><span class="hljs-comment">############# Your code here ############</span><br><span class="hljs-comment">## Note:</span><br><span class="hljs-comment">## 1: For each of the 5 edges, print whether it can be negative edge</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">is_neg</span>(<span class="hljs-params">G,edge</span>):<br>  <span class="hljs-keyword">if</span> (edge[<span class="hljs-number">1</span>] <span class="hljs-keyword">in</span> <span class="hljs-built_in">list</span>(G[edge[<span class="hljs-number">0</span>]])):<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;<span class="hljs-subst">&#123;edge&#125;</span> is not negative edge.&#x27;</span>)<br>  <span class="hljs-keyword">else</span>:<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;<span class="hljs-subst">&#123;edge&#125;</span> is negative edge.&#x27;</span>)<br><br>is_neg(G,edge_1)<br>is_neg(G,edge_2)<br>is_neg(G,edge_3)<br>is_neg(G,edge_4)<br>is_neg(G,edge_5)<br><span class="hljs-comment">#########################################</span><br></code></pre></td></tr></table></figure>
+
+<pre><code class="hljs">The neg_edge_index tensor has shape torch.Size([2, 78])
+(7, 1) is not negative edge.
+(1, 33) is negative edge.
+(33, 22) is not negative edge.
+(0, 4) is not negative edge.
+(4, 2) is negative edge.
+</code></pre>
+<h3 id="Node-Emebedding-Learning"><a href="#Node-Emebedding-Learning" class="headerlink" title="Node Emebedding Learning"></a>Node Emebedding Learning</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> torch<br><span class="hljs-keyword">import</span> torch.nn <span class="hljs-keyword">as</span> nn<br><span class="hljs-keyword">import</span> matplotlib.pyplot <span class="hljs-keyword">as</span> plt<br><span class="hljs-keyword">from</span> sklearn.decomposition <span class="hljs-keyword">import</span> PCA<br><br><span class="hljs-built_in">print</span>(torch.__version__)<br></code></pre></td></tr></table></figure>
+
+<pre><code class="hljs">1.10.0+cu111
+</code></pre>
+<p>为了建立 node embedding 模型，我们需要使用到 Pytorch 中的<code>nn.Embedding</code>  模块：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># Initialize an embedding layer</span><br><span class="hljs-comment"># Suppose we want to have embedding for 4 items (e.g., nodes)</span><br><span class="hljs-comment"># Each item is represented with 8 dimensional vector</span><br><br>emb_sample = nn.Embedding(num_embeddings=<span class="hljs-number">4</span>, embedding_dim=<span class="hljs-number">8</span>)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;Sample embedding layer: &#123;&#125;&#x27;</span>.<span class="hljs-built_in">format</span>(emb_sample))<br></code></pre></td></tr></table></figure>
+
+<pre><code class="hljs">Sample embedding layer: Embedding(4, 8)
+</code></pre>
+<p>We can select items from the embedding matrix, by using Tensor indices</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># Select an embedding in emb_sample</span><br><span class="hljs-built_in">id</span> = torch.LongTensor([<span class="hljs-number">1</span>])<br><span class="hljs-built_in">print</span>(emb_sample(<span class="hljs-built_in">id</span>))<br><br><span class="hljs-comment"># Select multiple embeddings</span><br>ids = torch.LongTensor([<span class="hljs-number">1</span>, <span class="hljs-number">3</span>])<br><span class="hljs-built_in">print</span>(emb_sample(ids))<br><br><span class="hljs-comment"># Get the shape of the embedding weight matrix</span><br>shape = emb_sample.weight.data.shape<br><span class="hljs-built_in">print</span>(shape)<br><br><span class="hljs-comment"># Overwrite the weight to tensor with all ones</span><br>emb_sample.weight.data = torch.ones(shape)<br><br><span class="hljs-comment"># Let&#x27;s check if the emb is indeed initilized</span><br>ids = torch.LongTensor([<span class="hljs-number">0</span>, <span class="hljs-number">3</span>])<br><span class="hljs-built_in">print</span>(emb_sample(ids))<br></code></pre></td></tr></table></figure>
+
+<pre><code class="hljs">tensor([[-4.4258e-01, -1.5349e+00,  1.1118e-03, -8.3201e-01,  6.3567e-01,
+         -7.7746e-01, -5.5710e-02, -4.4338e-02]], grad_fn=&lt;EmbeddingBackward0&gt;)
+tensor([[-4.4258e-01, -1.5349e+00,  1.1118e-03, -8.3201e-01,  6.3567e-01,
+         -7.7746e-01, -5.5710e-02, -4.4338e-02],
+        [ 4.5921e-01,  8.7926e-02,  9.4428e-01, -7.5985e-01,  1.6396e+00,
+         -1.9154e+00, -1.8657e+00, -6.7076e-01]], grad_fn=&lt;EmbeddingBackward0&gt;)
+torch.Size([4, 8])
+tensor([[1., 1., 1., 1., 1., 1., 1., 1.],
+        [1., 1., 1., 1., 1., 1., 1., 1.]], grad_fn=&lt;EmbeddingBackward0&gt;)
+</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">emb_sample.weight.data<span class="hljs-comment">##weight.data就是embedding matrix</span><br></code></pre></td></tr></table></figure>
+
+
+<pre><code class="hljs">tensor([[1., 1., 1., 1., 1., 1., 1., 1.],
+        [1., 1., 1., 1., 1., 1., 1., 1.],
+        [1., 1., 1., 1., 1., 1., 1., 1.],
+        [1., 1., 1., 1., 1., 1., 1., 1.]])
+</code></pre>
+<p>现在我们可以来创建节点的 embedding 矩阵并初始化：</p>
+<ul>
+<li>对于 karate club network 中的每个节点，进行 16 维向量的 embedding</li>
+<li>使用 <code>[0,1]</code> 的均匀分布来初始化 embedding 矩阵</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># Please do not change / reset the random seed</span><br>torch.manual_seed(<span class="hljs-number">1</span>)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">create_node_emb</span>(<span class="hljs-params">num_node=<span class="hljs-number">34</span>, embedding_dim=<span class="hljs-number">16</span></span>):<br>  <span class="hljs-comment"># <span class="hljs-doctag">TODO:</span> Implement this function that will create the node embedding matrix.</span><br>  <span class="hljs-comment"># A torch.nn.Embedding layer will be returned. You do not need to change </span><br>  <span class="hljs-comment"># the values of num_node and embedding_dim. The weight matrix of returned </span><br>  <span class="hljs-comment"># layer should be initialized under uniform distribution. </span><br><br>  emb = <span class="hljs-literal">None</span><br><br>  <span class="hljs-comment">############# Your code here ############</span><br>  emb = nn.Embedding(num_embeddings=num_node, embedding_dim=embedding_dim)<br>  emb.weight.data = torch.rand(emb.weight.data.shape)<br>  <span class="hljs-comment">#########################################</span><br><br>  <span class="hljs-keyword">return</span> emb<br><br>emb = create_node_emb()<br>ids = torch.LongTensor([<span class="hljs-number">0</span>, <span class="hljs-number">3</span>])<br><br><span class="hljs-comment"># Print the embedding layer</span><br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Embedding: &#123;&#125;&quot;</span>.<span class="hljs-built_in">format</span>(emb))<br><br><span class="hljs-comment"># An example that gets the embeddings for node 0 and 3</span><br><span class="hljs-built_in">print</span>(emb(ids))<br></code></pre></td></tr></table></figure>
+
+<pre><code class="hljs">Embedding: Embedding(34, 16)
+tensor([[0.2114, 0.7335, 0.1433, 0.9647, 0.2933, 0.7951, 0.5170, 0.2801, 0.8339,
+         0.1185, 0.2355, 0.5599, 0.8966, 0.2858, 0.1955, 0.1808],
+        [0.7486, 0.6546, 0.3843, 0.9820, 0.6012, 0.3710, 0.4929, 0.9915, 0.8358,
+         0.4629, 0.9902, 0.7196, 0.2338, 0.0450, 0.7906, 0.9689]],
+       grad_fn=&lt;EmbeddingBackward0&gt;)
+</code></pre>
+<h4 id="Visualize-the-initial-node-embeddings"><a href="#Visualize-the-initial-node-embeddings" class="headerlink" title="Visualize the initial node embeddings"></a>Visualize the initial node embeddings</h4><p>先来可视化未经训练的 embedding，以便于和之后的进行比较，这里使用 PCA 将 embedding 空间映射到二维空间来可视化：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">visualize_emb</span>(<span class="hljs-params">emb</span>):<br>  X = emb.weight.data.numpy()<span class="hljs-comment">##转化成 numpy</span><br>  pca = PCA(n_components=<span class="hljs-number">2</span>)<br>  components = pca.fit_transform(X)<br>  plt.figure(figsize=(<span class="hljs-number">6</span>, <span class="hljs-number">6</span>))<br>  club1_x = []<br>  club1_y = []<br>  club2_x = []<br>  club2_y = []<br>  <span class="hljs-keyword">for</span> node <span class="hljs-keyword">in</span> G.nodes(data=<span class="hljs-literal">True</span>):<br>    <span class="hljs-keyword">if</span> node[<span class="hljs-number">1</span>][<span class="hljs-string">&#x27;club&#x27;</span>] == <span class="hljs-string">&#x27;Mr. Hi&#x27;</span>:<br>      club1_x.append(components[node[<span class="hljs-number">0</span>]][<span class="hljs-number">0</span>])<br>      club1_y.append(components[node[<span class="hljs-number">0</span>]][<span class="hljs-number">1</span>])<br>    <span class="hljs-keyword">else</span>:<br>      club2_x.append(components[node[<span class="hljs-number">0</span>]][<span class="hljs-number">0</span>])<br>      club2_y.append(components[node[<span class="hljs-number">0</span>]][<span class="hljs-number">1</span>])<br>  plt.scatter(club1_x, club1_y, color=<span class="hljs-string">&quot;red&quot;</span>, label=<span class="hljs-string">&quot;Mr. Hi&quot;</span>)<br>  plt.scatter(club2_x, club2_y, color=<span class="hljs-string">&quot;blue&quot;</span>, label=<span class="hljs-string">&quot;Officer&quot;</span>)<br>  plt.legend()<br>  plt.show()<br><br><span class="hljs-comment"># Visualize the initial random embeddding</span><br>visualize_emb(emb)<br></code></pre></td></tr></table></figure>
+
+
+
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/colab1_38_0.png" srcset="/img/loading.gif" lazyload></p>
+<h4 id="Question-7-Training-the-embedding"><a href="#Question-7-Training-the-embedding" class="headerlink" title="Question 7: Training the embedding"></a>Question 7: Training the embedding</h4><p>We want to optimize our embeddings for the task of classifying edges as positive or negative. Given an edge and the embeddings for each node, the dot product of the embeddings, followed by a sigmoid, should give us the likelihood of that edge being either positive (output of sigmoid &gt; 0.5) or negative (output of sigmoid &lt; 0.5).</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> torch.optim <span class="hljs-keyword">import</span> SGD<br><span class="hljs-keyword">import</span> torch.nn <span class="hljs-keyword">as</span> nn<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">accuracy</span>(<span class="hljs-params">pred, label</span>):<br>  <span class="hljs-comment"># <span class="hljs-doctag">TODO:</span> Implement the accuracy function. This function takes the </span><br>  <span class="hljs-comment"># pred tensor (the resulting tensor after sigmoid) and the label </span><br>  <span class="hljs-comment"># tensor (torch.LongTensor). Predicted value greater than 0.5 will </span><br>  <span class="hljs-comment"># be classified as label 1. Else it will be classified as label 0.</span><br>  <span class="hljs-comment"># The returned accuracy should be rounded to 4 decimal places. </span><br>  <span class="hljs-comment"># For example, accuracy 0.82956 will be rounded to 0.8296.</span><br><br>  accu = <span class="hljs-number">0.0</span><br><br>  <span class="hljs-comment">############# Your code here ############</span><br>  a = pred &gt; <span class="hljs-number">0.5</span><br>  a = a.<span class="hljs-built_in">type</span>(torch.LongTensor)<br>  accu = <span class="hljs-built_in">sum</span>(a == label)/<span class="hljs-built_in">len</span>(a)<br>  accu = <span class="hljs-built_in">round</span>(accu.item(),<span class="hljs-number">4</span>)<br>  <span class="hljs-comment">#########################################</span><br><br>  <span class="hljs-keyword">return</span> accu<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">train</span>(<span class="hljs-params">emb, loss_fn, sigmoid, train_label, train_edge</span>):<br>  <span class="hljs-comment"># <span class="hljs-doctag">TODO:</span> Train the embedding layer here. You can also change epochs and </span><br>  <span class="hljs-comment"># learning rate. In general, you need to implement: </span><br>  <span class="hljs-comment"># (1) Get the embeddings of the nodes in train_edge</span><br>  <span class="hljs-comment"># (2) Dot product the embeddings between each node pair</span><br>  <span class="hljs-comment"># (3) Feed the dot product result into sigmoid</span><br>  <span class="hljs-comment"># (4) Feed the sigmoid output into the loss_fn</span><br>  <span class="hljs-comment"># (5) Print both loss and accuracy of each epoch </span><br>  <span class="hljs-comment"># (6) Update the embeddings using the loss and optimizer </span><br>  <span class="hljs-comment"># (as a sanity check, the loss should decrease during training)</span><br><br>  epochs = <span class="hljs-number">500</span><br>  learning_rate = <span class="hljs-number">0.1</span><br><br>  optimizer = SGD(emb.parameters(), lr=learning_rate, momentum=<span class="hljs-number">0.9</span>)<br><br>  <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(epochs):<br><br>    <span class="hljs-comment">############# Your code here ############</span><br>    pred = torch.empty(train_label.shape)<br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(train_edge.shape[<span class="hljs-number">1</span>]):<br>      <span class="hljs-comment">##两个节点的embedding</span><br>      em1 = emb(torch.tensor(train_edge[<span class="hljs-number">0</span>,i]))<br>      em2 = emb(torch.tensor(train_edge[<span class="hljs-number">1</span>,i]))<br>      pred_t = sigmoid(torch.dot(em1,em2))<br>      pred[i] = pred_t<br>    loss = loss_fn(pred,train_label)<br>    optimizer.zero_grad()<br>    loss.backward()<br>    optimizer.step()<br>    <span class="hljs-keyword">if</span> epochs % <span class="hljs-number">50</span> == <span class="hljs-number">0</span>:<br>      loss = loss.item()<br>      acc = accuracy(pred,train_label)<br>      <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;loss: <span class="hljs-subst">&#123;loss:&gt;4f&#125;</span>, acc: <span class="hljs-subst">&#123;acc:&gt;4f&#125;</span>&quot;</span>)<br>    <span class="hljs-comment">#########################################</span><br><br>loss_fn = nn.BCELoss()<br>sigmoid = nn.Sigmoid()<br><br><span class="hljs-built_in">print</span>(pos_edge_index.shape)<br><br><span class="hljs-comment"># Generate the positive and negative labels</span><br>pos_label = torch.ones(pos_edge_index.shape[<span class="hljs-number">1</span>], )<br>neg_label = torch.zeros(neg_edge_index.shape[<span class="hljs-number">1</span>], )<br><br><span class="hljs-comment"># Concat positive and negative labels into one tensor</span><br>train_label = torch.cat([pos_label, neg_label], dim=<span class="hljs-number">0</span>)<br><br><span class="hljs-comment"># Concat positive and negative edges into one tensor</span><br><span class="hljs-comment"># Since the network is very small, we do not split the edges into val/test sets</span><br>train_edge = torch.cat([pos_edge_index, neg_edge_index], dim=<span class="hljs-number">1</span>)<br><span class="hljs-built_in">print</span>(train_edge.shape)<br><br>train(emb, loss_fn, sigmoid, train_label, train_edge)<br></code></pre></td></tr></table></figure>
+
+<pre><code class="hljs">torch.Size([2, 78])
+torch.Size([2, 156])
+loss: 2.059661, acc: 0.500000
+loss: 2.046740, acc: 0.500000
+loss: 2.022378, acc: 0.500000
+loss: 1.988064, acc: 0.500000
+loss: 1.945258, acc: 0.500000
+loss: 1.895376, acc: 0.500000
+loss: 1.839767, acc: 0.500000
+loss: 1.779702, acc: 0.500000
+loss: 1.716365, acc: 0.500000
+loss: 1.650848, acc: 0.500000
+loss: 1.584147, acc: 0.500000
+loss: 1.517160, acc: 0.500000
+
+
+/usr/local/lib/python3.7/dist-packages/ipykernel_launcher.py:45: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+/usr/local/lib/python3.7/dist-packages/ipykernel_launcher.py:46: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+
+
+loss: 1.450682, acc: 0.500000
+loss: 1.385406, acc: 0.500000
+loss: 1.321924, acc: 0.500000
+loss: 1.260727, acc: 0.500000
+loss: 1.202207, acc: 0.500000
+loss: 1.146660, acc: 0.500000
+loss: 1.094293, acc: 0.500000
+loss: 1.045231, acc: 0.500000
+loss: 0.999524, acc: 0.500000
+loss: 0.957157, acc: 0.500000
+loss: 0.918061, acc: 0.500000
+loss: 0.882122, acc: 0.506400
+loss: 0.849194, acc: 0.506400
+loss: 0.819103, acc: 0.519200
+loss: 0.791663, acc: 0.519200
+loss: 0.766678, acc: 0.532100
+loss: 0.743947, acc: 0.538500
+loss: 0.723275, acc: 0.544900
+loss: 0.704472, acc: 0.544900
+loss: 0.687356, acc: 0.544900
+loss: 0.671758, acc: 0.564100
+loss: 0.657519, acc: 0.583300
+loss: 0.644493, acc: 0.596200
+loss: 0.632548, acc: 0.609000
+loss: 0.621563, acc: 0.615400
+loss: 0.611427, acc: 0.628200
+loss: 0.602045, acc: 0.647400
+loss: 0.593329, acc: 0.653800
+loss: 0.585200, acc: 0.666700
+loss: 0.577589, acc: 0.660300
+loss: 0.570436, acc: 0.679500
+loss: 0.563685, acc: 0.692300
+loss: 0.557289, acc: 0.717900
+loss: 0.551207, acc: 0.724400
+loss: 0.545400, acc: 0.730800
+loss: 0.539836, acc: 0.737200
+loss: 0.534487, acc: 0.750000
+loss: 0.529327, acc: 0.762800
+loss: 0.524334, acc: 0.775600
+loss: 0.519488, acc: 0.814100
+loss: 0.514774, acc: 0.833300
+loss: 0.510174, acc: 0.839700
+loss: 0.505678, acc: 0.846200
+loss: 0.501273, acc: 0.846200
+loss: 0.496948, acc: 0.852600
+loss: 0.492696, acc: 0.852600
+loss: 0.488508, acc: 0.859000
+loss: 0.484377, acc: 0.859000
+loss: 0.480299, acc: 0.859000
+loss: 0.476266, acc: 0.865400
+loss: 0.472276, acc: 0.865400
+loss: 0.468323, acc: 0.865400
+loss: 0.464405, acc: 0.865400
+loss: 0.460518, acc: 0.871800
+loss: 0.456659, acc: 0.871800
+loss: 0.452827, acc: 0.871800
+loss: 0.449019, acc: 0.871800
+loss: 0.445234, acc: 0.878200
+loss: 0.441470, acc: 0.878200
+loss: 0.437725, acc: 0.878200
+loss: 0.433999, acc: 0.878200
+loss: 0.430290, acc: 0.878200
+loss: 0.426598, acc: 0.884600
+loss: 0.422922, acc: 0.878200
+loss: 0.419262, acc: 0.878200
+loss: 0.415616, acc: 0.884600
+loss: 0.411986, acc: 0.884600
+loss: 0.408369, acc: 0.891000
+loss: 0.404766, acc: 0.891000
+loss: 0.401178, acc: 0.897400
+loss: 0.397603, acc: 0.897400
+loss: 0.394041, acc: 0.897400
+loss: 0.390494, acc: 0.897400
+loss: 0.386959, acc: 0.903800
+loss: 0.383439, acc: 0.910300
+loss: 0.379932, acc: 0.910300
+loss: 0.376439, acc: 0.910300
+loss: 0.372960, acc: 0.910300
+loss: 0.369495, acc: 0.910300
+loss: 0.366045, acc: 0.910300
+loss: 0.362609, acc: 0.910300
+loss: 0.359187, acc: 0.916700
+loss: 0.355781, acc: 0.923100
+loss: 0.352389, acc: 0.923100
+loss: 0.349013, acc: 0.923100
+loss: 0.345652, acc: 0.923100
+loss: 0.342307, acc: 0.923100
+loss: 0.338979, acc: 0.923100
+loss: 0.335666, acc: 0.923100
+loss: 0.332370, acc: 0.929500
+loss: 0.329091, acc: 0.935900
+loss: 0.325829, acc: 0.942300
+loss: 0.322585, acc: 0.942300
+loss: 0.319358, acc: 0.948700
+loss: 0.316149, acc: 0.948700
+loss: 0.312959, acc: 0.948700
+loss: 0.309787, acc: 0.955100
+loss: 0.306634, acc: 0.955100
+loss: 0.303499, acc: 0.961500
+loss: 0.300385, acc: 0.961500
+loss: 0.297289, acc: 0.961500
+loss: 0.294214, acc: 0.961500
+loss: 0.291159, acc: 0.961500
+loss: 0.288124, acc: 0.961500
+loss: 0.285110, acc: 0.961500
+loss: 0.282117, acc: 0.961500
+loss: 0.279145, acc: 0.961500
+loss: 0.276195, acc: 0.961500
+loss: 0.273266, acc: 0.961500
+loss: 0.270360, acc: 0.961500
+loss: 0.267475, acc: 0.961500
+loss: 0.264613, acc: 0.961500
+loss: 0.261773, acc: 0.961500
+loss: 0.258956, acc: 0.961500
+loss: 0.256162, acc: 0.961500
+loss: 0.253392, acc: 0.961500
+loss: 0.250645, acc: 0.961500
+loss: 0.247921, acc: 0.961500
+loss: 0.245221, acc: 0.961500
+loss: 0.242546, acc: 0.974400
+loss: 0.239894, acc: 0.974400
+loss: 0.237266, acc: 0.974400
+loss: 0.234663, acc: 0.974400
+loss: 0.232085, acc: 0.974400
+loss: 0.229531, acc: 0.974400
+loss: 0.227001, acc: 0.980800
+loss: 0.224497, acc: 0.980800
+loss: 0.222017, acc: 0.987200
+loss: 0.219563, acc: 0.993600
+loss: 0.217133, acc: 0.993600
+loss: 0.214729, acc: 0.993600
+loss: 0.212350, acc: 0.993600
+loss: 0.209996, acc: 0.993600
+loss: 0.207667, acc: 0.993600
+loss: 0.205363, acc: 0.993600
+loss: 0.203085, acc: 0.993600
+loss: 0.200832, acc: 0.993600
+loss: 0.198603, acc: 0.993600
+loss: 0.196401, acc: 0.993600
+loss: 0.194223, acc: 0.993600
+loss: 0.192070, acc: 0.993600
+loss: 0.189942, acc: 0.993600
+loss: 0.187839, acc: 0.993600
+loss: 0.185761, acc: 1.000000
+loss: 0.183708, acc: 1.000000
+loss: 0.181680, acc: 1.000000
+loss: 0.179675, acc: 1.000000
+loss: 0.177696, acc: 1.000000
+loss: 0.175740, acc: 1.000000
+loss: 0.173809, acc: 1.000000
+loss: 0.171902, acc: 1.000000
+loss: 0.170018, acc: 1.000000
+loss: 0.168158, acc: 1.000000
+loss: 0.166322, acc: 1.000000
+loss: 0.164509, acc: 1.000000
+loss: 0.162719, acc: 1.000000
+loss: 0.160952, acc: 1.000000
+loss: 0.159208, acc: 1.000000
+loss: 0.157487, acc: 1.000000
+loss: 0.155788, acc: 1.000000
+loss: 0.154111, acc: 1.000000
+loss: 0.152456, acc: 1.000000
+loss: 0.150822, acc: 1.000000
+loss: 0.149211, acc: 1.000000
+loss: 0.147620, acc: 1.000000
+loss: 0.146051, acc: 1.000000
+loss: 0.144503, acc: 1.000000
+loss: 0.142975, acc: 1.000000
+loss: 0.141467, acc: 1.000000
+loss: 0.139980, acc: 1.000000
+loss: 0.138513, acc: 1.000000
+loss: 0.137065, acc: 1.000000
+loss: 0.135637, acc: 1.000000
+loss: 0.134228, acc: 1.000000
+loss: 0.132838, acc: 1.000000
+loss: 0.131467, acc: 1.000000
+loss: 0.130114, acc: 1.000000
+loss: 0.128780, acc: 1.000000
+loss: 0.127464, acc: 1.000000
+loss: 0.126165, acc: 1.000000
+loss: 0.124884, acc: 1.000000
+loss: 0.123620, acc: 1.000000
+loss: 0.122374, acc: 1.000000
+loss: 0.121144, acc: 1.000000
+loss: 0.119931, acc: 1.000000
+loss: 0.118734, acc: 1.000000
+loss: 0.117554, acc: 1.000000
+loss: 0.116389, acc: 1.000000
+loss: 0.115240, acc: 1.000000
+loss: 0.114107, acc: 1.000000
+loss: 0.112989, acc: 1.000000
+loss: 0.111886, acc: 1.000000
+loss: 0.110797, acc: 1.000000
+loss: 0.109724, acc: 1.000000
+loss: 0.108665, acc: 1.000000
+loss: 0.107620, acc: 1.000000
+loss: 0.106589, acc: 1.000000
+loss: 0.105571, acc: 1.000000
+loss: 0.104568, acc: 1.000000
+loss: 0.103577, acc: 1.000000
+loss: 0.102600, acc: 1.000000
+loss: 0.101636, acc: 1.000000
+loss: 0.100685, acc: 1.000000
+loss: 0.099746, acc: 1.000000
+loss: 0.098819, acc: 1.000000
+loss: 0.097905, acc: 1.000000
+loss: 0.097003, acc: 1.000000
+loss: 0.096113, acc: 1.000000
+loss: 0.095234, acc: 1.000000
+loss: 0.094367, acc: 1.000000
+loss: 0.093511, acc: 1.000000
+loss: 0.092666, acc: 1.000000
+loss: 0.091833, acc: 1.000000
+loss: 0.091010, acc: 1.000000
+loss: 0.090198, acc: 1.000000
+loss: 0.089396, acc: 1.000000
+loss: 0.088604, acc: 1.000000
+loss: 0.087823, acc: 1.000000
+loss: 0.087052, acc: 1.000000
+loss: 0.086290, acc: 1.000000
+loss: 0.085539, acc: 1.000000
+loss: 0.084796, acc: 1.000000
+loss: 0.084064, acc: 1.000000
+loss: 0.083340, acc: 1.000000
+loss: 0.082626, acc: 1.000000
+loss: 0.081921, acc: 1.000000
+loss: 0.081224, acc: 1.000000
+loss: 0.080537, acc: 1.000000
+loss: 0.079857, acc: 1.000000
+loss: 0.079187, acc: 1.000000
+loss: 0.078525, acc: 1.000000
+loss: 0.077870, acc: 1.000000
+loss: 0.077224, acc: 1.000000
+loss: 0.076586, acc: 1.000000
+loss: 0.075956, acc: 1.000000
+loss: 0.075334, acc: 1.000000
+loss: 0.074719, acc: 1.000000
+loss: 0.074112, acc: 1.000000
+loss: 0.073512, acc: 1.000000
+loss: 0.072919, acc: 1.000000
+loss: 0.072333, acc: 1.000000
+loss: 0.071755, acc: 1.000000
+loss: 0.071184, acc: 1.000000
+loss: 0.070619, acc: 1.000000
+loss: 0.070061, acc: 1.000000
+loss: 0.069510, acc: 1.000000
+loss: 0.068965, acc: 1.000000
+loss: 0.068427, acc: 1.000000
+loss: 0.067895, acc: 1.000000
+loss: 0.067370, acc: 1.000000
+loss: 0.066850, acc: 1.000000
+loss: 0.066337, acc: 1.000000
+loss: 0.065830, acc: 1.000000
+loss: 0.065329, acc: 1.000000
+loss: 0.064833, acc: 1.000000
+loss: 0.064343, acc: 1.000000
+loss: 0.063859, acc: 1.000000
+loss: 0.063381, acc: 1.000000
+loss: 0.062908, acc: 1.000000
+loss: 0.062440, acc: 1.000000
+loss: 0.061978, acc: 1.000000
+loss: 0.061521, acc: 1.000000
+loss: 0.061069, acc: 1.000000
+loss: 0.060622, acc: 1.000000
+loss: 0.060181, acc: 1.000000
+loss: 0.059744, acc: 1.000000
+loss: 0.059312, acc: 1.000000
+loss: 0.058885, acc: 1.000000
+loss: 0.058463, acc: 1.000000
+loss: 0.058046, acc: 1.000000
+loss: 0.057633, acc: 1.000000
+loss: 0.057225, acc: 1.000000
+loss: 0.056821, acc: 1.000000
+loss: 0.056422, acc: 1.000000
+loss: 0.056027, acc: 1.000000
+loss: 0.055636, acc: 1.000000
+loss: 0.055250, acc: 1.000000
+loss: 0.054868, acc: 1.000000
+loss: 0.054490, acc: 1.000000
+loss: 0.054116, acc: 1.000000
+loss: 0.053746, acc: 1.000000
+loss: 0.053380, acc: 1.000000
+loss: 0.053018, acc: 1.000000
+loss: 0.052660, acc: 1.000000
+loss: 0.052305, acc: 1.000000
+loss: 0.051955, acc: 1.000000
+loss: 0.051608, acc: 1.000000
+loss: 0.051265, acc: 1.000000
+loss: 0.050925, acc: 1.000000
+loss: 0.050589, acc: 1.000000
+loss: 0.050257, acc: 1.000000
+loss: 0.049928, acc: 1.000000
+loss: 0.049602, acc: 1.000000
+loss: 0.049280, acc: 1.000000
+loss: 0.048961, acc: 1.000000
+loss: 0.048645, acc: 1.000000
+loss: 0.048333, acc: 1.000000
+loss: 0.048023, acc: 1.000000
+loss: 0.047717, acc: 1.000000
+loss: 0.047414, acc: 1.000000
+loss: 0.047114, acc: 1.000000
+loss: 0.046818, acc: 1.000000
+loss: 0.046524, acc: 1.000000
+loss: 0.046233, acc: 1.000000
+loss: 0.045945, acc: 1.000000
+loss: 0.045660, acc: 1.000000
+loss: 0.045377, acc: 1.000000
+loss: 0.045098, acc: 1.000000
+loss: 0.044821, acc: 1.000000
+loss: 0.044547, acc: 1.000000
+loss: 0.044276, acc: 1.000000
+loss: 0.044007, acc: 1.000000
+loss: 0.043741, acc: 1.000000
+loss: 0.043478, acc: 1.000000
+loss: 0.043217, acc: 1.000000
+loss: 0.042959, acc: 1.000000
+loss: 0.042703, acc: 1.000000
+loss: 0.042450, acc: 1.000000
+loss: 0.042199, acc: 1.000000
+loss: 0.041950, acc: 1.000000
+loss: 0.041704, acc: 1.000000
+loss: 0.041460, acc: 1.000000
+loss: 0.041219, acc: 1.000000
+loss: 0.040980, acc: 1.000000
+loss: 0.040743, acc: 1.000000
+loss: 0.040508, acc: 1.000000
+loss: 0.040275, acc: 1.000000
+loss: 0.040045, acc: 1.000000
+loss: 0.039817, acc: 1.000000
+loss: 0.039591, acc: 1.000000
+loss: 0.039367, acc: 1.000000
+loss: 0.039145, acc: 1.000000
+loss: 0.038925, acc: 1.000000
+loss: 0.038707, acc: 1.000000
+loss: 0.038491, acc: 1.000000
+loss: 0.038277, acc: 1.000000
+loss: 0.038066, acc: 1.000000
+loss: 0.037855, acc: 1.000000
+loss: 0.037647, acc: 1.000000
+loss: 0.037441, acc: 1.000000
+loss: 0.037237, acc: 1.000000
+loss: 0.037034, acc: 1.000000
+loss: 0.036833, acc: 1.000000
+loss: 0.036634, acc: 1.000000
+loss: 0.036437, acc: 1.000000
+loss: 0.036242, acc: 1.000000
+loss: 0.036048, acc: 1.000000
+loss: 0.035856, acc: 1.000000
+loss: 0.035666, acc: 1.000000
+loss: 0.035477, acc: 1.000000
+loss: 0.035290, acc: 1.000000
+loss: 0.035105, acc: 1.000000
+loss: 0.034921, acc: 1.000000
+loss: 0.034739, acc: 1.000000
+loss: 0.034558, acc: 1.000000
+loss: 0.034379, acc: 1.000000
+loss: 0.034202, acc: 1.000000
+loss: 0.034026, acc: 1.000000
+loss: 0.033851, acc: 1.000000
+loss: 0.033678, acc: 1.000000
+loss: 0.033507, acc: 1.000000
+loss: 0.033336, acc: 1.000000
+loss: 0.033168, acc: 1.000000
+loss: 0.033001, acc: 1.000000
+loss: 0.032835, acc: 1.000000
+loss: 0.032670, acc: 1.000000
+loss: 0.032507, acc: 1.000000
+loss: 0.032345, acc: 1.000000
+loss: 0.032185, acc: 1.000000
+loss: 0.032026, acc: 1.000000
+loss: 0.031868, acc: 1.000000
+loss: 0.031712, acc: 1.000000
+loss: 0.031556, acc: 1.000000
+loss: 0.031403, acc: 1.000000
+loss: 0.031250, acc: 1.000000
+loss: 0.031098, acc: 1.000000
+loss: 0.030948, acc: 1.000000
+loss: 0.030799, acc: 1.000000
+loss: 0.030651, acc: 1.000000
+loss: 0.030505, acc: 1.000000
+loss: 0.030359, acc: 1.000000
+loss: 0.030215, acc: 1.000000
+loss: 0.030072, acc: 1.000000
+loss: 0.029930, acc: 1.000000
+loss: 0.029789, acc: 1.000000
+loss: 0.029649, acc: 1.000000
+loss: 0.029511, acc: 1.000000
+loss: 0.029373, acc: 1.000000
+loss: 0.029237, acc: 1.000000
+loss: 0.029101, acc: 1.000000
+loss: 0.028967, acc: 1.000000
+loss: 0.028834, acc: 1.000000
+loss: 0.028701, acc: 1.000000
+loss: 0.028570, acc: 1.000000
+loss: 0.028440, acc: 1.000000
+loss: 0.028310, acc: 1.000000
+loss: 0.028182, acc: 1.000000
+loss: 0.028055, acc: 1.000000
+loss: 0.027929, acc: 1.000000
+loss: 0.027803, acc: 1.000000
+loss: 0.027679, acc: 1.000000
+loss: 0.027555, acc: 1.000000
+loss: 0.027433, acc: 1.000000
+loss: 0.027311, acc: 1.000000
+loss: 0.027190, acc: 1.000000
+loss: 0.027071, acc: 1.000000
+loss: 0.026952, acc: 1.000000
+loss: 0.026834, acc: 1.000000
+loss: 0.026716, acc: 1.000000
+loss: 0.026600, acc: 1.000000
+loss: 0.026485, acc: 1.000000
+loss: 0.026370, acc: 1.000000
+loss: 0.026256, acc: 1.000000
+loss: 0.026143, acc: 1.000000
+loss: 0.026031, acc: 1.000000
+loss: 0.025920, acc: 1.000000
+loss: 0.025809, acc: 1.000000
+loss: 0.025700, acc: 1.000000
+loss: 0.025591, acc: 1.000000
+loss: 0.025483, acc: 1.000000
+loss: 0.025375, acc: 1.000000
+loss: 0.025269, acc: 1.000000
+loss: 0.025163, acc: 1.000000
+loss: 0.025058, acc: 1.000000
+loss: 0.024954, acc: 1.000000
+loss: 0.024850, acc: 1.000000
+loss: 0.024747, acc: 1.000000
+loss: 0.024645, acc: 1.000000
+loss: 0.024544, acc: 1.000000
+loss: 0.024443, acc: 1.000000
+loss: 0.024343, acc: 1.000000
+loss: 0.024244, acc: 1.000000
+loss: 0.024145, acc: 1.000000
+loss: 0.024047, acc: 1.000000
+loss: 0.023950, acc: 1.000000
+loss: 0.023853, acc: 1.000000
+loss: 0.023757, acc: 1.000000
+loss: 0.023662, acc: 1.000000
+loss: 0.023567, acc: 1.000000
+loss: 0.023474, acc: 1.000000
+loss: 0.023380, acc: 1.000000
+loss: 0.023288, acc: 1.000000
+loss: 0.023195, acc: 1.000000
+loss: 0.023104, acc: 1.000000
+loss: 0.023013, acc: 1.000000
+loss: 0.022923, acc: 1.000000
+loss: 0.022833, acc: 1.000000
+loss: 0.022744, acc: 1.000000
+loss: 0.022656, acc: 1.000000
+loss: 0.022568, acc: 1.000000
+loss: 0.022481, acc: 1.000000
+loss: 0.022394, acc: 1.000000
+loss: 0.022308, acc: 1.000000
+loss: 0.022223, acc: 1.000000
+loss: 0.022138, acc: 1.000000
+loss: 0.022053, acc: 1.000000
+loss: 0.021969, acc: 1.000000
+loss: 0.021886, acc: 1.000000
+loss: 0.021803, acc: 1.000000
+loss: 0.021721, acc: 1.000000
+loss: 0.021639, acc: 1.000000
+loss: 0.021558, acc: 1.000000
+loss: 0.021477, acc: 1.000000
+loss: 0.021397, acc: 1.000000
+loss: 0.021318, acc: 1.000000
+loss: 0.021238, acc: 1.000000
+loss: 0.021160, acc: 1.000000
+loss: 0.021082, acc: 1.000000
+loss: 0.021004, acc: 1.000000
+loss: 0.020927, acc: 1.000000
+loss: 0.020850, acc: 1.000000
+loss: 0.020774, acc: 1.000000
+loss: 0.020699, acc: 1.000000
+loss: 0.020623, acc: 1.000000
+loss: 0.020549, acc: 1.000000
+loss: 0.020474, acc: 1.000000
+loss: 0.020400, acc: 1.000000
+loss: 0.020327, acc: 1.000000
+loss: 0.020254, acc: 1.000000
+loss: 0.020182, acc: 1.000000
+loss: 0.020110, acc: 1.000000
+loss: 0.020038, acc: 1.000000
+loss: 0.019967, acc: 1.000000
+loss: 0.019896, acc: 1.000000
+loss: 0.019826, acc: 1.000000
+loss: 0.019756, acc: 1.000000
+loss: 0.019687, acc: 1.000000
+loss: 0.019618, acc: 1.000000
+</code></pre>
+<h3 id="Visualize-the-final-node-embeddings"><a href="#Visualize-the-final-node-embeddings" class="headerlink" title="Visualize the final node embeddings"></a>Visualize the final node embeddings</h3><p>可视化训练后的 embedding，可以看到两类节点还是可以分开的：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># Visualize the final learned embedding</span><br>visualize_emb(emb)<br></code></pre></td></tr></table></figure>
+
+
+
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/colab1_42_0.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="Colab-2"><a href="#Colab-2" class="headerlink" title="Colab 2"></a>Colab 2</h2><p>在这个 colab 中，将会使用 PyTorch Geometric 构建简单的 GNN 进行两类问题的预测 : 1) 节点类别 2) 图类别，使用的数据集是 OGB 包中的两个数据集。</p>
+<p>查看 Pytorch 版本并安装相应的包：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> torch<br><span class="hljs-keyword">import</span> os<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;PyTorch has version &#123;&#125;&quot;</span>.<span class="hljs-built_in">format</span>(torch.__version__))<br></code></pre></td></tr></table></figure>
+
+<pre><code class="hljs">PyTorch has version 1.10.0+cu111
+</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">!pip install torch-scatter -f https://data.pyg.org/whl/torch-<span class="hljs-number">1.10</span><span class="hljs-number">.0</span>+cu111.html<br>!pip install torch-sparse -f https://data.pyg.org/whl/torch-<span class="hljs-number">1.10</span><span class="hljs-number">.0</span>+cu111.html<br>!pip install torch-geometric<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">!pip install ogb<br></code></pre></td></tr></table></figure>
+
+<h3 id="1-PyTorch-Geometric-Datasets-and-Data"><a href="#1-PyTorch-Geometric-Datasets-and-Data" class="headerlink" title="1) PyTorch Geometric (Datasets and Data)"></a>1) PyTorch Geometric (Datasets and Data)</h3><p>PyTorch Geometric 有两个类用来存储和转化图数据。一个是 <code>torch_geometric.datasets</code>, 含有一些常用的数据集，另一个是 <code>torch_geometric.data</code>, 提供了以 tensor 操作图数据的方法。</p>
+<h4 id="PyG-Datasets"><a href="#PyG-Datasets" class="headerlink" title="PyG Datasets"></a>PyG Datasets</h4><p>以 <code>ENZYMES</code> 数据集为例：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> torch_geometric.datasets <span class="hljs-keyword">import</span> TUDataset<br><br><span class="hljs-keyword">if</span> <span class="hljs-string">&#x27;IS_GRADESCOPE_ENV&#x27;</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> os.environ:<br>  root = <span class="hljs-string">&#x27;./enzymes&#x27;</span><br>  name = <span class="hljs-string">&#x27;ENZYMES&#x27;</span><br><br>  <span class="hljs-comment"># The ENZYMES dataset</span><br>  pyg_dataset= TUDataset(root, name)<br><br>  <span class="hljs-comment"># You will find that there are 600 graphs in this dataset</span><br>  <span class="hljs-built_in">print</span>(pyg_dataset)<br></code></pre></td></tr></table></figure>
+
+<pre><code class="hljs">Downloading https://www.chrsmrrs.com/graphkerneldatasets/ENZYMES.zip
+Extracting enzymes/ENZYMES/ENZYMES.zip
+Processing...
+
+
+ENZYMES(600)
+
+
+Done!
+</code></pre>
+<h5 id="Question-1-在-ENZYMES-数据集中有多少类别和特征？"><a href="#Question-1-在-ENZYMES-数据集中有多少类别和特征？" class="headerlink" title="Question 1: 在 ENZYMES 数据集中有多少类别和特征？"></a>Question 1: 在 ENZYMES 数据集中有多少类别和特征？</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">get_num_classes</span>(<span class="hljs-params">pyg_dataset</span>):<br>  <span class="hljs-comment"># <span class="hljs-doctag">TODO:</span> Implement a function that takes a PyG dataset object</span><br>  <span class="hljs-comment"># and returns the number of classes for that dataset.</span><br><br>  num_classes = <span class="hljs-number">0</span><br><br>  <span class="hljs-comment">############# Your code here ############</span><br>  <span class="hljs-comment">## (~1 line of code)</span><br>  <span class="hljs-comment">## Note</span><br>  <span class="hljs-comment">## 1. Colab autocomplete functionality might be useful.</span><br>  num_classes = pyg_dataset.num_classes<br>  <span class="hljs-comment">#########################################</span><br><br>  <span class="hljs-keyword">return</span> num_classes<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">get_num_features</span>(<span class="hljs-params">pyg_dataset</span>):<br>  <span class="hljs-comment"># <span class="hljs-doctag">TODO:</span> Implement a function that takes a PyG dataset object</span><br>  <span class="hljs-comment"># and returns the number of features for that dataset.</span><br><br>  num_features = <span class="hljs-number">0</span><br><br>  <span class="hljs-comment">############# Your code here ############</span><br>  <span class="hljs-comment">## (~1 line of code)</span><br>  <span class="hljs-comment">## Note</span><br>  <span class="hljs-comment">## 1. Colab autocomplete functionality might be useful.</span><br>  num_features = pyg_dataset.num_node_features<br>  <span class="hljs-comment">#########################################</span><br><br>  <span class="hljs-keyword">return</span> num_features<br><br><span class="hljs-keyword">if</span> <span class="hljs-string">&#x27;IS_GRADESCOPE_ENV&#x27;</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> os.environ:<br>  num_classes = get_num_classes(pyg_dataset)<br>  num_features = get_num_features(pyg_dataset)<br>  <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;&#123;&#125; dataset has &#123;&#125; classes&quot;</span>.<span class="hljs-built_in">format</span>(name, num_classes))<br>  <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;&#123;&#125; dataset has &#123;&#125; features&quot;</span>.<span class="hljs-built_in">format</span>(name, num_features))<br></code></pre></td></tr></table></figure>
+
+<pre><code class="hljs">ENZYMES dataset has 6 classes
+ENZYMES dataset has 3 features
+</code></pre>
+<h4 id="PyG-Data"><a href="#PyG-Data" class="headerlink" title="PyG Data"></a>PyG Data</h4><h5 id="Question-2-ENZYMES-中索引为-100-的图的标签是什么？"><a href="#Question-2-ENZYMES-中索引为-100-的图的标签是什么？" class="headerlink" title="Question 2: ENZYMES 中索引为 100 的图的标签是什么？"></a>Question 2: ENZYMES 中索引为 100 的图的标签是什么？</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">get_graph_class</span>(<span class="hljs-params">pyg_dataset, idx</span>):<br>  <span class="hljs-comment"># <span class="hljs-doctag">TODO:</span> Implement a function that takes a PyG dataset object,</span><br>  <span class="hljs-comment"># an index of a graph within the dataset, and returns the class/label </span><br>  <span class="hljs-comment"># of the graph (as an integer).</span><br><br>  label = -<span class="hljs-number">1</span><br><br>  <span class="hljs-comment">############# Your code here ############</span><br>  <span class="hljs-comment">## (~1 line of code)</span><br>  <span class="hljs-comment">##data.y å­˜å‚¨ lable</span><br>  label = pyg_dataset[idx][<span class="hljs-string">&quot;y&quot;</span>]<br>  <span class="hljs-comment">#########################################</span><br>  <span class="hljs-keyword">return</span> label<br><br><span class="hljs-comment"># Here pyg_dataset is a dataset for graph classification</span><br><span class="hljs-keyword">if</span> <span class="hljs-string">&#x27;IS_GRADESCOPE_ENV&#x27;</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> os.environ:<br>  graph_0 = pyg_dataset[<span class="hljs-number">0</span>]<br>  <span class="hljs-built_in">print</span>(graph_0)<br>  idx = <span class="hljs-number">100</span><br>  label = get_graph_class(pyg_dataset, idx)<br>  <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;Graph with index &#123;&#125; has label &#123;&#125;&#x27;</span>.<span class="hljs-built_in">format</span>(idx, label))<br></code></pre></td></tr></table></figure>
+
+<pre><code class="hljs">Data(edge_index=[2, 168], x=[37, 3], y=[1])
+Graph with index 100 has label tensor([4])
+</code></pre>
+<h5 id="Question-3-索引为-200-的图有多少个边？"><a href="#Question-3-索引为-200-的图有多少个边？" class="headerlink" title="Question 3: 索引为 200 的图有多少个边？"></a>Question 3: 索引为 200 的图有多少个边？</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">get_graph_num_edges</span>(<span class="hljs-params">pyg_dataset, idx</span>):<br>  <span class="hljs-comment"># <span class="hljs-doctag">TODO:</span> Implement a function that takes a PyG dataset object,</span><br>  <span class="hljs-comment"># the index of a graph in the dataset, and returns the number of </span><br>  <span class="hljs-comment"># edges in the graph (as an integer). You should not count an edge </span><br>  <span class="hljs-comment"># twice if the graph is undirected. For example, in an undirected </span><br>  <span class="hljs-comment"># graph G, if two nodes v and u are connected by an edge, this edge</span><br>  <span class="hljs-comment"># should only be counted once.</span><br><br>  num_edges = <span class="hljs-number">0</span><br><br>  <span class="hljs-comment">############# Your code here ############</span><br>  <span class="hljs-comment">## Note:</span><br>  <span class="hljs-comment">## 1. You can&#x27;t return the data.num_edges directly</span><br>  <span class="hljs-comment">## 2. We assume the graph is undirected</span><br>  <span class="hljs-comment">## 3. Look at the PyG dataset built in functions</span><br>  <span class="hljs-comment">## (~4 lines of code)</span><br>  num_edges = pyg_dataset[<span class="hljs-number">200</span>][<span class="hljs-string">&quot;edge_index&quot;</span>].shape[<span class="hljs-number">1</span>]/<span class="hljs-number">2</span><br>  num_edges = <span class="hljs-built_in">int</span>(num_edges)<br>  <span class="hljs-comment">#########################################</span><br><br>  <span class="hljs-keyword">return</span> num_edges<br><br><span class="hljs-keyword">if</span> <span class="hljs-string">&#x27;IS_GRADESCOPE_ENV&#x27;</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> os.environ:<br>  idx = <span class="hljs-number">200</span><br>  num_edges = get_graph_num_edges(pyg_dataset, idx)<br>  <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;Graph with index &#123;&#125; has &#123;&#125; edges&#x27;</span>.<span class="hljs-built_in">format</span>(idx, num_edges))<br></code></pre></td></tr></table></figure>
+
+<pre><code class="hljs">Graph with index 200 has 53 edges
+</code></pre>
+<h4 id="OGB-数据"><a href="#OGB-数据" class="headerlink" title="OGB 数据"></a>OGB 数据</h4><p>以 OGB 中的 ogbn-arxiv 数据为例：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> torch_geometric.transforms <span class="hljs-keyword">as</span> T<br><span class="hljs-keyword">from</span> ogb.nodeproppred <span class="hljs-keyword">import</span> PygNodePropPredDataset<br><br><span class="hljs-keyword">if</span> <span class="hljs-string">&#x27;IS_GRADESCOPE_ENV&#x27;</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> os.environ:<br>  dataset_name = <span class="hljs-string">&#x27;ogbn-arxiv&#x27;</span><br>  <span class="hljs-comment"># Load the dataset and transform it to sparse tensor</span><br>  dataset = PygNodePropPredDataset(name=dataset_name,transform=T.ToSparseTensor())<br>  <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;The &#123;&#125; dataset has &#123;&#125; graph&#x27;</span>.<span class="hljs-built_in">format</span>(dataset_name, <span class="hljs-built_in">len</span>(dataset)))<br><br>  <span class="hljs-comment"># Extract the graph</span><br>  data = dataset[<span class="hljs-number">0</span>]<br>  <span class="hljs-built_in">print</span>(data)<br></code></pre></td></tr></table></figure>
+
+<pre><code class="hljs">Downloading http://snap.stanford.edu/ogb/data/nodeproppred/arxiv.zip
+
+
+Downloaded 0.08 GB: 100%|â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆ| 81/81 [00:07&lt;00:00, 10.16it/s]
+
+
+Extracting dataset/arxiv.zip
+
+
+Processing...
+
+
+Loading necessary files...
+This might take a while.
+Processing graphs...
+
+
+100%|â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆ| 1/1 [00:00&lt;00:00, 8112.77it/s]
+
+
+Converting graphs into PyG objects...
+
+
+100%|â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆ| 1/1 [00:00&lt;00:00, 5729.92it/s]
+
+Saving...
+
+Done!
+
+
+The ogbn-arxiv dataset has 1 graph
+Data(num_nodes=169343, x=[169343, 128], node_year=[169343, 1], y=[169343, 1], adj_t=[169343, 169343, nnz=1166243])
+</code></pre>
+<h5 id="Question-4-ogbn-arxiv-图有多少特征？"><a href="#Question-4-ogbn-arxiv-图有多少特征？" class="headerlink" title="Question 4: ogbn-arxiv 图有多少特征？"></a>Question 4: ogbn-arxiv 图有多少特征？</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">graph_num_features</span>(<span class="hljs-params">data</span>):<br>  <span class="hljs-comment"># <span class="hljs-doctag">TODO:</span> Implement a function that takes a PyG data object,</span><br>  <span class="hljs-comment"># and returns the number of features in the graph (as an integer).</span><br><br>  num_features = <span class="hljs-number">0</span><br><br>  <span class="hljs-comment">############# Your code here ############</span><br>  <span class="hljs-comment">## (~1 line of code)</span><br>  num_features = data.num_node_features<br>  <span class="hljs-comment">#########################################</span><br><br>  <span class="hljs-keyword">return</span> num_features<br><br><span class="hljs-keyword">if</span> <span class="hljs-string">&#x27;IS_GRADESCOPE_ENV&#x27;</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> os.environ:<br>  num_features = graph_num_features(data)<br>  <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;The graph has &#123;&#125; features&#x27;</span>.<span class="hljs-built_in">format</span>(num_features))<br></code></pre></td></tr></table></figure>
+
+<pre><code class="hljs">The graph has 128 features
+</code></pre>
+<h3 id="GNN-节点分类预测"><a href="#GNN-节点分类预测" class="headerlink" title="GNN: 节点分类预测"></a>GNN: 节点分类预测</h3><p>使用 PyG 的 <code>GCNConv</code> 层：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> torch<br><span class="hljs-keyword">import</span> pandas <span class="hljs-keyword">as</span> pd<br><span class="hljs-keyword">import</span> torch.nn.functional <span class="hljs-keyword">as</span> F<br><span class="hljs-built_in">print</span>(torch.__version__)<br><br><span class="hljs-comment"># The PyG built-in GCNConv</span><br><span class="hljs-keyword">from</span> torch_geometric.nn <span class="hljs-keyword">import</span> GCNConv<br><br><span class="hljs-keyword">import</span> torch_geometric.transforms <span class="hljs-keyword">as</span> T<br><span class="hljs-keyword">from</span> ogb.nodeproppred <span class="hljs-keyword">import</span> PygNodePropPredDataset, Evaluator<br></code></pre></td></tr></table></figure>
+
+<pre><code class="hljs">1.10.0+cu111
+</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">data.adj_t<br></code></pre></td></tr></table></figure>
+
+
+<pre><code class="hljs">SparseTensor(row=tensor([     0,      0,      0,  ..., 169341, 169341, 169341]),
+             col=tensor([   411,    640,   1162,  ...,  30351,  35711, 103121]),
+             size=(169343, 169343), nnz=1166243, density=0.00%)
+</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">data.num_nodes<br></code></pre></td></tr></table></figure>
+
+
+<pre><code class="hljs">169343
+</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">data.adj_t.to_symmetric()<br></code></pre></td></tr></table></figure>
+
+
+<pre><code class="hljs">SparseTensor(row=tensor([     0,      0,      0,  ..., 169341, 169342, 169342]),
+             col=tensor([   411,    640,   1162,  ..., 163274,  27824, 158981]),
+             size=(169343, 169343), nnz=2315598, density=0.01%)
+</code></pre>
+<h4 id="Load-and-Preprocess-the-Dataset"><a href="#Load-and-Preprocess-the-Dataset" class="headerlink" title="Load and Preprocess the Dataset"></a>Load and Preprocess the Dataset</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">if</span> <span class="hljs-string">&#x27;IS_GRADESCOPE_ENV&#x27;</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> os.environ:<br>  dataset_name = <span class="hljs-string">&#x27;ogbn-arxiv&#x27;</span><br>  dataset = PygNodePropPredDataset(name=dataset_name,transform=T.ToSparseTensor())<br>  data = dataset[<span class="hljs-number">0</span>]<br><br>  <span class="hljs-comment"># Make the adjacency matrix to symmetric</span><br>  data.adj_t = data.adj_t.to_symmetric()<br><br>  device = <span class="hljs-string">&#x27;cuda&#x27;</span> <span class="hljs-keyword">if</span> torch.cuda.is_available() <span class="hljs-keyword">else</span> <span class="hljs-string">&#x27;cpu&#x27;</span><br><br>  <span class="hljs-comment"># If you use GPU, the device should be cuda</span><br>  <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;Device: &#123;&#125;&#x27;</span>.<span class="hljs-built_in">format</span>(device))<br><br>  data = data.to(device)<br>  split_idx = dataset.get_idx_split()<br>  train_idx = split_idx[<span class="hljs-string">&#x27;train&#x27;</span>].to(device)<br></code></pre></td></tr></table></figure>
+
+<pre><code class="hljs">Device: cuda
+</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">split_idx<br></code></pre></td></tr></table></figure>
+
+
+<pre><code class="hljs">&#123;&#39;test&#39;: tensor([   346,    398,    451,  ..., 169340, 169341, 169342]),
+ &#39;train&#39;: tensor([     0,      1,      2,  ..., 169145, 169148, 169251]),
+ &#39;valid&#39;: tensor([   349,    357,    366,  ..., 169185, 169261, 169296])&#125;
+</code></pre>
+<h4 id="GCN-Model"><a href="#GCN-Model" class="headerlink" title="GCN Model"></a>GCN Model</h4><p>GNN 的架构如下：</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/aaa.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">GCN</span>(torch.nn.Module):<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, input_dim, hidden_dim, output_dim, num_layers,</span><br><span class="hljs-params">                 dropout, return_embeds=<span class="hljs-literal">False</span></span>):<br>        <span class="hljs-comment"># <span class="hljs-doctag">TODO:</span> Implement a function that initializes self.convs, </span><br>        <span class="hljs-comment"># self.bns, and self.softmax.</span><br><br>        <span class="hljs-built_in">super</span>(GCN, self).__init__()<br><br>        <span class="hljs-comment"># A list of GCNConv layers</span><br>        self.convs = <span class="hljs-literal">None</span><br><br>        <span class="hljs-comment"># A list of 1D batch normalization layers</span><br>        self.bns = <span class="hljs-literal">None</span><br><br>        <span class="hljs-comment"># The log softmax layer</span><br>        self.softmax = <span class="hljs-literal">None</span><br><br>        <span class="hljs-comment">############# Your code here ############</span><br>        <span class="hljs-comment">## Note:</span><br>        <span class="hljs-comment">## 1. You should use torch.nn.ModuleList for self.convs and self.bns</span><br>        <span class="hljs-comment">## 2. self.convs has num_layers GCNConv layers</span><br>        <span class="hljs-comment">## 3. self.bns has num_layers - 1 BatchNorm1d layers</span><br>        <span class="hljs-comment">## 4. You should use torch.nn.LogSoftmax for self.softmax</span><br>        <span class="hljs-comment">## 5. The parameters you can set for GCNConv include &#x27;in_channels&#x27; and </span><br>        <span class="hljs-comment">## &#x27;out_channels&#x27;. For more information please refer to the documentation:</span><br>        <span class="hljs-comment">## https://pytorch-geometric.readthedocs.io/en/latest/modules/nn.html#torch_geometric.nn.conv.GCNConv</span><br>        <span class="hljs-comment">## 6. The only parameter you need to set for BatchNorm1d is &#x27;num_features&#x27;</span><br>        <span class="hljs-comment">## For more information please refer to the documentation: </span><br>        <span class="hljs-comment">## https://pytorch.org/docs/stable/generated/torch.nn.BatchNorm1d.html</span><br>        <span class="hljs-comment">## (~10 lines of code)</span><br>        self.num_layers = num_layers<br>        self.convs = torch.nn.ModuleList(<br>            [GCNConv(input_dim,hidden_dim)] + <br>            [GCNConv(hidden_dim,hidden_dim) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(self.num_layers-<span class="hljs-number">2</span>)] +<br>            [GCNConv(hidden_dim,output_dim)])<br><br>        self.bns = torch.nn.ModuleList([torch.nn.BatchNorm1d(hidden_dim) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(self.num_layers - <span class="hljs-number">1</span>)])<br>        self.softmax = torch.nn.LogSoftmax()<br>        <span class="hljs-comment">#########################################</span><br><br>        <span class="hljs-comment"># Probability of an element getting zeroed</span><br>        self.dropout = dropout<br><br>        <span class="hljs-comment"># Skip classification layer and return node embeddings</span><br>        self.return_embeds = return_embeds<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">reset_parameters</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-keyword">for</span> conv <span class="hljs-keyword">in</span> self.convs:<br>            conv.reset_parameters()<br>        <span class="hljs-keyword">for</span> bn <span class="hljs-keyword">in</span> self.bns:<br>            bn.reset_parameters()<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">forward</span>(<span class="hljs-params">self, x, adj_t</span>):<br>        <span class="hljs-comment"># <span class="hljs-doctag">TODO:</span> Implement a function that takes the feature tensor x and</span><br>        <span class="hljs-comment"># edge_index tensor adj_t and returns the output tensor as</span><br>        <span class="hljs-comment"># shown in the figure.</span><br><br>        out = <span class="hljs-literal">None</span><br><br>        <span class="hljs-comment">############# Your code here ############</span><br>        <span class="hljs-comment">## Note:</span><br>        <span class="hljs-comment">## 1. Construct the network as shown in the figure</span><br>        <span class="hljs-comment">## 2. torch.nn.functional.relu and torch.nn.functional.dropout are useful</span><br>        <span class="hljs-comment">## For more information please refer to the documentation:</span><br>        <span class="hljs-comment">## https://pytorch.org/docs/stable/nn.functional.html</span><br>        <span class="hljs-comment">## 3. Don&#x27;t forget to set F.dropout training to self.training</span><br>        <span class="hljs-comment">## 4. If return_embeds is True, then skip the last softmax layer</span><br>        <span class="hljs-comment">## (~7 lines of code)</span><br>        <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(self.num_layers - <span class="hljs-number">1</span>):<br>          x = self.convs[i](x, adj_t)<br>          x = self.bns[i](x)<br>          x = F.relu(x)<br>          x = F.dropout(x,p=self.dropout,training=self.training)<br>        x = self.convs[self.num_layers-<span class="hljs-number">1</span>](x, adj_t)<br>        <span class="hljs-keyword">if</span> self.return_embeds :<br>          out = x<br>        <span class="hljs-keyword">else</span>:<br>          out = self.softmax(x)<br>        <span class="hljs-comment">#########################################</span><br><br>        <span class="hljs-keyword">return</span> out<br></code></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">train</span>(<span class="hljs-params">model, data, train_idx, optimizer, loss_fn</span>):<br>    <span class="hljs-comment"># <span class="hljs-doctag">TODO:</span> Implement a function that trains the model by </span><br>    <span class="hljs-comment"># using the given optimizer and loss_fn.</span><br>    model.train()<br>    loss = <span class="hljs-number">0</span><br><br>    <span class="hljs-comment">############# Your code here ############</span><br>    <span class="hljs-comment">## Note:</span><br>    <span class="hljs-comment">## 1. Zero grad the optimizer</span><br>    <span class="hljs-comment">## 2. Feed the data into the model</span><br>    <span class="hljs-comment">## 3. Slice the model output and label by train_idx</span><br>    <span class="hljs-comment">## 4. Feed the sliced output and label to loss_fn</span><br>    <span class="hljs-comment">## (~4 lines of code)</span><br>    optimizer.zero_grad()<br>    out = model(data.x,data.adj_t)<br>    loss = loss_fn(out[train_idx], data.y[train_idx].reshape(-<span class="hljs-number">1</span>))<br>    <span class="hljs-comment">#########################################</span><br><br>    loss.backward()<br>    optimizer.step()<br><br>    <span class="hljs-keyword">return</span> loss.item()<br></code></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># Test function here</span><br><span class="hljs-meta">@torch.no_grad()</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">test</span>(<span class="hljs-params">model, data, split_idx, evaluator, save_model_results=<span class="hljs-literal">False</span></span>):<br>    <span class="hljs-comment"># <span class="hljs-doctag">TODO:</span> Implement a function that tests the model by </span><br>    <span class="hljs-comment"># using the given split_idx and evaluator.</span><br>    model.<span class="hljs-built_in">eval</span>()<br><br>    <span class="hljs-comment"># The output of model on all data</span><br>    out = <span class="hljs-literal">None</span><br><br>    <span class="hljs-comment">############# Your code here ############</span><br>    <span class="hljs-comment">## (~1 line of code)</span><br>    <span class="hljs-comment">## Note:</span><br>    <span class="hljs-comment">## 1. No index slicing here</span><br>    out = model(data.x,data.adj_t)<br>    <span class="hljs-comment">#########################################</span><br><br>    y_pred = out.argmax(dim=-<span class="hljs-number">1</span>, keepdim=<span class="hljs-literal">True</span>)<br><br>    train_acc = evaluator.<span class="hljs-built_in">eval</span>(&#123;<br>        <span class="hljs-string">&#x27;y_true&#x27;</span>: data.y[split_idx[<span class="hljs-string">&#x27;train&#x27;</span>]],<br>        <span class="hljs-string">&#x27;y_pred&#x27;</span>: y_pred[split_idx[<span class="hljs-string">&#x27;train&#x27;</span>]],<br>    &#125;)[<span class="hljs-string">&#x27;acc&#x27;</span>]<br>    valid_acc = evaluator.<span class="hljs-built_in">eval</span>(&#123;<br>        <span class="hljs-string">&#x27;y_true&#x27;</span>: data.y[split_idx[<span class="hljs-string">&#x27;valid&#x27;</span>]],<br>        <span class="hljs-string">&#x27;y_pred&#x27;</span>: y_pred[split_idx[<span class="hljs-string">&#x27;valid&#x27;</span>]],<br>    &#125;)[<span class="hljs-string">&#x27;acc&#x27;</span>]<br>    test_acc = evaluator.<span class="hljs-built_in">eval</span>(&#123;<br>        <span class="hljs-string">&#x27;y_true&#x27;</span>: data.y[split_idx[<span class="hljs-string">&#x27;test&#x27;</span>]],<br>        <span class="hljs-string">&#x27;y_pred&#x27;</span>: y_pred[split_idx[<span class="hljs-string">&#x27;test&#x27;</span>]],<br>    &#125;)[<span class="hljs-string">&#x27;acc&#x27;</span>]<br><br>    <span class="hljs-keyword">if</span> save_model_results:<br>      <span class="hljs-built_in">print</span> (<span class="hljs-string">&quot;Saving Model Predictions&quot;</span>)<br><br>      data = &#123;&#125;<br>      data[<span class="hljs-string">&#x27;y_pred&#x27;</span>] = y_pred.view(-<span class="hljs-number">1</span>).cpu().detach().numpy()<br><br>      df = pd.DataFrame(data=data)<br>      <span class="hljs-comment"># Save locally as csv</span><br>      df.to_csv(<span class="hljs-string">&#x27;ogbn-arxiv_node.csv&#x27;</span>, sep=<span class="hljs-string">&#x27;,&#x27;</span>, index=<span class="hljs-literal">False</span>)<br><br><br>    <span class="hljs-keyword">return</span> train_acc, valid_acc, test_acc<br></code></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># Please do not change the args</span><br><span class="hljs-keyword">if</span> <span class="hljs-string">&#x27;IS_GRADESCOPE_ENV&#x27;</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> os.environ:<br>  args = &#123;<br>      <span class="hljs-string">&#x27;device&#x27;</span>: device,<br>      <span class="hljs-string">&#x27;num_layers&#x27;</span>: <span class="hljs-number">3</span>,<br>      <span class="hljs-string">&#x27;hidden_dim&#x27;</span>: <span class="hljs-number">256</span>,<br>      <span class="hljs-string">&#x27;dropout&#x27;</span>: <span class="hljs-number">0.5</span>,<br>      <span class="hljs-string">&#x27;lr&#x27;</span>: <span class="hljs-number">0.01</span>,<br>      <span class="hljs-string">&#x27;epochs&#x27;</span>: <span class="hljs-number">100</span>,<br>  &#125;<br>  args<br></code></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">if</span> <span class="hljs-string">&#x27;IS_GRADESCOPE_ENV&#x27;</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> os.environ:<br>  model = GCN(data.num_features, args[<span class="hljs-string">&#x27;hidden_dim&#x27;</span>],<br>              dataset.num_classes, args[<span class="hljs-string">&#x27;num_layers&#x27;</span>],<br>              args[<span class="hljs-string">&#x27;dropout&#x27;</span>]).to(device)<br>  evaluator = Evaluator(name=<span class="hljs-string">&#x27;ogbn-arxiv&#x27;</span>)<br></code></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">model.convs<br></code></pre></td></tr></table></figure>
+
+
+<pre><code class="hljs">ModuleList(
+  (0): GCNConv(128, 256)
+  (1): GCNConv(256, 256)
+  (2): GCNConv(256, 40)
+)
+</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> copy<br><span class="hljs-keyword">if</span> <span class="hljs-string">&#x27;IS_GRADESCOPE_ENV&#x27;</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> os.environ:<br>  <span class="hljs-comment"># reset the parameters to initial random value</span><br>  model.reset_parameters()<br><br>  optimizer = torch.optim.Adam(model.parameters(), lr=args[<span class="hljs-string">&#x27;lr&#x27;</span>])<br>  loss_fn = F.nll_loss<br><br>  best_model = <span class="hljs-literal">None</span><br>  best_valid_acc = <span class="hljs-number">0</span><br><br>  <span class="hljs-keyword">for</span> epoch <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">1</span>, <span class="hljs-number">1</span> + args[<span class="hljs-string">&quot;epochs&quot;</span>]):<br>    loss = train(model, data, train_idx, optimizer, loss_fn)<br>    result = test(model, data, split_idx, evaluator)<br>    train_acc, valid_acc, test_acc = result<br>    <span class="hljs-keyword">if</span> valid_acc &gt; best_valid_acc:<br>        best_valid_acc = valid_acc<br>        best_model = copy.deepcopy(model)<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;Epoch: <span class="hljs-subst">&#123;epoch:02d&#125;</span>, &#x27;</span><br>          <span class="hljs-string">f&#x27;Loss: <span class="hljs-subst">&#123;loss:<span class="hljs-number">.4</span>f&#125;</span>, &#x27;</span><br>          <span class="hljs-string">f&#x27;Train: <span class="hljs-subst">&#123;<span class="hljs-number">100</span> * train_acc:<span class="hljs-number">.2</span>f&#125;</span>%, &#x27;</span><br>          <span class="hljs-string">f&#x27;Valid: <span class="hljs-subst">&#123;<span class="hljs-number">100</span> * valid_acc:<span class="hljs-number">.2</span>f&#125;</span>% &#x27;</span><br>          <span class="hljs-string">f&#x27;Test: <span class="hljs-subst">&#123;<span class="hljs-number">100</span> * test_acc:<span class="hljs-number">.2</span>f&#125;</span>%&#x27;</span>)<br></code></pre></td></tr></table></figure>
+
+<pre><code class="hljs">/usr/local/lib/python3.7/dist-packages/ipykernel_launcher.py:78: UserWarning: Implicit dimension choice for log_softmax has been deprecated. Change the call to include dim=X as an argument.
+
+
+Epoch: 01, Loss: 4.1033, Train: 27.09%, Valid: 29.73% Test: 26.61%
+Epoch: 02, Loss: 2.4399, Train: 26.64%, Valid: 24.23% Test: 28.44%
+Epoch: 03, Loss: 1.9616, Train: 26.83%, Valid: 16.91% Test: 14.72%
+Epoch: 04, Loss: 1.8343, Train: 28.58%, Valid: 15.74% Test: 12.46%
+Epoch: 05, Loss: 1.6758, Train: 30.91%, Valid: 20.28% Test: 17.73%
+Epoch: 06, Loss: 1.6027, Train: 33.16%, Valid: 27.19% Test: 25.46%
+Epoch: 07, Loss: 1.5436, Train: 34.38%, Valid: 30.09% Test: 29.57%
+Epoch: 08, Loss: 1.4816, Train: 36.40%, Valid: 33.96% Test: 35.30%
+Epoch: 09, Loss: 1.4277, Train: 39.82%, Valid: 39.25% Test: 43.29%
+Epoch: 10, Loss: 1.4086, Train: 43.05%, Valid: 42.01% Test: 46.15%
+Epoch: 11, Loss: 1.3740, Train: 46.01%, Valid: 44.16% Test: 47.89%
+Epoch: 12, Loss: 1.3430, Train: 49.18%, Valid: 47.97% Test: 51.24%
+Epoch: 13, Loss: 1.3192, Train: 52.03%, Valid: 51.83% Test: 54.47%
+Epoch: 14, Loss: 1.2995, Train: 54.05%, Valid: 54.74% Test: 57.26%
+Epoch: 15, Loss: 1.2774, Train: 55.88%, Valid: 57.32% Test: 59.08%
+Epoch: 16, Loss: 1.2582, Train: 57.55%, Valid: 59.13% Test: 60.06%
+Epoch: 17, Loss: 1.2439, Train: 58.61%, Valid: 60.20% Test: 61.11%
+Epoch: 18, Loss: 1.2282, Train: 59.16%, Valid: 60.52% Test: 61.89%
+Epoch: 19, Loss: 1.2170, Train: 59.45%, Valid: 60.19% Test: 62.18%
+Epoch: 20, Loss: 1.1986, Train: 60.01%, Valid: 60.50% Test: 62.57%
+Epoch: 21, Loss: 1.1874, Train: 60.63%, Valid: 61.09% Test: 62.82%
+Epoch: 22, Loss: 1.1724, Train: 61.08%, Valid: 61.48% Test: 63.07%
+Epoch: 23, Loss: 1.1602, Train: 61.42%, Valid: 61.66% Test: 63.16%
+Epoch: 24, Loss: 1.1519, Train: 62.03%, Valid: 62.16% Test: 63.46%
+Epoch: 25, Loss: 1.1451, Train: 62.99%, Valid: 63.15% Test: 64.23%
+Epoch: 26, Loss: 1.1398, Train: 64.04%, Valid: 64.03% Test: 64.89%
+Epoch: 27, Loss: 1.1307, Train: 65.06%, Valid: 65.05% Test: 65.56%
+Epoch: 28, Loss: 1.1206, Train: 65.98%, Valid: 65.64% Test: 65.73%
+Epoch: 29, Loss: 1.1140, Train: 66.77%, Valid: 66.28% Test: 65.64%
+Epoch: 30, Loss: 1.1101, Train: 67.40%, Valid: 66.95% Test: 66.20%
+Epoch: 31, Loss: 1.1046, Train: 67.77%, Valid: 67.42% Test: 67.15%
+Epoch: 32, Loss: 1.0961, Train: 67.67%, Valid: 67.28% Test: 67.73%
+Epoch: 33, Loss: 1.0916, Train: 67.43%, Valid: 67.16% Test: 67.91%
+Epoch: 34, Loss: 1.0865, Train: 67.36%, Valid: 67.18% Test: 67.91%
+Epoch: 35, Loss: 1.0757, Train: 67.53%, Valid: 67.34% Test: 68.08%
+Epoch: 36, Loss: 1.0746, Train: 68.01%, Valid: 67.87% Test: 68.27%
+Epoch: 37, Loss: 1.0709, Train: 68.60%, Valid: 68.52% Test: 68.41%
+Epoch: 38, Loss: 1.0660, Train: 69.08%, Valid: 68.87% Test: 68.58%
+Epoch: 39, Loss: 1.0616, Train: 69.52%, Valid: 69.17% Test: 68.88%
+Epoch: 40, Loss: 1.0581, Train: 69.80%, Valid: 69.42% Test: 69.12%
+Epoch: 41, Loss: 1.0546, Train: 69.92%, Valid: 69.43% Test: 69.35%
+Epoch: 42, Loss: 1.0500, Train: 69.99%, Valid: 69.57% Test: 69.40%
+Epoch: 43, Loss: 1.0427, Train: 70.07%, Valid: 69.57% Test: 69.41%
+Epoch: 44, Loss: 1.0425, Train: 70.27%, Valid: 69.71% Test: 69.46%
+Epoch: 45, Loss: 1.0397, Train: 70.39%, Valid: 69.82% Test: 69.61%
+Epoch: 46, Loss: 1.0344, Train: 70.50%, Valid: 69.98% Test: 69.68%
+Epoch: 47, Loss: 1.0285, Train: 70.66%, Valid: 70.16% Test: 69.82%
+Epoch: 48, Loss: 1.0244, Train: 70.80%, Valid: 70.35% Test: 70.00%
+Epoch: 49, Loss: 1.0254, Train: 71.00%, Valid: 70.48% Test: 70.02%
+Epoch: 50, Loss: 1.0170, Train: 71.11%, Valid: 70.49% Test: 69.76%
+Epoch: 51, Loss: 1.0184, Train: 71.14%, Valid: 70.37% Test: 69.58%
+Epoch: 52, Loss: 1.0163, Train: 71.09%, Valid: 70.43% Test: 69.59%
+Epoch: 53, Loss: 1.0116, Train: 71.03%, Valid: 70.41% Test: 69.82%
+Epoch: 54, Loss: 1.0086, Train: 71.12%, Valid: 70.52% Test: 69.89%
+Epoch: 55, Loss: 1.0072, Train: 71.22%, Valid: 70.71% Test: 70.05%
+Epoch: 56, Loss: 1.0051, Train: 71.36%, Valid: 70.88% Test: 69.98%
+Epoch: 57, Loss: 1.0010, Train: 71.49%, Valid: 70.94% Test: 69.96%
+Epoch: 58, Loss: 0.9991, Train: 71.66%, Valid: 70.75% Test: 69.87%
+Epoch: 59, Loss: 0.9962, Train: 71.69%, Valid: 70.70% Test: 69.88%
+Epoch: 60, Loss: 0.9930, Train: 71.71%, Valid: 70.77% Test: 70.09%
+Epoch: 61, Loss: 0.9925, Train: 71.71%, Valid: 70.82% Test: 70.22%
+Epoch: 62, Loss: 0.9894, Train: 71.81%, Valid: 70.88% Test: 70.22%
+Epoch: 63, Loss: 0.9862, Train: 71.96%, Valid: 71.00% Test: 70.29%
+Epoch: 64, Loss: 0.9880, Train: 72.08%, Valid: 71.11% Test: 70.29%
+Epoch: 65, Loss: 0.9831, Train: 72.18%, Valid: 71.01% Test: 70.15%
+Epoch: 66, Loss: 0.9821, Train: 72.24%, Valid: 71.01% Test: 70.09%
+Epoch: 67, Loss: 0.9791, Train: 72.29%, Valid: 70.99% Test: 70.02%
+Epoch: 68, Loss: 0.9775, Train: 72.35%, Valid: 71.07% Test: 70.08%
+Epoch: 69, Loss: 0.9716, Train: 72.26%, Valid: 71.14% Test: 70.15%
+Epoch: 70, Loss: 0.9716, Train: 72.30%, Valid: 71.01% Test: 70.05%
+Epoch: 71, Loss: 0.9709, Train: 72.38%, Valid: 71.00% Test: 69.94%
+Epoch: 72, Loss: 0.9719, Train: 72.46%, Valid: 70.86% Test: 69.75%
+Epoch: 73, Loss: 0.9659, Train: 72.53%, Valid: 71.04% Test: 69.91%
+Epoch: 74, Loss: 0.9669, Train: 72.58%, Valid: 71.24% Test: 70.23%
+Epoch: 75, Loss: 0.9637, Train: 72.66%, Valid: 71.39% Test: 70.35%
+Epoch: 76, Loss: 0.9607, Train: 72.71%, Valid: 71.13% Test: 69.67%
+Epoch: 77, Loss: 0.9588, Train: 72.72%, Valid: 70.88% Test: 69.13%
+Epoch: 78, Loss: 0.9592, Train: 72.85%, Valid: 71.09% Test: 69.73%
+Epoch: 79, Loss: 0.9569, Train: 72.88%, Valid: 71.56% Test: 70.79%
+Epoch: 80, Loss: 0.9550, Train: 72.81%, Valid: 71.50% Test: 70.85%
+Epoch: 81, Loss: 0.9504, Train: 72.75%, Valid: 71.25% Test: 70.50%
+Epoch: 82, Loss: 0.9495, Train: 72.78%, Valid: 71.20% Test: 70.13%
+Epoch: 83, Loss: 0.9503, Train: 72.85%, Valid: 71.17% Test: 70.13%
+Epoch: 84, Loss: 0.9459, Train: 72.95%, Valid: 71.17% Test: 69.93%
+Epoch: 85, Loss: 0.9414, Train: 73.03%, Valid: 71.21% Test: 70.01%
+Epoch: 86, Loss: 0.9431, Train: 73.12%, Valid: 71.48% Test: 70.46%
+Epoch: 87, Loss: 0.9416, Train: 73.13%, Valid: 71.38% Test: 70.13%
+Epoch: 88, Loss: 0.9403, Train: 73.22%, Valid: 71.48% Test: 70.44%
+Epoch: 89, Loss: 0.9388, Train: 73.09%, Valid: 71.58% Test: 70.74%
+Epoch: 90, Loss: 0.9381, Train: 72.96%, Valid: 71.49% Test: 70.93%
+Epoch: 91, Loss: 0.9347, Train: 73.26%, Valid: 71.59% Test: 70.70%
+Epoch: 92, Loss: 0.9320, Train: 73.25%, Valid: 71.31% Test: 70.03%
+Epoch: 93, Loss: 0.9316, Train: 73.17%, Valid: 71.03% Test: 69.63%
+Epoch: 94, Loss: 0.9325, Train: 73.39%, Valid: 71.52% Test: 70.41%
+Epoch: 95, Loss: 0.9309, Train: 73.37%, Valid: 71.75% Test: 71.18%
+Epoch: 96, Loss: 0.9268, Train: 73.21%, Valid: 71.80% Test: 71.35%
+Epoch: 97, Loss: 0.9271, Train: 73.38%, Valid: 71.67% Test: 71.22%
+Epoch: 98, Loss: 0.9239, Train: 73.50%, Valid: 71.62% Test: 71.12%
+Epoch: 99, Loss: 0.9245, Train: 73.62%, Valid: 71.61% Test: 70.90%
+Epoch: 100, Loss: 0.9250, Train: 73.64%, Valid: 71.55% Test: 70.65%
+</code></pre>
+<h5 id="Question-5-验证和测试中最好的模型是什么？"><a href="#Question-5-验证和测试中最好的模型是什么？" class="headerlink" title="Question 5: 验证和测试中最好的模型是什么？"></a>Question 5: 验证和测试中最好的模型是什么？</h5><p>Run the cell below to see the results of your best of model and save your model’s predictions to a file named <em>ogbn-arxiv_node.csv</em>. </p>
+<p>You can view this file by clicking on the <em>Folder</em> icon on the left side pannel. As in Colab 1, when you sumbit your assignment, you will have to download this file and attatch it to your submission.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">if</span> <span class="hljs-string">&#x27;IS_GRADESCOPE_ENV&#x27;</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> os.environ:<br>  best_result = test(best_model, data, split_idx, evaluator, save_model_results=<span class="hljs-literal">True</span>)<br>  train_acc, valid_acc, test_acc = best_result<br>  <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;Best model: &#x27;</span><br>        <span class="hljs-string">f&#x27;Train: <span class="hljs-subst">&#123;<span class="hljs-number">100</span> * train_acc:<span class="hljs-number">.2</span>f&#125;</span>%, &#x27;</span><br>        <span class="hljs-string">f&#x27;Valid: <span class="hljs-subst">&#123;<span class="hljs-number">100</span> * valid_acc:<span class="hljs-number">.2</span>f&#125;</span>% &#x27;</span><br>        <span class="hljs-string">f&#x27;Test: <span class="hljs-subst">&#123;<span class="hljs-number">100</span> * test_acc:<span class="hljs-number">.2</span>f&#125;</span>%&#x27;</span>)<br></code></pre></td></tr></table></figure>
+
+<pre><code class="hljs">Saving Model Predictions
+Best model: Train: 73.21%, Valid: 71.80% Test: 71.35%
+
+
+/usr/local/lib/python3.7/dist-packages/ipykernel_launcher.py:78: UserWarning: Implicit dimension choice for log_softmax has been deprecated. Change the call to include dim=X as an argument.
+</code></pre>
+<h3 id="GNN-图类别预测"><a href="#GNN-图类别预测" class="headerlink" title="GNN: 图类别预测"></a>GNN: 图类别预测</h3><p>In this section we will create a graph neural network for graph property prediction (graph classification).</p>
+<h4 id="Load-and-preprocess-the-dataset"><a href="#Load-and-preprocess-the-dataset" class="headerlink" title="Load and preprocess the dataset"></a>Load and preprocess the dataset</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> ogb.graphproppred <span class="hljs-keyword">import</span> PygGraphPropPredDataset, Evaluator<br><span class="hljs-keyword">from</span> torch_geometric.data <span class="hljs-keyword">import</span> DataLoader<br><span class="hljs-keyword">from</span> tqdm.notebook <span class="hljs-keyword">import</span> tqdm<br><br><span class="hljs-keyword">if</span> <span class="hljs-string">&#x27;IS_GRADESCOPE_ENV&#x27;</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> os.environ:<br>  <span class="hljs-comment"># Load the dataset </span><br>  dataset = PygGraphPropPredDataset(name=<span class="hljs-string">&#x27;ogbg-molhiv&#x27;</span>)<br><br>  device = <span class="hljs-string">&#x27;cuda&#x27;</span> <span class="hljs-keyword">if</span> torch.cuda.is_available() <span class="hljs-keyword">else</span> <span class="hljs-string">&#x27;cpu&#x27;</span><br>  <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;Device: &#123;&#125;&#x27;</span>.<span class="hljs-built_in">format</span>(device))<br><br>  split_idx = dataset.get_idx_split()<br><br>  <span class="hljs-comment"># Check task type</span><br>  <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;Task type: &#123;&#125;&#x27;</span>.<span class="hljs-built_in">format</span>(dataset.task_type))<br></code></pre></td></tr></table></figure>
+
+<pre><code class="hljs">Downloading http://snap.stanford.edu/ogb/data/graphproppred/csv_mol_download/hiv.zip
+
+
+Downloaded 0.00 GB: 100%|â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆ| 3/3 [00:02&lt;00:00,  1.33it/s]
+Processing...
+
+
+Extracting dataset/hiv.zip
+Loading necessary files...
+This might take a while.
+Processing graphs...
+
+
+100%|â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆ| 41127/41127 [00:00&lt;00:00, 102734.99it/s]
+
+
+Converting graphs into PyG objects...
+
+
+100%|â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆ| 41127/41127 [00:00&lt;00:00, 43779.36it/s]
+
+
+Saving...
+Device: cuda
+Task type: binary classification
+
+
+Done!
+</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># Load the dataset splits into corresponding dataloaders</span><br><span class="hljs-comment"># We will train the graph classification task on a batch of 32 graphs</span><br><span class="hljs-comment"># Shuffle the order of graphs for training set</span><br><span class="hljs-keyword">if</span> <span class="hljs-string">&#x27;IS_GRADESCOPE_ENV&#x27;</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> os.environ:<br>  train_loader = DataLoader(dataset[split_idx[<span class="hljs-string">&quot;train&quot;</span>]], batch_size=<span class="hljs-number">32</span>, shuffle=<span class="hljs-literal">True</span>, num_workers=<span class="hljs-number">0</span>)<br>  valid_loader = DataLoader(dataset[split_idx[<span class="hljs-string">&quot;valid&quot;</span>]], batch_size=<span class="hljs-number">32</span>, shuffle=<span class="hljs-literal">False</span>, num_workers=<span class="hljs-number">0</span>)<br>  test_loader = DataLoader(dataset[split_idx[<span class="hljs-string">&quot;test&quot;</span>]], batch_size=<span class="hljs-number">32</span>, shuffle=<span class="hljs-literal">False</span>, num_workers=<span class="hljs-number">0</span>)<br></code></pre></td></tr></table></figure>
+
+<pre><code class="hljs">/usr/local/lib/python3.7/dist-packages/torch_geometric/deprecation.py:12: UserWarning: &#39;data.DataLoader&#39; is deprecated, use &#39;loader.DataLoader&#39; instead
+  warnings.warn(out)
+</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">if</span> <span class="hljs-string">&#x27;IS_GRADESCOPE_ENV&#x27;</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> os.environ:<br>  <span class="hljs-comment"># Please do not change the args</span><br>  args = &#123;<br>      <span class="hljs-string">&#x27;device&#x27;</span>: device,<br>      <span class="hljs-string">&#x27;num_layers&#x27;</span>: <span class="hljs-number">5</span>,<br>      <span class="hljs-string">&#x27;hidden_dim&#x27;</span>: <span class="hljs-number">256</span>,<br>      <span class="hljs-string">&#x27;dropout&#x27;</span>: <span class="hljs-number">0.5</span>,<br>      <span class="hljs-string">&#x27;lr&#x27;</span>: <span class="hljs-number">0.001</span>,<br>      <span class="hljs-string">&#x27;epochs&#x27;</span>: <span class="hljs-number">30</span>,<br>  &#125;<br>  args<br></code></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">test = dataset[<span class="hljs-number">1</span>:<span class="hljs-number">10</span>]<br></code></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">test[<span class="hljs-number">1</span>]<br></code></pre></td></tr></table></figure>
+
+
+<pre><code class="hljs">Data(edge_index=[2, 48], edge_attr=[48, 3], x=[21, 9], y=[1, 1], num_nodes=21)
+</code></pre>
+<h4 id="Graph-Prediction-Model"><a href="#Graph-Prediction-Model" class="headerlink" title="Graph Prediction Model"></a>Graph Prediction Model</h4><p>使用上面的 GCN 模型产生图中节点的 embedding，然后使用池化操作（这里是平均）得到每个图的 embedding（对每个节点的 embedding 进行按元素平均），<code>torch_geometric.data.Batch</code> 中的 batch 有利于我们做这个池化操作。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">model<br></code></pre></td></tr></table></figure>
+
+
+<pre><code class="hljs">GCN_Graph(
+  (node_encoder): AtomEncoder(
+    (atom_embedding_list): ModuleList(
+      (0): Embedding(119, 256)
+      (1): Embedding(4, 256)
+      (2): Embedding(12, 256)
+      (3): Embedding(12, 256)
+      (4): Embedding(10, 256)
+      (5): Embedding(6, 256)
+      (6): Embedding(6, 256)
+      (7): Embedding(2, 256)
+      (8): Embedding(2, 256)
+    )
+  )
+  (gnn_node): GCN(
+    (convs): ModuleList(
+      (0): GCNConv(256, 256)
+      (1): GCNConv(256, 256)
+      (2): GCNConv(256, 256)
+      (3): GCNConv(256, 256)
+      (4): GCNConv(256, 256)
+    )
+    (bns): ModuleList(
+      (0): BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (1): BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (2): BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (3): BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (softmax): LogSoftmax(dim=None)
+  )
+  (linear): Linear(in_features=256, out_features=1, bias=True)
+)
+</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> ogb.graphproppred.mol_encoder <span class="hljs-keyword">import</span> AtomEncoder<br><span class="hljs-keyword">from</span> torch_geometric.nn <span class="hljs-keyword">import</span> global_add_pool, global_mean_pool<br><br><span class="hljs-comment">### GCN to predict graph property</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">GCN_Graph</span>(torch.nn.Module):<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, hidden_dim, output_dim, num_layers, dropout</span>):<br>        <span class="hljs-built_in">super</span>(GCN_Graph, self).__init__()<br><br>        <span class="hljs-comment"># Load encoders for Atoms in molecule graphs</span><br>        self.node_encoder = AtomEncoder(hidden_dim)<br><br>        <span class="hljs-comment"># Node embedding model</span><br>        <span class="hljs-comment"># Note that the input_dim and output_dim are set to hidden_dim</span><br>        self.gnn_node = GCN(hidden_dim, hidden_dim,<br>            hidden_dim, num_layers, dropout, return_embeds=<span class="hljs-literal">True</span>)<br><br>        self.pool = <span class="hljs-literal">None</span><br><br>        <span class="hljs-comment">############# Your code here ############</span><br>        <span class="hljs-comment">## Note:</span><br>        <span class="hljs-comment">## 1. Initialize self.pool as a global mean pooling layer</span><br>        <span class="hljs-comment">## For more information please refer to the documentation:</span><br>        <span class="hljs-comment">## https://pytorch-geometric.readthedocs.io/en/latest/modules/nn.html#global-pooling-layers</span><br>        self.pool = global_mean_pool<br>        <span class="hljs-comment">#########################################</span><br><br>        <span class="hljs-comment"># Output layer</span><br>        self.linear = torch.nn.Linear(hidden_dim, output_dim)<br><br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">reset_parameters</span>(<span class="hljs-params">self</span>):<br>      self.gnn_node.reset_parameters()<br>      self.linear.reset_parameters()<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">forward</span>(<span class="hljs-params">self, batched_data</span>):<br>        <span class="hljs-comment"># <span class="hljs-doctag">TODO:</span> Implement a function that takes as input a </span><br>        <span class="hljs-comment"># mini-batch of graphs (torch_geometric.data.Batch) and </span><br>        <span class="hljs-comment"># returns the predicted graph property for each graph. </span><br>        <span class="hljs-comment">#</span><br>        <span class="hljs-comment"># <span class="hljs-doctag">NOTE:</span> Since we are predicting graph level properties,</span><br>        <span class="hljs-comment"># your output will be a tensor with dimension equaling</span><br>        <span class="hljs-comment"># the number of graphs in the mini-batch</span><br><br>    <br>        <span class="hljs-comment"># Extract important attributes of our mini-batch</span><br>        x, edge_index, batch = batched_data.x, batched_data.edge_index, batched_data.batch<br>        embed = self.node_encoder(x)<br><br>        out = <span class="hljs-literal">None</span><br><br>        <span class="hljs-comment">############# Your code here ############</span><br>        <span class="hljs-comment">## Note:</span><br>        <span class="hljs-comment">## 1. Construct node embeddings using existing GCN model</span><br>        <span class="hljs-comment">## 2. Use the global pooling layer to aggregate features for each individual graph</span><br>        <span class="hljs-comment">## For more information please refer to the documentation:</span><br>        <span class="hljs-comment">## https://pytorch-geometric.readthedocs.io/en/latest/modules/nn.html#global-pooling-layers</span><br>        <span class="hljs-comment">## 3. Use a linear layer to predict each graph&#x27;s property</span><br>        <span class="hljs-comment">## (~3 lines of code)</span><br>        x = self.gnn_node(embed,edge_index)<br>        x = self.pool(x,batch)<br>        out = self.linear(x)<br>        <span class="hljs-comment">#########################################</span><br><br>        <span class="hljs-keyword">return</span> out<br></code></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">train</span>(<span class="hljs-params">model, device, data_loader, optimizer, loss_fn</span>):<br>    <span class="hljs-comment"># <span class="hljs-doctag">TODO:</span> Implement a function that trains your model by </span><br>    <span class="hljs-comment"># using the given optimizer and loss_fn.</span><br>    model.train()<br>    loss = <span class="hljs-number">0</span><br><br>    <span class="hljs-keyword">for</span> step, batch <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(tqdm(data_loader, desc=<span class="hljs-string">&quot;Iteration&quot;</span>)):<br>      batch = batch.to(device)<br><br>      <span class="hljs-keyword">if</span> batch.x.shape[<span class="hljs-number">0</span>] == <span class="hljs-number">1</span> <span class="hljs-keyword">or</span> batch.batch[-<span class="hljs-number">1</span>] == <span class="hljs-number">0</span>:<span class="hljs-comment">##å�ªæœ‰ä¸€ä¸ªå›¾</span><br>          <span class="hljs-keyword">pass</span><br>      <span class="hljs-keyword">else</span>:<br>        <span class="hljs-comment">## ignore nan targets (unlabeled) when computing training loss.</span><br>        is_labeled = batch.y == batch.y<br><br>        <span class="hljs-comment">############# Your code here ############</span><br>        <span class="hljs-comment">## Note:</span><br>        <span class="hljs-comment">## 1. Zero grad the optimizer</span><br>        <span class="hljs-comment">## 2. Feed the data into the model</span><br>        <span class="hljs-comment">## 3. Use `is_labeled` mask to filter output and labels</span><br>        <span class="hljs-comment">## 4. You may need to change the type of label to torch.float32</span><br>        <span class="hljs-comment">## 5. Feed the output and label to the loss_fn</span><br>        <span class="hljs-comment">## (~3 lines of code)</span><br>        optimizer.zero_grad()<br>        out = model(batch)<br>        loss = loss_fn(out[is_labeled], batch.y[is_labeled].<span class="hljs-built_in">type</span>(torch.float32).reshape(-<span class="hljs-number">1</span>))<br>        <span class="hljs-comment">#########################################</span><br><br>        loss.backward()<br>        optimizer.step()<br><br>    <span class="hljs-keyword">return</span> loss.item()<br></code></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># The evaluation function</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">eval</span>(<span class="hljs-params">model, device, loader, evaluator, save_model_results=<span class="hljs-literal">False</span>, save_file=<span class="hljs-literal">None</span></span>):<br>    model.<span class="hljs-built_in">eval</span>()<br>    y_true = []<br>    y_pred = []<br><br>    <span class="hljs-keyword">for</span> step, batch <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(tqdm(loader, desc=<span class="hljs-string">&quot;Iteration&quot;</span>)):<br>        batch = batch.to(device)<br><br>        <span class="hljs-keyword">if</span> batch.x.shape[<span class="hljs-number">0</span>] == <span class="hljs-number">1</span>:<br>            <span class="hljs-keyword">pass</span><br>        <span class="hljs-keyword">else</span>:<br>            <span class="hljs-keyword">with</span> torch.no_grad():<br>                pred = model(batch)<br><br>            y_true.append(batch.y.view(pred.shape).detach().cpu())<br>            y_pred.append(pred.detach().cpu())<br><br>    y_true = torch.cat(y_true, dim = <span class="hljs-number">0</span>).numpy()<br>    y_pred = torch.cat(y_pred, dim = <span class="hljs-number">0</span>).numpy()<br><br>    input_dict = &#123;<span class="hljs-string">&quot;y_true&quot;</span>: y_true, <span class="hljs-string">&quot;y_pred&quot;</span>: y_pred&#125;<br><br>    <span class="hljs-keyword">if</span> save_model_results:<br>        <span class="hljs-built_in">print</span> (<span class="hljs-string">&quot;Saving Model Predictions&quot;</span>)<br>        <br>        <span class="hljs-comment"># Create a pandas dataframe with a two columns</span><br>        <span class="hljs-comment"># y_pred | y_true</span><br>        data = &#123;&#125;<br>        data[<span class="hljs-string">&#x27;y_pred&#x27;</span>] = y_pred.reshape(-<span class="hljs-number">1</span>)<br>        data[<span class="hljs-string">&#x27;y_true&#x27;</span>] = y_true.reshape(-<span class="hljs-number">1</span>)<br><br>        df = pd.DataFrame(data=data)<br>        <span class="hljs-comment"># Save to csv</span><br>        df.to_csv(<span class="hljs-string">&#x27;ogbg-molhiv_graph_&#x27;</span> + save_file + <span class="hljs-string">&#x27;.csv&#x27;</span>, sep=<span class="hljs-string">&#x27;,&#x27;</span>, index=<span class="hljs-literal">False</span>)<br><br>    <span class="hljs-keyword">return</span> evaluator.<span class="hljs-built_in">eval</span>(input_dict)<br></code></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">if</span> <span class="hljs-string">&#x27;IS_GRADESCOPE_ENV&#x27;</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> os.environ:<br>  model = GCN_Graph(args[<span class="hljs-string">&#x27;hidden_dim&#x27;</span>],<br>              dataset.num_tasks, args[<span class="hljs-string">&#x27;num_layers&#x27;</span>],<br>              args[<span class="hljs-string">&#x27;dropout&#x27;</span>]).to(device)<br>  evaluator = Evaluator(name=<span class="hljs-string">&#x27;ogbg-molhiv&#x27;</span>)<br></code></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> copy<br><br><span class="hljs-keyword">if</span> <span class="hljs-string">&#x27;IS_GRADESCOPE_ENV&#x27;</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> os.environ:<br>  model.reset_parameters()<br><br>  optimizer = torch.optim.Adam(model.parameters(), lr=args[<span class="hljs-string">&#x27;lr&#x27;</span>])<br>  loss_fn = torch.nn.BCEWithLogitsLoss()<br><br>  best_model = <span class="hljs-literal">None</span><br>  best_valid_acc = <span class="hljs-number">0</span><br><br>  <span class="hljs-keyword">for</span> epoch <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">1</span>, <span class="hljs-number">1</span> + args[<span class="hljs-string">&quot;epochs&quot;</span>]):<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;Training...&#x27;</span>)<br>    loss = train(model, device, train_loader, optimizer, loss_fn)<br><br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;Evaluating...&#x27;</span>)<br>    train_result = <span class="hljs-built_in">eval</span>(model, device, train_loader, evaluator)<br>    val_result = <span class="hljs-built_in">eval</span>(model, device, valid_loader, evaluator)<br>    test_result = <span class="hljs-built_in">eval</span>(model, device, test_loader, evaluator)<br><br>    train_acc, valid_acc, test_acc = train_result[dataset.eval_metric], val_result[dataset.eval_metric], test_result[dataset.eval_metric]<br>    <span class="hljs-keyword">if</span> valid_acc &gt; best_valid_acc:<br>        best_valid_acc = valid_acc<br>        best_model = copy.deepcopy(model)<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;Epoch: <span class="hljs-subst">&#123;epoch:02d&#125;</span>, &#x27;</span><br>          <span class="hljs-string">f&#x27;Loss: <span class="hljs-subst">&#123;loss:<span class="hljs-number">.4</span>f&#125;</span>, &#x27;</span><br>          <span class="hljs-string">f&#x27;Train: <span class="hljs-subst">&#123;<span class="hljs-number">100</span> * train_acc:<span class="hljs-number">.2</span>f&#125;</span>%, &#x27;</span><br>          <span class="hljs-string">f&#x27;Valid: <span class="hljs-subst">&#123;<span class="hljs-number">100</span> * valid_acc:<span class="hljs-number">.2</span>f&#125;</span>% &#x27;</span><br>          <span class="hljs-string">f&#x27;Test: <span class="hljs-subst">&#123;<span class="hljs-number">100</span> * test_acc:<span class="hljs-number">.2</span>f&#125;</span>%&#x27;</span>)<br></code></pre></td></tr></table></figure>
+
+<pre><code class="hljs">Training...
+
+
+Epoch: 30, Loss: 0.0200, Train: 84.28%, Valid: 79.55% Test: 75.39%
+</code></pre>
+<h5 id="Question-6-验证和测试集中-AUC-最高的模型是哪个？"><a href="#Question-6-验证和测试集中-AUC-最高的模型是哪个？" class="headerlink" title="Question 6: 验证和测试集中 AUC 最高的模型是哪个？"></a>Question 6: 验证和测试集中 AUC 最高的模型是哪个？</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">if</span> <span class="hljs-string">&#x27;IS_GRADESCOPE_ENV&#x27;</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> os.environ:<br>  train_acc = <span class="hljs-built_in">eval</span>(best_model, device, train_loader, evaluator)[dataset.eval_metric]<br>  valid_acc = <span class="hljs-built_in">eval</span>(best_model, device, valid_loader, evaluator, save_model_results=<span class="hljs-literal">True</span>, save_file=<span class="hljs-string">&quot;valid&quot;</span>)[dataset.eval_metric]<br>  test_acc  = <span class="hljs-built_in">eval</span>(best_model, device, test_loader, evaluator, save_model_results=<span class="hljs-literal">True</span>, save_file=<span class="hljs-string">&quot;test&quot;</span>)[dataset.eval_metric]<br><br>  <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;Best model: &#x27;</span><br>      <span class="hljs-string">f&#x27;Train: <span class="hljs-subst">&#123;<span class="hljs-number">100</span> * train_acc:<span class="hljs-number">.2</span>f&#125;</span>%, &#x27;</span><br>      <span class="hljs-string">f&#x27;Valid: <span class="hljs-subst">&#123;<span class="hljs-number">100</span> * valid_acc:<span class="hljs-number">.2</span>f&#125;</span>% &#x27;</span><br>      <span class="hljs-string">f&#x27;Test: <span class="hljs-subst">&#123;<span class="hljs-number">100</span> * test_acc:<span class="hljs-number">.2</span>f&#125;</span>%&#x27;</span>)<br></code></pre></td></tr></table></figure>
+
+
+<pre><code class="hljs">Iteration:   0%|          | 0/1029 [00:00&lt;?, ?it/s]
+
+Iteration:   0%|          | 0/129 [00:00&lt;?, ?it/s]
+
+
+Saving Model Predictions
+
+Iteration:   0%|          | 0/129 [00:00&lt;?, ?it/s]
+
+
+Saving Model Predictions
+Best model: Train: 84.10%, Valid: 80.21% Test: 74.61%
+</code></pre>
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/python/" class="category-chain-item">python</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">#深度学习</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>图机器学习实践</div>
+      <div>http://example.com/2022/04/02/CS224W_colab/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Wu Tao</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年4月2日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/04/21/pytorch_geometric/" title="利用 Pytorch geometric 构建图神经网络">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">利用 Pytorch geometric 构建图神经网络</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/03/31/networkx/" title="NetworkX 网络分析">
+                        <span class="hidden-mobile">NetworkX 网络分析</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="waline"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#waline', function() {
+      Fluid.utils.createCssLink('https://cdn.jsdelivr.net/npm/@waline/client@0.14.8/dist/waline.min.css')
+      Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/@waline/client@0.14.8/dist/waline.min.js', function() {
+        var options = Object.assign(
+          {"serverURL":"https://comments-flax.vercel.app","path":"window.location.pathname","meta":["nick","mail","link"],"requiredMeta":["nick"],"lang":"zh-CN","emoji":["https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo"],"dark":"html[data-user-color-scheme=\"dark\"]","wordLimit":0,"pageSize":10},
+          {
+            el: '#waline',
+            path: window.location.pathname
+          }
+        )
+        Waline.init(options);
+        Fluid.utils.waitElementVisible('#waline .vcontent', () => {
+          var imgSelector = '#waline .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/tocbot@4.12.2/dist/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        MathJax = {
+          tex    : {
+            inlineMath: { '[+]': [['$', '$']] }
+          },
+          loader : {
+            
+          },
+          options: {
+            renderActions: {
+              findScript    : [10, doc => {
+                document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                  const display = !!node.type.match(/; *mode=display/);
+                  const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                  const text = document.createTextNode('');
+                  node.parentNode.replaceChild(text, node);
+                  math.start = { node: text, delim: '', n: 0 };
+                  math.end = { node: text, delim: '', n: 0 };
+                  doc.math.push(math);
+                });
+              }, '', false],
+              insertedScript: [200, () => {
+                document.querySelectorAll('mjx-container').forEach(node => {
+                  let target = node.parentNode;
+                  if (target.nodeName.toLowerCase() === 'li') {
+                    target.parentNode.classList.add('has-jax');
+                  }
+                });
+              }, '', false]
+            }
+          }
+        };
+      </script>
+    
+
+  <script  src="https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

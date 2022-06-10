@@ -1,0 +1,915 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=light>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/DNA.png">
+  <link rel="icon" href="/img/DNA.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Wu Tao">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="hands on ML 第七章，集成学习和随机森林">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【hands on ML Ch7】- 集成学习">
+<meta property="og:url" content="http://example.com/2021/08/24/hands_on_ml_ch7/index.html">
+<meta property="og:site_name" content="wutao&#39;s blog">
+<meta property="og:description" content="hands on ML 第七章，集成学习和随机森林">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/image1.jpg">
+<meta property="article:published_time" content="2021-08-24T14:00:00.000Z">
+<meta property="article:modified_time" content="2022-01-02T02:18:27.000Z">
+<meta property="article:author" content="Wu Tao">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/img/image1.jpg">
+  
+  
+  
+  <title>【hands on ML Ch7】- 集成学习 - wutao&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.1","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"R","line_number":true,"lib":"highlightjs","highlightjs":{"style":"Stackoverflow Light","style_dark":"light"},"prismjs":{"style":"default","preprocess":true}},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"A5lchRnum84Yumu5pVOSoVN8-MdYXbMMI","app_key":"runF3Mxw7648v64CISxiqMs8","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>wutao&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="【hands on ML Ch7】- 集成学习"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        Wu Tao
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2021-08-24 22:00" pubdate>
+          2021年8月24日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          21k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          179 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">【hands on ML Ch7】- 集成学习</h1>
+            
+            <div class="markdown-body">
+              
+              <p>hands on ML 第七章，集成学习和随机森林</p>
+<span id="more"></span>
+
+<p>集成学习就是将一系列的预测器按照某种方式聚合在一起，从而期望结果比单个预测器的效果要好；比如我们可以在训练集中随机选取的子集上训练一系列的决策树分类器，然后获取所有树的预测，对于某一个实例，将其多数分类器预测的结果作为最终的预测结果(这种集成学习方法也叫做随机森林)，这一章将讲解常用的集成方法，包括：bagging，boosting 和 stacking。</p>
+<h2 id="Voting-Classifiers"><a href="#Voting-Classifiers" class="headerlink" title="Voting Classifiers"></a>Voting Classifiers</h2><p>上面那个例子就是一个多数表决分类器( majority-vote classifier)，更一般的说就是在训练集上训练多个不同的模型，最后对某个实例的预测是基于所有模型预测值的 “投票结果” 来决定，多数表决分类器又叫硬投票分类器(hard voting classifier)：</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210309170505986.png" srcset="/img/loading.gif" lazyload></p>
+<p>为什么集成学习比单个的(弱)学习器的效果要好？可以从下面这个例子来理解：</p>
+<p>假设我们有一个硬币,每次抛硬币有51%的可能是正面朝上,有49%的可能是反面朝上;扔1000次,大部分朝上(朝上的硬币数目大于500)的概率为：</p>
+<p>$$<br>P(X&gt;500) &#x3D; 1-binom(500,1000,0.51)<br>$$<br>在R里面计算得到概率为：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs r"><span class="hljs-number">1</span><span class="hljs-operator">-</span>pbinom<span class="hljs-punctuation">(</span><span class="hljs-number">500</span><span class="hljs-punctuation">,</span><span class="hljs-number">1000</span><span class="hljs-punctuation">,</span><span class="hljs-number">0.51</span><span class="hljs-punctuation">)</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-punctuation">[</span><span class="hljs-number">1</span><span class="hljs-punctuation">]</span> <span class="hljs-number">0.7260986</span><br></code></pre></td></tr></table></figure>
+
+<p>同理在扔10000次后，得到硬币大部分朝上的概率为：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs r"><span class="hljs-number">1</span><span class="hljs-operator">-</span>pbinom<span class="hljs-punctuation">(</span><span class="hljs-number">5000</span><span class="hljs-punctuation">,</span><span class="hljs-number">10000</span><span class="hljs-punctuation">,</span><span class="hljs-number">0.51</span><span class="hljs-punctuation">)</span><br><span class="hljs-operator">&gt;</span><span class="hljs-operator">&gt;</span> <span class="hljs-punctuation">[</span><span class="hljs-number">1</span><span class="hljs-punctuation">]</span> <span class="hljs-number">0.9767183</span><br></code></pre></td></tr></table></figure>
+
+<p>进行的实验次数越多，这个概率就越大(大数定理)</p>
+<p>现在我们想像：有1000个分类器,每个分类器正确预测的概率为51%,如果我们按照多数投票规则来整合1000个分类器，那么准确率可以达到72%(有超过一半预测的是正确的概率);但是这个前提是这些分类器是相互独立的,但在实际情况中很难保证这一点(因为我们的模型都是在同一个数据上训练的，一种增强独立性的策略就是使用多个非常不同的分类器)。</p>
+<p>下面以 moons 数据集为例，训练 3 个不同的分类器（随机森林，逻辑回归和支持向量机），然后再使用硬投票的方式得到最终的预测结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> sklearn.ensemble <span class="hljs-keyword">import</span> RandomForestClassifier <br><span class="hljs-keyword">from</span> sklearn.ensemble <span class="hljs-keyword">import</span> VotingClassifier <br><span class="hljs-keyword">from</span> sklearn.linear_model <span class="hljs-keyword">import</span> LogisticRegression <br><span class="hljs-keyword">from</span> sklearn.svm <span class="hljs-keyword">import</span> SVC<br><span class="hljs-keyword">from</span> sklearn.model_selection <span class="hljs-keyword">import</span> train_test_split<br><span class="hljs-keyword">from</span> sklearn.datasets <span class="hljs-keyword">import</span> make_moons<br><br>X, y = make_moons(n_samples=<span class="hljs-number">500</span>, noise=<span class="hljs-number">0.30</span>, random_state=<span class="hljs-number">42</span>)<br>X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=<span class="hljs-number">42</span>)<br><br><br>log_clf = LogisticRegression(random_state=<span class="hljs-number">42</span>) <br>rnd_clf = RandomForestClassifier(random_state=<span class="hljs-number">42</span>) <br>svm_clf = SVC(random_state=<span class="hljs-number">42</span>) <br>voting_clf = VotingClassifier(estimators=[(<span class="hljs-string">&#x27;lr&#x27;</span>, log_clf),<br>                                          (<span class="hljs-string">&#x27;rf&#x27;</span>, rnd_clf), <br>                                          (<span class="hljs-string">&#x27;svc&#x27;</span>, svm_clf)], <br>                              voting=<span class="hljs-string">&#x27;hard&#x27;</span>) <br><br>voting_clf.fit(X_train, y_train)<br>&gt;&gt; VotingClassifier(estimators=[(<span class="hljs-string">&#x27;lr&#x27;</span>, LogisticRegression(random_state=<span class="hljs-number">42</span>)),<br>&gt;&gt;                              (<span class="hljs-string">&#x27;rf&#x27;</span>, RandomForestClassifier(random_state=<span class="hljs-number">42</span>)),<br>&gt;&gt;                              (<span class="hljs-string">&#x27;svc&#x27;</span>, SVC(random_state=<span class="hljs-number">42</span>))])<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> sklearn.metrics <span class="hljs-keyword">import</span> accuracy_score<br><span class="hljs-keyword">for</span> clf <span class="hljs-keyword">in</span> (log_clf, rnd_clf, svm_clf, voting_clf):<br>  clf.fit(X_train, y_train)<br>  y_pred = clf.predict(X_test)<br>  <span class="hljs-built_in">print</span>(clf.__class__.__name__, accuracy_score(y_test, y_pred))<br>&gt;&gt; LogisticRegression(random_state=<span class="hljs-number">42</span>)<br>&gt;&gt; LogisticRegression <span class="hljs-number">0.864</span><br>&gt;&gt; RandomForestClassifier(random_state=<span class="hljs-number">42</span>)<br>&gt;&gt; RandomForestClassifier <span class="hljs-number">0.896</span><br>&gt;&gt; SVC(random_state=<span class="hljs-number">42</span>)<br>&gt;&gt; SVC <span class="hljs-number">0.896</span><br>&gt;&gt; VotingClassifier(estimators=[(<span class="hljs-string">&#x27;lr&#x27;</span>, LogisticRegression(random_state=<span class="hljs-number">42</span>)),<br>&gt;&gt;                              (<span class="hljs-string">&#x27;rf&#x27;</span>, RandomForestClassifier(random_state=<span class="hljs-number">42</span>)),<br>&gt;&gt;                              (<span class="hljs-string">&#x27;svc&#x27;</span>, SVC(random_state=<span class="hljs-number">42</span>))])<br>&gt;&gt; VotingClassifier <span class="hljs-number">0.912</span><br></code></pre></td></tr></table></figure>
+
+<p>可以看到投票分类器的精度比 3 个单独的模型都有提升。</p>
+<p>如果单独的模型都可以估计每个类的概率（也就是有 <code>predict_proba()</code>方法），那么就可以对每个类取所有分类器的概率的均值，然后取均值最大的那一类（也可以通过 <code>weights</code> 来指定每个分类器的权重），比如有 3 个分类器进行 3 分类的问题，<code>weight</code> 使用默认的（每个分类器权重一样）：</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210803182813097.png" srcset="/img/loading.gif" lazyload></p>
+<p>最终加权平均后的有最大概率的类为 2，所以分类的结果是 2，这种投票方式叫做软投票。</p>
+<p>将上面的例子改为软投票，需要将 <code>voting</code> 参数改为 <code>soft</code>，并且注意支持向量机默认是不计算概率的，需要设置 <code>probability</code> 参数为 True（用交叉验证来估计类的概率）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs python">svm_clf = SVC(probability=<span class="hljs-literal">True</span>,random_state=<span class="hljs-number">42</span>) <br><br><br>voting_clf = VotingClassifier(estimators=[(<span class="hljs-string">&#x27;lr&#x27;</span>, log_clf),          (<span class="hljs-string">&#x27;rf&#x27;</span>, rnd_clf), (<span class="hljs-string">&#x27;svc&#x27;</span>, svm_clf)], <br>         voting=<span class="hljs-string">&#x27;soft&#x27;</span>) <br><br>voting_clf.fit(X_train, y_train)<br>&gt;&gt; VotingClassifier(estimators=[(<span class="hljs-string">&#x27;lr&#x27;</span>, LogisticRegression(random_state=<span class="hljs-number">42</span>)),<br>&gt;&gt;                              (<span class="hljs-string">&#x27;rf&#x27;</span>, RandomForestClassifier(random_state=<span class="hljs-number">42</span>)),<br>&gt;&gt;                              (<span class="hljs-string">&#x27;svc&#x27;</span>, SVC(probability=<span class="hljs-literal">True</span>, random_state=<span class="hljs-number">42</span>))],<br>&gt;&gt;                  voting=<span class="hljs-string">&#x27;soft&#x27;</span>)<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">for</span> clf <span class="hljs-keyword">in</span> (log_clf, rnd_clf, svm_clf, voting_clf):<br>  clf.fit(X_train, y_train)<br>  y_pred = clf.predict(X_test)<br>  <span class="hljs-built_in">print</span>(clf.__class__.__name__, accuracy_score(y_test, y_pred))<br>&gt;&gt; LogisticRegression(random_state=<span class="hljs-number">42</span>)<br>&gt;&gt; LogisticRegression <span class="hljs-number">0.864</span><br>&gt;&gt; RandomForestClassifier(random_state=<span class="hljs-number">42</span>)<br>&gt;&gt; RandomForestClassifier <span class="hljs-number">0.896</span><br>&gt;&gt; SVC(probability=<span class="hljs-literal">True</span>, random_state=<span class="hljs-number">42</span>)<br>&gt;&gt; SVC <span class="hljs-number">0.896</span><br>&gt;&gt; VotingClassifier(estimators=[(<span class="hljs-string">&#x27;lr&#x27;</span>, LogisticRegression(random_state=<span class="hljs-number">42</span>)),<br>&gt;&gt;                              (<span class="hljs-string">&#x27;rf&#x27;</span>, RandomForestClassifier(random_state=<span class="hljs-number">42</span>)),<br>&gt;&gt;                              (<span class="hljs-string">&#x27;svc&#x27;</span>, SVC(probability=<span class="hljs-literal">True</span>, random_state=<span class="hljs-number">42</span>))],<br>&gt;&gt;                  voting=<span class="hljs-string">&#x27;soft&#x27;</span>)<br>&gt;&gt; VotingClassifier <span class="hljs-number">0.92</span><br></code></pre></td></tr></table></figure>
+
+<p>可以看到精度进一步提升了。</p>
+<h2 id="Bagging-and-Pasting"><a href="#Bagging-and-Pasting" class="headerlink" title="Bagging and Pasting"></a>Bagging and Pasting</h2><p>前面讲过可以通过选择不同的预测器来增加模型间的独立性，另一种方法是使用同一种预测器，但是在训练集的随机选择的不同子集上进行训练；当这种随机选择为有放回的抽样时，这种方法叫做 <strong>bagging</strong>（bootstrap aggregating 缩写），当为不放回抽样时，这种方法叫做 <strong>pasting</strong>（也就是说对于 bagging ，一个预测器的训练样本中可能会有相同的样本点）。</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210803185335885.png" srcset="/img/loading.gif" lazyload></p>
+<p>当所有的预测器都被训练之后，新的实例进入时就可以聚合所有的预测器的结果做出最终的预测。对于分类问题，这个聚合函数就是和前面类似的硬投票方法（如果可以预测概率，还是使用软投票），对于回归问题，聚合函数就是所有预测值的平均。通常来说，聚合后的模型和单个模型有个相似的偏差（bias），但是 variance 更小，另外从上面图也可以看出：预测器可以并行地训练（在不同的 CPU，甚至不同的服务器上）。</p>
+<p>在 Scikit-Learn 中可以使用 <code>BaggingClassifier</code> 类（或者 <code>BaggingRegressor</code> 回归）来进行 bagging 和 pasting；下面的代码训练了 500 个决策树模型，每一个在随机抽取的 100 个样本（有放回，如果将 <code>bootstrap</code><br>设为 False，那么进行的就是无放回的 pasting）中训练，<code>n_jobs</code> 表示使用的 CPU 核数（-1 表示使用所有的 CPU，在windows 上好像不行）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> sklearn.ensemble <span class="hljs-keyword">import</span> BaggingClassifier<br><span class="hljs-keyword">from</span> sklearn.tree <span class="hljs-keyword">import</span> DecisionTreeClassifier<br><br>bag_clf = BaggingClassifier( DecisionTreeClassifier(random_state=<span class="hljs-number">42</span>),<br>                             n_estimators=<span class="hljs-number">500</span>, <br>                             max_samples=<span class="hljs-number">100</span>, <br>                             bootstrap=<span class="hljs-literal">True</span>,random_state=<span class="hljs-number">42</span>)<br>                             <br>bag_clf.fit(X_train, y_train)<br>&gt;&gt; BaggingClassifier(base_estimator=DecisionTreeClassifier(random_state=<span class="hljs-number">42</span>),<br>&gt;&gt;                   max_samples=<span class="hljs-number">100</span>, n_estimators=<span class="hljs-number">500</span>, random_state=<span class="hljs-number">42</span>)<br>y_pred = bag_clf.predict(X_test)<br>accuracy_score(y_test, y_pred)<br>&gt;&gt; <span class="hljs-number">0.904</span><br></code></pre></td></tr></table></figure>
+
+<p>在使用 bagging 时，有些实例可能会被抽到多次而另一些实例可能根本不会被抽到；在 <code>BaggingClassifier</code> 中默认是有放回地抽取 n 个训练实例（n 也是训练集的大小），因此平均来说，对于每个预测器大概只有 63% 的实例被抽到，剩下的 37% 的实例就叫做 out-of-bag (oob) 实例；由于这些实例没有被抽取作为训练样本，所以可以在这些实例上进行模型的评估。</p>
+<blockquote>
+<p>为什么是 63%？</p>
+</blockquote>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/473522c600135107452b432799ecabd.jpg" srcset="/img/loading.gif" lazyload></p>
+<p>可以设置 <code>obb_score</code> 为 True 来让 <code>BaggingClassifier</code> 进行自动的 oob 评估，计算的结果保存在 <code>oob_score_</code> 中：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs python">bag_clf = BaggingClassifier(<br>  DecisionTreeClassifier(random_state=<span class="hljs-number">42</span>),<br>  n_estimators=<span class="hljs-number">500</span>, <br>  bootstrap=<span class="hljs-literal">True</span>,random_state=<span class="hljs-number">42</span>,oob_score=<span class="hljs-literal">True</span><br>)<br><br>bag_clf.fit(X_train,y_train)<br>&gt;&gt; BaggingClassifier(base_estimator=DecisionTreeClassifier(random_state=<span class="hljs-number">42</span>),<br>&gt;&gt;                   n_estimators=<span class="hljs-number">500</span>, oob_score=<span class="hljs-literal">True</span>, random_state=<span class="hljs-number">42</span>)<br>bag_clf.oob_score_<br>&gt;&gt; <span class="hljs-number">0.896</span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">##验证一下</span><br>y_pred = bag_clf.predict(X_test)<br>accuracy_score(y_test,y_pred)<br>&gt;&gt; <span class="hljs-number">0.92</span><br></code></pre></td></tr></table></figure>
+
+<p><code>BaggingClassifier</code> 除了可以对实例进行抽样外，还支持对特征进行抽样，需要将 <code>max_samples</code> 和<code>bootstrap</code> 替换成 <code>max_features</code> 和 <code>bootstrap_features</code> ，这种方法对处理高维数据时是比较有用的。同时对实例和特征进行抽样的方法叫做 Random Patches，只对特征抽样的方法叫做 Random Subspaces。</p>
+<h2 id="随机森林"><a href="#随机森林" class="headerlink" title="随机森林"></a>随机森林</h2><p>随机森林是决策树的集成，通常是通过 bagging 方法进行训练，max_sample 设置为全部的训练集大小。可以使用 <code>RandomForestClassifier</code> 类来训练随机森林模型：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> sklearn.ensemble <span class="hljs-keyword">import</span> RandomForestClassifier<br><br>rnd_clf = RandomForestClassifier(n_estimators=<span class="hljs-number">500</span>, max_leaf_nodes=<span class="hljs-number">16</span>)<br>rnd_clf.fit(X_train, y_train)<br>&gt;&gt; RandomForestClassifier(max_leaf_nodes=<span class="hljs-number">16</span>, n_estimators=<span class="hljs-number">500</span>)<br>y_pred_rf = rnd_clf.predict(X_test)<br></code></pre></td></tr></table></figure>
+
+<p><code>RandomForestClassifier</code> 类除了有着 <code>DecisionTreeClassifier</code> 类的控制树生长的超参数外，还有<code>BaggingClassifier</code> 类中控制集成的超参数，但是在随机森林中有一些超参数被固定下来：<code>splitter</code> 被固定为 <code>random</code>（在随机选取的部分特征中寻找最优分割点），<code>max_samples</code> 设定为 1，<code>base_estimator</code> 设定为 <code>DecisionTreeClassifier</code>。因此下面的 <code>BaggingClassifier</code> 和上面的随机森林几乎是一样的：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">bag_clf = BaggingClassifier( DecisionTreeClassifier(splitter=<span class="hljs-string">&quot;random&quot;</span>, max_leaf_nodes=<span class="hljs-number">16</span>), n_estimators=<span class="hljs-number">500</span>, max_samples=<span class="hljs-number">1.0</span>, bootstrap=<span class="hljs-literal">True</span>)<br></code></pre></td></tr></table></figure>
+
+<p>随机森林是在随机选取的一部分特征中寻找最优分割点构建决策树，还有一种更随机的情况：在选取的特征中使用随机的分割点来构建树（两次随机）；这种方法叫做 Extremely Randomized Trees （Extra-Trees），具有更高的 bias 和 更低的 variance（随机性越大，越容易 “脱靶” ，也就是偏离要找的真实的函数空间，但是由于各个树模型之间的相关性降低，整个模型的 variance 也会降低），另外这种方法的训练时间也比较短（不需要花费大量时间来寻找最优分割点）。在 <code>Scikit-learn</code> 中可以使用 <code>ExtraTreesClassifier</code> 或 <code>ExtraTreesRegressor</code> 类进行训练 <code>Extra-Trees</code> 模型。</p>
+<p>随机森林另一个比较好的特性是可以比较容易的衡量特征的相对重要性。Scikit-learn 通过计算<strong>在森林的所有的树中使用某个特征的树节点平均减少的不纯度来衡量特征的重要性</strong> （使用该特征来分割的所有节点的基尼指数变化量的平均值）。Scikit-learn 在训练之后会自动计算这个值，然后再进行归一化使得所有的重要性加和为 1，可以通过 <code>feature_importances_</code> 来获取特征重要性的值，下面是在鸢尾花数据集上使用随机森林计算特征重要性的例子：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> sklearn.datasets <span class="hljs-keyword">import</span> load_iris<br>iris = load_iris()<br>rnd_clf = RandomForestClassifier(n_estimators=<span class="hljs-number">500</span>)<br>rnd_clf.fit(iris[<span class="hljs-string">&quot;data&quot;</span>], iris[<span class="hljs-string">&quot;target&quot;</span>])<br>&gt;&gt; RandomForestClassifier(n_estimators=<span class="hljs-number">500</span>)<br><span class="hljs-keyword">for</span> name, score <span class="hljs-keyword">in</span> <span class="hljs-built_in">zip</span>(iris[<span class="hljs-string">&quot;feature_names&quot;</span>], rnd_clf.feature_importances_):<br>  <span class="hljs-built_in">print</span>(name, score)<br>&gt;&gt; sepal length (cm) <span class="hljs-number">0.10814410934379921</span><br>&gt;&gt; sepal width (cm) <span class="hljs-number">0.023458740913181834</span><br>&gt;&gt; petal length (cm) <span class="hljs-number">0.4285690228014531</span><br>&gt;&gt; petal width (cm) <span class="hljs-number">0.43982812694156587</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="Boosting"><a href="#Boosting" class="headerlink" title="Boosting"></a>Boosting</h2><p>Boosting 指的是能够将多个弱学习器聚合成一个强的学习器的任何集成方法；大部分 Boosting 方法的思想是：依次训练预测器，每一个预测器都力求在前一个基础上有所提升。目前有很多 boosting 方法，最流行的是 <strong>AdaBoost</strong> 和 梯度提升  <strong>Gradient Boosting</strong>）。</p>
+<h3 id="AdaBoost"><a href="#AdaBoost" class="headerlink" title="AdaBoost"></a>AdaBoost</h3><p>对于一个新的预测器要去纠正前面的预测器的一种方法就是更关注那些前一个预测器欠拟合的实例，因此新的预测器就会越来越关注那些难分类的实例，这种技术就叫做 AdaBoost。</p>
+<p>简单来说：当训练一个 AdaBoost 分类器的时候，首先训练一个基分类器，用这个基分类器在训练集上做预测，然后上调这个分类器误分类样本的权重，接着基于这些更新的权重训练第二个分类器，重复这个步骤直到错误率不再降低；当所有的预测器都训练完了，就可以组合这些预测器得到最终的集成模型（每个预测器的权重由该预测器的错误率计算得到）如下图：</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210822103038087.png" srcset="/img/loading.gif" lazyload></p>
+<p>用数学表示：</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210822111723135.png" srcset="/img/loading.gif" lazyload></p>
+<p>在 Scikit-learn 中 AdaBoost 的多分类版本为 SAMME （Stagewise Additive Modeling using a Multiclass Exponential loss function），当需要估计类别概率时使用的是 SAMME 的变体 SAMME.R。下面的代码使用了 <code>AdaBoostClassifier</code> 类，基分类器为深度为 1 的决策树（只有一个节点）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> sklearn.ensemble <span class="hljs-keyword">import</span> AdaBoostClassifier<br><br>ada_clf = AdaBoostClassifier(<br>  DecisionTreeClassifier(max_depth=<span class="hljs-number">1</span>),<br>  n_estimators=<span class="hljs-number">200</span>, <br>  algorithm=<span class="hljs-string">&quot;SAMME.R&quot;</span>,<br>  learning_rate=<span class="hljs-number">0.5</span>) <br><br>ada_clf.fit(X_train, y_train)<br>&gt;&gt; AdaBoostClassifier(base_estimator=DecisionTreeClassifier(max_depth=<span class="hljs-number">1</span>),<br>&gt;&gt;                    learning_rate=<span class="hljs-number">0.5</span>, n_estimators=<span class="hljs-number">200</span>)<br></code></pre></td></tr></table></figure>
+
+<h3 id="Gradient-Boosting"><a href="#Gradient-Boosting" class="headerlink" title="Gradient Boosting"></a>Gradient Boosting</h3><p>Gradient Boosting 和 AdaBoost 类似，也是通过逐步加入新的预测器，每一个预测器对前一个进行矫正使结果变好，但是和 AdaBoost 不同的是 Gradient Boosting 并不是通过更新实例的权重而是通过<strong>拟合前一个预测器的残差（residual errors）</strong>。</p>
+<p>下面以一个回归的任务为例，使用决策树作为基预测器（这样的模型叫做<strong>Gradient Tree Boosting</strong> 或 **Gradient Boosted Regression Trees (GBRT)**），首先对训练数据应用决策树回归，然后计算残差，接着再对残差应用第二个决策树回归，计算第二个模型的残差，再用第三个决策树回归：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">##创建数据</span><br><span class="hljs-keyword">import</span> numpy <span class="hljs-keyword">as</span> np<br>np.random.seed(<span class="hljs-number">42</span>)<br>X = np.random.rand(<span class="hljs-number">100</span>, <span class="hljs-number">1</span>) - <span class="hljs-number">0.5</span><br>y = <span class="hljs-number">3</span>*X[:, <span class="hljs-number">0</span>]**<span class="hljs-number">2</span> + <span class="hljs-number">0.05</span> * np.random.randn(<span class="hljs-number">100</span>)<br><br><span class="hljs-comment">##对训练集应用决策树回归</span><br><span class="hljs-keyword">from</span> sklearn.tree <span class="hljs-keyword">import</span> DecisionTreeRegressor<br><br>tree_reg1 = DecisionTreeRegressor(max_depth=<span class="hljs-number">2</span>, random_state=<span class="hljs-number">42</span>)<br>tree_reg1.fit(X, y)<br><br><span class="hljs-comment">##计算残差，应用决策树到残差</span><br>&gt;&gt; DecisionTreeRegressor(max_depth=<span class="hljs-number">2</span>, random_state=<span class="hljs-number">42</span>)<br>y2 = y - tree_reg1.predict(X)<br>tree_reg2 = DecisionTreeRegressor(max_depth=<span class="hljs-number">2</span>, random_state=<span class="hljs-number">42</span>)<br>tree_reg2.fit(X, y2)<br><br><span class="hljs-comment">##继续</span><br>&gt;&gt; DecisionTreeRegressor(max_depth=<span class="hljs-number">2</span>, random_state=<span class="hljs-number">42</span>)<br>y3 = y2 - tree_reg2.predict(X)<br>tree_reg3 = DecisionTreeRegressor(max_depth=<span class="hljs-number">2</span>, random_state=<span class="hljs-number">42</span>)<br>tree_reg3.fit(X, y3)<br>&gt;&gt; DecisionTreeRegressor(max_depth=<span class="hljs-number">2</span>, random_state=<span class="hljs-number">42</span>)<br></code></pre></td></tr></table></figure>
+
+<p>现在我们有 3 个决策树集成的模型，在预测时只需要将 3 个树的预测相加就行了：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python">X_new = np.array([[<span class="hljs-number">0.8</span>]])<br>y_pred = <span class="hljs-built_in">sum</span>(tree.predict(X_new) <span class="hljs-keyword">for</span> tree <span class="hljs-keyword">in</span> (tree_reg1, tree_reg2, tree_reg3))<br>y_pred<br>&gt;&gt; array([<span class="hljs-number">0.75026781</span>])<br></code></pre></td></tr></table></figure>
+
+<p>下图是各个树以及其集成的结果：</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210823084836674.png" srcset="/img/loading.gif" lazyload></p>
+<p>训练 GBRT 的更简单的方式是调用 Scikit-learn 中的 <code>GradientBoostingRegressor</code> 类，和随机森林一样，这个类也有控制决策树生长的参数（深度，最小叶子节点大小等）和控制集成训练的参数（预测器的数量等）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> sklearn.ensemble <span class="hljs-keyword">import</span> GradientBoostingRegressor<br><br>gbrt = GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">3</span>, learning_rate=<span class="hljs-number">1.0</span>, random_state=<span class="hljs-number">42</span>)<br>gbrt.fit(X, y)<br>&gt;&gt; GradientBoostingRegressor(learning_rate=<span class="hljs-number">1.0</span>, max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">3</span>,<br>&gt;&gt;                           random_state=<span class="hljs-number">42</span>)<br></code></pre></td></tr></table></figure>
+
+<p>注意这个 <code>learning_rate</code> 超参数，这个超参数会缩放每个预测器的贡献，它是和 <code>n_estimators</code> 超参数相对应的，当学习率设的较小时，就需要更多的预测器来拟合数据，这种正则化的技术叫做收缩（shrinkage）。<br><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210823090136193.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>GradientBoostingRegressor</code> 也有 <code>subsample</code> 超参数，来指定训练每个树时随机抽取的实例数量，使用随机抽取的样本来训练 Gradient Boosting 的方法叫做 <strong>Stochastic Gradient Boosting</strong>。</p>
+<h4 id="Early-stopping"><a href="#Early-stopping" class="headerlink" title="Early stopping"></a>Early stopping</h4><p>为了找到较优的树数量，我们可以使用 early stop 的方法，对于 GBRT 有两种策略：</p>
+<ol>
+<li>使用 <code>staged_predict()</code> 方法，该方法返回一个在集成模型训练的每个步骤（逐步增加树的数量）做出的预测的迭代器，然后在这些步骤中挑出最好的一步，接着使用这个最佳的参数来训练模型：</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> numpy <span class="hljs-keyword">as</span> np<br><span class="hljs-keyword">from</span> sklearn.model_selection <span class="hljs-keyword">import</span> train_test_split<br><span class="hljs-keyword">from</span> sklearn.metrics <span class="hljs-keyword">import</span> mean_squared_error<br><br>X_train, X_val, y_train, y_val = train_test_split(X, y, random_state=<span class="hljs-number">49</span>)<br><br>gbrt = GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">120</span>, random_state=<span class="hljs-number">42</span>)<br>gbrt.fit(X_train, y_train)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">120</span>, random_state=<span class="hljs-number">42</span>)<br>errors = [mean_squared_error(y_val, y_pred)<br>          <span class="hljs-keyword">for</span> y_pred <span class="hljs-keyword">in</span> gbrt.staged_predict(X_val)]<br>bst_n_estimators = np.argmin(errors) + <span class="hljs-number">1</span><br><br>gbrt_best = GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=bst_n_estimators, random_state=<span class="hljs-number">42</span>)<br>gbrt_best.fit(X_train, y_train)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">56</span>, random_state=<span class="hljs-number">42</span>)<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">bst_n_estimators<br>&gt;&gt; <span class="hljs-number">56</span><br></code></pre></td></tr></table></figure>
+
+<p>下面是每一个步骤的验证误差以及使用最佳树数量训练的模型：</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210823091010369.png" srcset="/img/loading.gif" lazyload></p>
+<ol start="2">
+<li>上面讲到的方法实际上不是真正的 early stop，因为它是训练完所有的模型后再选出来的；我们可以使用<br><code>warm_start=True</code> 来进行<strong>增量学习</strong>，也就是在增加树的数量时是在之前已经训练好的结果上增加树继续训练，下面的例子展示了当验证误差在 5 轮迭代中（每一次迭代增加树的数量）没有减少时就停止训练：</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br></pre></td><td class="code"><pre><code class="hljs python">gbrt = GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, warm_start=<span class="hljs-literal">True</span>, random_state=<span class="hljs-number">42</span>)<br><br>min_val_error = <span class="hljs-built_in">float</span>(<span class="hljs-string">&quot;inf&quot;</span>)<br>error_going_up = <span class="hljs-number">0</span><br><span class="hljs-keyword">for</span> n_estimators <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">1</span>, <span class="hljs-number">120</span>):<br>    gbrt.n_estimators = n_estimators<br>    gbrt.fit(X_train, y_train)<br>    y_pred = gbrt.predict(X_val)<br>    val_error = mean_squared_error(y_val, y_pred)<br>    <span class="hljs-keyword">if</span> val_error &lt; min_val_error:<br>        min_val_error = val_error<br>        error_going_up = <span class="hljs-number">0</span><br>    <span class="hljs-keyword">else</span>:<br>        error_going_up += <span class="hljs-number">1</span><br>        <span class="hljs-keyword">if</span> error_going_up == <span class="hljs-number">5</span>:<br>            <span class="hljs-keyword">break</span>  <span class="hljs-comment"># early </span><br>          <br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">1</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">2</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">3</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">4</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">5</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">6</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">7</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">8</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">9</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">10</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">11</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">12</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">13</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">14</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">15</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">16</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">17</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">18</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">19</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">20</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">21</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">22</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">23</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">24</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">25</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">26</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">27</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">28</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">29</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">30</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">31</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">32</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">33</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">34</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">35</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">36</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">37</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">38</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">39</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">40</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">41</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">42</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">43</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">44</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">45</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">46</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">47</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">48</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">49</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">50</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">51</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">52</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">53</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">54</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">55</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">56</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">57</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">58</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">59</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">60</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br>&gt;&gt; GradientBoostingRegressor(max_depth=<span class="hljs-number">2</span>, n_estimators=<span class="hljs-number">61</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                           warm_start=<span class="hljs-literal">True</span>)<br><span class="hljs-built_in">print</span>(gbrt.n_estimators)<br>&gt;&gt; <span class="hljs-number">61</span><br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Minimum validation MSE:&quot;</span>, min_val_error)<br>&gt;&gt; Minimum validation MSE: <span class="hljs-number">0.002712853325235463</span><br></code></pre></td></tr></table></figure>
+
+<p>除了 Scikit-learn 中提供的接口之外，我们还可以使用 <code>XGBoost</code> 提供的优化的梯度提升实现：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> xgboost<br>xgb_reg = xgboost.XGBRegressor(random_state=<span class="hljs-number">42</span>)<br>xgb_reg.fit(X_train, y_train)<br>&gt;&gt; XGBRegressor(base_score=<span class="hljs-number">0.5</span>, booster=<span class="hljs-string">&#x27;gbtree&#x27;</span>, colsample_bylevel=<span class="hljs-number">1</span>,<br>&gt;&gt;              colsample_bynode=<span class="hljs-number">1</span>, colsample_bytree=<span class="hljs-number">1</span>, gamma=<span class="hljs-number">0</span>, gpu_id=-<span class="hljs-number">1</span>,<br>&gt;&gt;              importance_type=<span class="hljs-string">&#x27;gain&#x27;</span>, interaction_constraints=<span class="hljs-string">&#x27;&#x27;</span>,<br>&gt;&gt;              learning_rate=<span class="hljs-number">0.300000012</span>, max_delta_step=<span class="hljs-number">0</span>, max_depth=<span class="hljs-number">6</span>,<br>&gt;&gt;              min_child_weight=<span class="hljs-number">1</span>, missing=nan, monotone_constraints=<span class="hljs-string">&#x27;()&#x27;</span>,<br>&gt;&gt;              n_estimators=<span class="hljs-number">100</span>, n_jobs=<span class="hljs-number">12</span>, num_parallel_tree=<span class="hljs-number">1</span>, random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;              reg_alpha=<span class="hljs-number">0</span>, reg_lambda=<span class="hljs-number">1</span>, scale_pos_weight=<span class="hljs-number">1</span>, subsample=<span class="hljs-number">1</span>,<br>&gt;&gt;              tree_method=<span class="hljs-string">&#x27;exact&#x27;</span>, validate_parameters=<span class="hljs-number">1</span>, verbosity=<span class="hljs-literal">None</span>)<br>y_pred = xgb_reg.predict(X_val)<br>val_error = mean_squared_error(y_val, y_pred) <br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Validation MSE:&quot;</span>, val_error) <br>&gt;&gt; Validation MSE: <span class="hljs-number">0.004000408205406276</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="Stacking"><a href="#Stacking" class="headerlink" title="Stacking"></a>Stacking</h2><p>之前讲到的集成方法都是基于某些预定的规则，比如硬投票等，另一个策略是另外训练一个模型来聚合所有预测器的预测结果，这种方法就叫做 stacking （stacked generalization），进行聚合的模型叫做 <code>blending</code> 预测器或者元学习器（meta learner）：</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210823105022753.png" srcset="/img/loading.gif" lazyload></p>
+<p>通常是使用一个 <strong>hold-out set</strong> 的方法来训练<br>blender：首先将训练集分成两个子集，第一个子集用来训练上面那个图中第一层的预测器，如下图：</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210823183715857.png" srcset="/img/loading.gif" lazyload></p>
+<p>当第一层的预测器训练好之后，使用这些预测器在刚刚分出来的第二个子集上（hold out set）做预测，因此对于这个 hold-out 集上的实例都有 3 个预测值，我们可以把这些预测值当成新的特征构建一个新的训练集，然后使用这个新的训练集训练出 blender：</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210823184105821.png" srcset="/img/loading.gif" lazyload></p>
+<p>这个过程总结如下：</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210823190812406.png" srcset="/img/loading.gif" lazyload></p>
+<p>实际上也可以使用不同的模型训练不同的 blender 构成一个 blender 层，最后再训练一个 blender 来聚合这些 blenders：</p>
+<p><img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210823191304050.png" srcset="/img/loading.gif" lazyload></p>
+<p>这个时候就需要将数据集分成 3 个部分，第一部分用来训练第一层，然后用第一层的预测器在第二部分数据中做预测，基于这些预测值构建新的训练集来训练第二层（可以使用不同的模型来训练），接着用第二层的预测器在第三部分数据中做预测，基于这些预测值构建新的训练集来训练第三层，得到最终的 blender。</p>
+<p>在 Scikit-learn 0.22 的版本中已经支持通过 <code>StackingClassifier</code>和 <code>StackingRegressor</code> 类来 直接使用stacking 了，需要注意的是 scikit-learn在训练基预测器时是使用了交叉验证的方式计算数据的预测值，然后利用不同基预测器的预测值构成新的训练集训练最后的 blender，下面是一个回归的例子：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> sklearn.linear_model <span class="hljs-keyword">import</span> RidgeCV, LassoCV<br><span class="hljs-keyword">from</span> sklearn.neighbors <span class="hljs-keyword">import</span> KNeighborsRegressor<br>estimators = [(<span class="hljs-string">&#x27;ridge&#x27;</span>, RidgeCV()),<br>              (<span class="hljs-string">&#x27;lasso&#x27;</span>, LassoCV(random_state=<span class="hljs-number">42</span>)),<br>              (<span class="hljs-string">&#x27;knr&#x27;</span>, KNeighborsRegressor(n_neighbors=<span class="hljs-number">20</span>,<br>              metric=<span class="hljs-string">&#x27;euclidean&#x27;</span>))]<br>              <br><span class="hljs-keyword">from</span> sklearn.ensemble <span class="hljs-keyword">import</span> GradientBoostingRegressor<br><span class="hljs-keyword">from</span> sklearn.ensemble <span class="hljs-keyword">import</span> StackingRegressor<br><br>final_estimator = GradientBoostingRegressor(<br>  n_estimators=<span class="hljs-number">25</span>, subsample=<span class="hljs-number">0.5</span>, min_samples_leaf=<span class="hljs-number">25</span>,<br>  max_features=<span class="hljs-number">1</span>,random_state=<span class="hljs-number">42</span>)<br>  <br>reg = StackingRegressor(<br>  estimators=estimators,<br>  final_estimator=final_estimator)<br>  <br><span class="hljs-keyword">from</span> sklearn.datasets <span class="hljs-keyword">import</span> load_diabetes<br>X, y = load_diabetes(return_X_y=<span class="hljs-literal">True</span>)<br><span class="hljs-keyword">from</span> sklearn.model_selection <span class="hljs-keyword">import</span> train_test_split<br>X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=<span class="hljs-number">42</span>)<br><br>reg.fit(X_train, y_train)<br>&gt;&gt; StackingRegressor(estimators=[(<span class="hljs-string">&#x27;ridge&#x27;</span>,<br>&gt;&gt;                                RidgeCV(alphas=array([ <span class="hljs-number">0.1</span>,  <span class="hljs-number">1.</span> , <span class="hljs-number">10.</span> ]))),<br>&gt;&gt;                               (<span class="hljs-string">&#x27;lasso&#x27;</span>, LassoCV(random_state=<span class="hljs-number">42</span>)),<br>&gt;&gt;                               (<span class="hljs-string">&#x27;knr&#x27;</span>,<br>&gt;&gt;                                KNeighborsRegressor(metric=<span class="hljs-string">&#x27;euclidean&#x27;</span>,<br>&gt;&gt;                                                    n_neighbors=<span class="hljs-number">20</span>))],<br>&gt;&gt;                   final_estimator=GradientBoostingRegressor(max_features=<span class="hljs-number">1</span>,<br>&gt;&gt;                                                             min_samples_leaf=<span class="hljs-number">25</span>,<br>&gt;&gt;                                                             n_estimators=<span class="hljs-number">25</span>,<br>&gt;&gt;                                                             random_state=<span class="hljs-number">42</span>,<br>&gt;&gt;                                                             subsample=<span class="hljs-number">0.5</span>))<br>y_pred = reg.predict(X_test)<br><span class="hljs-keyword">from</span> sklearn.metrics <span class="hljs-keyword">import</span> r2_score<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;R2 score: &#123;:.2f&#125;&#x27;</span>.<span class="hljs-built_in">format</span>(r2_score(y_test, y_pred)))<br>&gt;&gt; R2 score: <span class="hljs-number">0.53</span><br></code></pre></td></tr></table></figure>
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" class="category-chain-item">机器学习</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>【hands on ML Ch7】- 集成学习</div>
+      <div>http://example.com/2021/08/24/hands_on_ml_ch7/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Wu Tao</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2021年8月24日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/08/31/ConsensusCluster/" title="一致性聚类（Consensus Clustering）">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">一致性聚类（Consensus Clustering）</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/08/20/data_preprocess/" title="数据预处理">
+                        <span class="hidden-mobile">数据预处理</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="waline"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#waline', function() {
+      Fluid.utils.createCssLink('https://cdn.jsdelivr.net/npm/@waline/client@0.14.8/dist/waline.min.css')
+      Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/@waline/client@0.14.8/dist/waline.min.js', function() {
+        var options = Object.assign(
+          {"serverURL":"https://comments-flax.vercel.app","path":"window.location.pathname","meta":["nick","mail","link"],"requiredMeta":["nick"],"lang":"zh-CN","emoji":["https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo"],"dark":"html[data-user-color-scheme=\"dark\"]","wordLimit":0,"pageSize":10},
+          {
+            el: '#waline',
+            path: window.location.pathname
+          }
+        )
+        Waline.init(options);
+        Fluid.utils.waitElementVisible('#waline .vcontent', () => {
+          var imgSelector = '#waline .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/tocbot@4.12.2/dist/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        MathJax = {
+          tex    : {
+            inlineMath: { '[+]': [['$', '$']] }
+          },
+          loader : {
+            
+          },
+          options: {
+            renderActions: {
+              findScript    : [10, doc => {
+                document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                  const display = !!node.type.match(/; *mode=display/);
+                  const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                  const text = document.createTextNode('');
+                  node.parentNode.replaceChild(text, node);
+                  math.start = { node: text, delim: '', n: 0 };
+                  math.end = { node: text, delim: '', n: 0 };
+                  doc.math.push(math);
+                });
+              }, '', false],
+              insertedScript: [200, () => {
+                document.querySelectorAll('mjx-container').forEach(node => {
+                  let target = node.parentNode;
+                  if (target.nodeName.toLowerCase() === 'li') {
+                    target.parentNode.classList.add('has-jax');
+                  }
+                });
+              }, '', false]
+            }
+          }
+        };
+      </script>
+    
+
+  <script  src="https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
