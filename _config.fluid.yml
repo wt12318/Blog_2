@@ -39,6 +39,9 @@ code:
   # Enable copy code button
   copy_btn: true
 
+  language:
+    enable: true
+    default: "R"
   # 代码高亮
   # Code highlight
   highlight:
@@ -46,9 +49,6 @@ code:
 
   # 代码语言
   # Code language
-  language:
-    enable: true
-    default: "R"
 
     # 代码块是否显示行号
     # If true, the code block display line numbers
@@ -188,6 +188,29 @@ color:
   link_hover_bg_color: "#f8f9fa"
   link_hover_bg_color_dark: "#364151"
 
+  # 分隔线和表格边线的颜色
+  # Color of horizontal rule and table border
+  line_color: "#eaecef"
+  line_color_dark: "#435266"
+
+  # 滚动条颜色
+  # Color of scrollbar
+  scrollbar_color: "#c4c6c9"
+  scrollbar_color_dark: "#687582"
+  # 滚动条悬浮颜色
+  # Color of scrollbar when hovering
+  scrollbar_hover_color: "#a6a6a6"
+  scrollbar_hover_color_dark: "#9da8b3"
+
+  # 按钮背景色
+  # Color of button
+  button_bg_color: "transparent"
+  button_bg_color_dark: "transparent"
+  # 按钮悬浮背景色
+  # Color of button when hovering
+  button_hover_bg_color: "#f2f3f5"
+  button_hover_bg_color_dark: "#46647e"
+
   # 主面板背景色
   # Color of main board
   board_color: "#fff"
@@ -262,6 +285,12 @@ web_analytics:  # 网页访问统计
     # REST API 服务器地址，国际版不填
     # Only the Chinese mainland users need to set
     server_url:
+    # 统计页面时获取路径的属性
+    # Get the attribute of the page path during statistics
+    path: window.location.pathname
+    # 开启后不统计本地路径( localhost 与 127.0.0.1 )
+    # If ture, ignore localhost & 127.0.0.1
+    ignore_local: false
 
 # 对页面中的图片和评论插件进行懒加载处理，可见范围外的元素不会提前加载
 # Lazy loading of images and comment plugin on the page
@@ -404,15 +433,15 @@ footer:
   # 国内大陆服务器的备案信息
   # For Chinese mainland website policy, other areas keep disable
   beian:
-    enable: false
+    enable: true
     # ICP证号
-    icp_text: 京ICP证123456号
+    icp_text: 皖ICP备2022008555号
     # 公安备案号，不填则只显示ICP
-    police_text: 京公网安备12345678号
+    police_text: 
     # 公安备案的编号，用于URL跳转查询
-    police_code: 12345678
+    police_code: 
     # 公安备案的图片. 为空时不显示备案图片
-    police_icon: /img/police_beian.png
+    police_icon: 
 
 
 #---------------------------
@@ -771,7 +800,7 @@ waline:
   requiredMeta: ['nick']
   lang: 'zh-CN'
   emoji: ['https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo']
-  dark: 'html[data-user-color-scheme="dark"]'
+  dark: 'html[data-user-color-scheme="light"]'
   wordLimit: 0
   pageSize: 10
 
@@ -919,7 +948,7 @@ page404:
 # Links Page
 #---------------------------
 links:
-  enable: true
+  enable: false
   banner_img: /img/default.png
   banner_img_height: 60
   banner_mask_alpha: 0.3
