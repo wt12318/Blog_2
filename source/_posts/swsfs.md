@@ -13,7 +13,7 @@ categories:
 
 <!-- more -->
 
-SWSFS 来自文献 [**A random forest approach to the detection of epistatic interactions in case-control studies** ](A random forest approach to the detection of epistatic interactions in case-control studies)。这篇文献研究的是 SNP 之间的上位相互作用
+SWSFS 来自文献 [A random forest approach to the detection of epistatic interactions in case-control studies ](A random forest approach to the detection of epistatic interactions in case-control studies)。这篇文献研究的是 SNP 之间的上位相互作用
 
 Epistatic 指的是上位性，不同突变的表型效应之间相互作用，合成致死也是一种上位性。
 
@@ -24,6 +24,8 @@ Epistatic 指的是上位性，不同突变的表型效应之间相互作用，�
 从二分类问题去研究 case-control 数据，将 case 认为是 positive 样本，将 control 认为是 negative 样本，SNP marker 当作是分类变量（3个可能的值代表 3 个基因型），使用随机森林模型进行分类。首先使用所有的 snp 进行训练得到每个 SNP 的 gini  importance，然后使用 SWSFS（sliding window sequential forward feature selection）选择能够最小化分类误差的 SNP 子集，最后对于这一较小的子集可以使用穷举的方法研究所有可能的 SNP 相关作用。
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220611150645-tgo03fx.png" style="zoom:50%;" />
+
+
 
 关于决策树和随机森林可以看 [1](https://wutaoblog.com.cn/2021/08/24/hands_on_ml_ch7/#%E9%9A%8F%E6%9C%BA%E6%A3%AE%E6%9E%97) 和 [2](https://wutaoblog.com.cn/2021/03/04/hands_on_ml_ch6/) ，随机森林的特点在于
 
@@ -46,9 +48,13 @@ SWSFS 算法：
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220612152028-1rv05j2.png" style="zoom:50%;" />
 
+
+
 这个过程可用下图来表示：
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220612154048-gtlt3ri.png" style="zoom:67%;" />
+
+
 
 比如 i 等于 25 的时候，计算重要性排名前 25 的变量构建的随机森林模型的 error 并保存到 Error 变量中（Error 变量中已经存储了前面 1 个变量，2 个变量直到 24 个变量构建的模型的 OBB 分类误差），然后查看利用前 5 个变量（25-20=5）构建的模型误差是否是这 20 个误差中最小的（窗口大小），如果是最小的就把这个窗口左边界的变量加入候选变量集合，如果不是则移到窗口进行下一步计算。
 
@@ -165,7 +171,11 @@ impt_frame <- measure_importance(model_fit$fit,measures="gini_decrease")
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220612170401-wrq5tfx.png" style="zoom:50%;" />
 
+
+
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220612170423-skaftdf.png" style="zoom:50%;" />
+
+
 
 将上面的代码包装成函数以便于在 SWSFS 中使用来计算 OBB 误差：
 
