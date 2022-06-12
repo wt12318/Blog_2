@@ -13,9 +13,7 @@ categories:
 
 <!-- more -->
 
-SWSFS 来自文献 [A random forest approach to the detection of epistatic interactions in case-control studies ](A random forest approach to the detection of epistatic interactions in case-control studies)。这篇文献研究的是 SNP 之间的上位相互作用
-
-Epistatic 指的是上位性，不同突变的表型效应之间相互作用，合成致死也是一种上位性。
+SWSFS 来自文献 [这篇文献](A random forest approach to the detection of epistatic interactions in case-control studies)。研究的是 SNP 之间的上位相互作用；Epistatic 指的是上位性，不同突变的表型效应之间相互作用，合成致死也是一种上位性。
 
 > Life would have been much simpler, and perhaps even boring, if epistasis were completely absent. In reality, however, epistasis abounds, rendering biology full of surprises and complexity. For instance, a commonly encountered type of epistasis is synthetic lethality, where simultaneously deleting two genes from the genome of a normal organism is lethal despite the fact that deleting each of them separately is viable
 
@@ -25,7 +23,7 @@ Epistatic 指的是上位性，不同突变的表型效应之间相互作用，�
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220611150645-tgo03fx.png" style="zoom:50%;" />
 
-
+​					
 
 关于决策树和随机森林可以看 [1](https://wutaoblog.com.cn/2021/08/24/hands_on_ml_ch7/#%E9%9A%8F%E6%9C%BA%E6%A3%AE%E6%9E%97) 和 [2](https://wutaoblog.com.cn/2021/03/04/hands_on_ml_ch6/) ，随机森林的特点在于
 
@@ -48,13 +46,13 @@ SWSFS 算法：
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220612152028-1rv05j2.png" style="zoom:50%;" />
 
-
+​	
 
 这个过程可用下图来表示：
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220612154048-gtlt3ri.png" style="zoom:67%;" />
 
-
+​	
 
 比如 i 等于 25 的时候，计算重要性排名前 25 的变量构建的随机森林模型的 error 并保存到 Error 变量中（Error 变量中已经存储了前面 1 个变量，2 个变量直到 24 个变量构建的模型的 OBB 分类误差），然后查看利用前 5 个变量（25-20=5）构建的模型误差是否是这 20 个误差中最小的（窗口大小），如果是最小的就把这个窗口左边界的变量加入候选变量集合，如果不是则移到窗口进行下一步计算。
 
@@ -171,11 +169,11 @@ impt_frame <- measure_importance(model_fit$fit,measures="gini_decrease")
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220612170401-wrq5tfx.png" style="zoom:50%;" />
 
-
+​				
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220612170423-skaftdf.png" style="zoom:50%;" />
 
-
+​	
 
 将上面的代码包装成函数以便于在 SWSFS 中使用来计算 OBB 误差：
 
@@ -267,3 +265,8 @@ while (i <= 50) {
 
 ```
 
+参考：
+
+- Jiang R, Tang W, Wu X, Fu W. A random forest approach to the detection of epistatic interactions in case-control studies. BMC Bioinformatics. 2009 Jan 30;10 Suppl 1(Suppl 1):S65. doi: 10.1186/1471-2105-10-S1-S65. PMID: 19208169; PMCID: PMC2648748.
+- https://juliasilge.com/blog/sf-trees-random-tuning/
+- https://www.r-bloggers.com/2019/08/explaining-predictions-random-forest-post-hoc-analysis-randomforestexplainer-package/
