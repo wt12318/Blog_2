@@ -56,7 +56,7 @@ SWSFS 算法：
 
 比如 i 等于 25 的时候，计算重要性排名前 25 的变量构建的随机森林模型的 error 并保存到 Error 变量中（Error 变量中已经存储了前面 1 个变量，2 个变量直到 24 个变量构建的模型的 OBB 分类误差），然后查看利用前 5 个变量（25-20=5）构建的模型误差是否是这 20 个误差中最小的（窗口大小），如果是最小的就把这个窗口左边界的变量加入候选变量集合，如果不是则移到窗口进行下一步计算。
 
-下面以 TCGA 内膜癌基因表达数据为例来使用 SWSFS 筛选和 OS 相关的基因集合。首先需要在所有的数据上训练随机森林模型：
+虽然这篇文献是用这个算法来作为后续研究变量间相互作用的前置步骤，但是 SWSFS 可以作为一般的特征筛选方法来使用，比如这篇文献：YKT6 , as a potential predictor of prognosis and immunotherapy response for oral squamous cell carcinoma, is related to cell invasion, metastasis, and CD8+ T cell infiltration，使用 SWSFS 筛选和病人 OS 相关的基因；下面以 TCGA 内膜癌基因表达数据为例来使用 SWSFS 筛选和 OS 相关的基因集合。首先需要在所有的数据上训练随机森林模型：
 
 ```r
 library(dplyr)
