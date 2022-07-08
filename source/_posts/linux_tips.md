@@ -1576,3 +1576,58 @@ plot_confusion_matrix(cfm,
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20220520222808732.png" style="zoom:50%;" />
 
+## 服务器添加新硬盘挂载 （centos 7）
+
+首先将 `/etc/fstab` 中原先的硬盘挂载给注释掉，接着插入新硬盘，使用 `fdisk -l` 查看新加入的硬盘：
+
+```shell
+fdisk -l
+
+Disk /dev/sdd: 18000.2 GB, 18000207937536 bytes, 35156656128 sectors
+Units = sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 4096 bytes
+I/O size (minimum/optimal): 4096 bytes / 4096 bytes
+```
+
+对于这种较大的硬盘，需要使用 `parted` 进行分区：
+
+```shell
+parted /dev/sdd ##进入分区界面
+mklabel gpt##使用 gpt 分区
+mkpart primary 0 -1 ##将全部容量建立一个分区
+print ##打印分区信息
+quit ##退出分区界面
+```
+
+分区完成之后需要对其进行格式化：
+
+```shell
+mkfs.xfs -f /dev/sdd
+```
+
+> 区别：1、单个文件的大小，EXT4可以是16GB到16TB，而XFS可以是16TB到16EB；2、最大文件系统大小，EXT4可以是1EB，而XFS是8EB；3、EXT4受限制于磁盘结构和兼容问题，可扩展性和scalability不如XFS
+
+接下来就需要创建挂载点并进行挂载：
+
+```shell
+mkdir data_backup1
+mount -t xfs /dev/sdd /home/data_backup1/
+```
+
+为了开机自动挂载，需要修改 `etc/fstab` 文件：
+
+```shell
+##加上，注意列之间是 tab 分割
+/dev/sdd        /home/data_backup2      xfs     defaults        0       0
+```
+
+重启之后检查挂载：
+
+```shell
+df -hT
+
+/dev/sdd                xfs        17T   34M   17T   1% /home/data_backup1
+```
+
+
+

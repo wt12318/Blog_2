@@ -8,22 +8,20 @@ categories:
 index_img: img/snakemake.png
 ---
 
-
-
-
-
-
-
 学习`snakemake` 官方文档
 
 <!-- more -->
 
+## 环境准备
+
 创建一个`snakemake_tutorial`目录,并下载示例数据：
 
 ```bash
-wget https://github.com/snakemake/snakemake-tutorial-data/archive/v5.24.1.tar.gz
+mkdir snakemake-tutorial
+cd snakemake-tutorial
 
-tar --wildcards -xf snakemake-tutorial-data-5.24.1.tar.gz --strip 1 "*/data" "*/environment.yaml"
+wget https://github.com/snakemake/snakemake-tutorial-data/archive/v5.24.1.tar.gz
+tar --wildcards -xf v5.24.1.tar.gz --strip 1 "*/data" "*/environment.yaml"
 ##--wildcards 根据通配符来提取压缩文件,这里是只提取data文件夹和environment.yaml文件
 ```
 
@@ -43,12 +41,12 @@ tar --wildcards -xf snakemake-tutorial-data-5.24.1.tar.gz --strip 1 "*/data" "*/
 │       ├── B.fastq
 │       └── C.fastq
 ├── environment.yaml
-└── snakemake-tutorial-data-5.24.1.tar.gz
+└── v5.24.1.tar.gz
 
 2 directories, 12 files
 ```
 
-其中`environment.yaml`文件是用来创建所需的`conda`环境:
+其中 `environment.yaml` 文件是用来创建所需的`conda`环境:
 
 ```bash
 cat environment.yaml
@@ -68,27 +66,47 @@ dependencies:
   - pysam =0.15
 ```
 
-使用该配置文件创建`snakemake-tutorial`的环境(使用mamba代替conda来加速下载)：
+使用该配置文件创建 `snakemake-tutorial `的环境(使用 `mamba` 代替 `conda` 来加速下载)：
 
 ```bash
-mamba env create --name snakemake-tutorial --file environment.yaml
-
-conda activate snakemake-tutorial
+##创建环境
+mamba env create --name snakemake --file environment.yaml
+##激活环境
+conda activate snakemake
 ```
+
+------
+
+如果按照上面方法无法创建或者很慢，可以手动安装软件：
+
+```bash
+conda create -n snakemake python=3.8
+conda install -c bioconda -c conda-forge snakemake-minimal
+conda install -c bioconda bwa
+conda install -c bioconda samtools
+conda install -c bioconda pysam
+conda install -c bioconda bcftools
+conda install -c anaconda graphviz
+conda install -c anaconda jinja2
+conda install -c anaconda networkx
+conda install -c conda-forge matplotlib
+```
+
+------
+
+
 
 ## 基础：以一个生物信息学流程为例
 
-一个`Snakemake`流程由`Snakefile`文件中的一系列规则(rules)来创建；这些规则通过说明**如何从输入文件得到输出文件**来将流程分解成多个小的步骤,`Snakemake`会通过匹配文件名来自动的决定规则间的依赖关系
+一个 `Snakemake` 流程由 `Snakefile` 文件中的一系列规则 (rules) 来创建；这些规则通过说明**如何从输入文件得到输出文件**来将流程分解成多个小的步骤， `Snakemake` 会通过匹配文件名来自动决定规则间的依赖关系。
 
-接下来以一个生物信息学的流程为例来学习`Snakemake`流程的搭建
-
-这个流程做的工作为：将测序的reads匹配到参考基因组上,并且检测匹配上的reads的变异
+接下来以一个生物信息学的流程为例来学习`Snakemake`流程的搭建，这个流程做的工作为：将测序的reads匹配到参考基因组上,并且检测匹配上的reads的变异。
 
 ### 第一步：Mapping reads
 
-第一个`Snakemake`规则将给定样本的测序reads回帖到给定的参考基因组上去,使用的工具为[bwa的mem算法](http://bio-bwa.sourceforge.net/)
+第一个 `Snakemake` 规则将给定样本的测序 reads 回帖到给定的参考基因组上去,使用的工具为 [bwa的mem算法](http://bio-bwa.sourceforge.net/)。
 
-创建一个`Snakefile`文件,写上下面的规则：
+创建一个 `Snakefile` 文件，定义下面的规则：
 
 ```python
 rule bwa_map:
@@ -101,7 +119,7 @@ rule bwa_map:
         "bwa mem {input} | samtools view -Sb - > {output}"
 ```
 
-一个`Snakemake`规则有一个名字,这里是`bwa_map`;还有一些指令,上面的例子里是`input`, `output`和`shell`;`input`和`output`指令中是一系列的文件名(python 字符串),指定了输入和输出文件(如果有多个文件,用逗号分割);`shell`指令也是一个字符串,表示需要执行的shell命令,在shell命令字符串中可以使用花括号来指代规则中的其他部分,比如这里使用`{input}`来指代`input`指令中的内容,使用`{output}`指代`output`指令中的内容;上面的`input`里面有两个字符串,这时`snakemake`替代`{input}`时会用空格分隔开两个输入文件 
+一个 `Snakemake` 规则有一个名字，这里是 `bwa_map` ；还有一些指令，上面的例子里是 `input`，`output` 和 `shell`；`input` 和 `output` 指令中使用或者要创建的文件名（python 字符串，如果有多个文件,用逗号分割）；`shell`指令也是一个字符串，表示需要执行的 shell 命令，在 shell 命令字符串中可以使用花括号来指代规则中的其他部分，比如这里使用 `{input}` 来指代 `input` 指令中的内容,使用 `{output}` 指代 `output` 指令中的内容；上面的 `input` 里面有两个字符串,这时`snakemake` 替代 `{input}` 时会用空格分隔开两个输入文件 （也就是在运行时会用 `data/genome.fa data/samples/A.fastq` 来代替 `{input}`）。
 
 接下来可以执行这个流程：
 
@@ -112,29 +130,34 @@ Building DAG of jobs...
 Using shell: /usr/bin/bash
 Provided cores: 1 (use --cores to define parallelism)
 Rules claiming more threads will be scaled down.
-Job counts:
-        count   jobs
-        1       bwa_map
-        1
+Job stats:
+job        count    min threads    max threads
+-------  -------  -------------  -------------
+bwa_map        1              1              1
+total          1              1              1
+
 Select jobs to execute...
 
-[Sat Mar 20 18:17:43 2021]
+[Wed Jun 29 19:09:08 2022]
 rule bwa_map:
     input: data/genome.fa, data/samples/A.fastq
     output: mapped_reads/A.bam
     jobid: 0
+    reason: Missing output files: mapped_reads/A.bam
+    resources: tmpdir=/home/data/t040201/tmp/mhcbinding
 
 [M::bwa_idx_load_from_disk] read 0 ALT contigs
 [M::process] read 25000 sequences (2525000 bp)...
-[M::mem_process_seqs] Processed 25000 reads in 1.267 CPU sec, 1.267 real sec
+[M::mem_process_seqs] Processed 25000 reads in 0.899 CPU sec, 0.899 real sec
 [main] Version: 0.7.17-r1188
 [main] CMD: bwa mem data/genome.fa data/samples/A.fastq
-[main] Real time: 1.757 sec; CPU: 1.318 sec
-[Sat Mar 20 18:17:44 2021]
+[main] Real time: 1.181 sec; CPU: 0.931 sec
+[Wed Jun 29 19:09:09 2022]
 Finished job 0.
 1 of 1 steps (100%) done
-Complete log: /slst/home/wutao2/snakemake_tutorial/.snakemake/log/2021-03-20T181738.569944.snakemake.log
+Complete log: .snakemake/log/2022-06-29T190907.969200.snakemake.log
 
+##查看生成的文件
 tree .
 .
 ├── data
@@ -156,34 +179,44 @@ tree .
 └── snakemake-tutorial-data-5.24.1.tar.gz
 ```
 
-也可以使用`-n`或者`--dry-run`参数使snakemake显示执行的”计划“(没有真正的执行流程);使用`-p`参数来打印需要执行的命令：
+也可以使用 `-n` 或者 `--dry-run` 参数使 snakemake 显示执行的”计划“(没有真正的执行流程)；使用 `-p` 参数来打印需要执行的命令；在运行这个之前我们需要将上面输出的 `A.bam` 给删了，因为
 
 ```bash
+##显示计划
 snakemake -np
 
 Building DAG of jobs...
-Job counts:
-        count   jobs
-        1       bwa_map
-        1
+Job stats:
+job        count    min threads    max threads
+-------  -------  -------------  -------------
+bwa_map        1              1              1
+total          1              1              1
 
-[Sat Mar 20 18:25:11 2021]
+
+[Wed Jun 29 19:11:21 2022]
 rule bwa_map:
     input: data/genome.fa, data/samples/A.fastq
     output: mapped_reads/A.bam
     jobid: 0
+    reason: Missing output files: mapped_reads/A.bam
+    resources: tmpdir=/home/data/t040201/tmp/mhcbinding
 
 bwa mem data/genome.fa data/samples/A.fastq | samtools view -Sb - > mapped_reads/A.bam
-Job counts:
-        count   jobs
-        1       bwa_map
-        1
+Job stats:
+job        count    min threads    max threads
+-------  -------  -------------  -------------
+bwa_map        1              1              1
+total          1              1              1
+
+
 This was a dry-run (flag -n). The order of jobs does not reflect the order of execution.
 ```
 
+尽管我们已经在 output 中指定了输出文件，但是我们仍然可以在运行时指定要输出的文件（适合有多个文件的时候，见下面）。
+
 ### 第二步：使规则适用的范围更广
 
-上面的规则只能对单个样本`data/samples/A.fastq`适用,在snakemake中可以使用通配符(wildcard)来扩展规则的适用范围：
+上面的规则只能对单个样本 `data/samples/A.fastq` 适用,在 `snakemake` 中可以使用通配符（wildcard）来扩展规则的适用范围：
 
 ```bash
 rule bwa_map:
@@ -221,8 +254,7 @@ Job counts:
         1
 This was a dry-run (flag -n). The order of jobs does not reflect the order of execution.
 ```
-这个时候snakemake就将`{sample}`替换成`B`了       
-也可以同时生成多个文件：
+这个时候snakemake就将`{sample}`替换成`B`了，也可以同时生成多个文件：
 
 ```bash
 snakemake -np mapped_reads/A.bam mapped_reads/B.bam
