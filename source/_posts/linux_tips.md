@@ -1425,14 +1425,14 @@ install.packages("~/software/magick_2.7.3.tar.gz",repos=NULL,type="source")
 
 1.  `jupyter-lab --generate-config` 生成配置文件
 
-2. 生成密码：
+2. 生成密码（进入 python，如果没有 `notebook`  模块，需要先 `pip install notebook`）：
 
    ```python
    from notebook.auth import passwd
-   passwd():
+   passwd()
    ```
 
-3. 修改配置文件：
+3. 修改刚刚生成的配置文件：
 
    ```
    c.ServerApp.allow_remote_access = True
