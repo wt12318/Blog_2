@@ -7,9 +7,7 @@ categories:
   - tips
 ---
 
-
-
-面向谷歌编程
+proj4 包安装
 
 <!-- more -->
 
