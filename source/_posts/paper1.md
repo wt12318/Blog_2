@@ -137,6 +137,9 @@ T 就是药物相关基因，S 是 pathway 里面的基因，$d(s,t)$ 是某个�
 
 <img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220604101749-ufad6nc.png" style="zoom: 33%;" />
 
+关于 Centrality encoding：先初始化两个矩阵，分别和图中节点的出度和入度相关，对一个节点而言根据其出度和入度在这两个矩阵中检索（比如这个节点的入度是 2，出度是 3，那么就选择下面两个向量，分别和该节点的 embedding 相加）：
+
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220825101839736.png" alt="" style="zoom:50%;" />
 
 参考：
 
