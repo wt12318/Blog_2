@@ -3,6 +3,7 @@ title: 数据分析 Tips
 date: 2022-09-20 09:14:18
 tags: data analysis
 index_img: img/data_analysis.png
+sticky: 100
 categories:
   - data analysis
 ---
