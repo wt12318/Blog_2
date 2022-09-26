@@ -1629,5 +1629,71 @@ df -hT
 /dev/sdd                xfs        17T   34M   17T   1% /home/data_backup1
 ```
 
+## 删除大量文件
 
+[Linux上删除大量文件几种方式对比 - Show_you - 博客园 (cnblogs.com)](https://www.cnblogs.com/dianel/p/10790580.html#:~:text=Linux%E4%B8%8A%E5%88%A0%E9%99%A4%E5%A4%A7%E9%87%8F%E6%96%87%E4%BB%B6%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F%E5%AF%B9%E6%AF%94%201%20rm%E5%88%A0%E9%99%A4%EF%BC%9A%E5%9B%A0%E4%B8%BA%E6%96%87%E4%BB%B6%E6%95%B0%E9%87%8F%E5%A4%AA%E5%A4%9A%EF%BC%8Crm%E6%97%A0%E6%B3%95%E5%88%A0%E9%99%A4%EF%BC%88%E6%8A%A5%E9%94%99%EF%BC%89%202%20find%E6%9F%A5%E6%89%BE%E5%88%A0%E9%99%A4%EF%BC%9A-exec%203%20find%E6%9F%A5%E6%89%BE%E5%88%A0%E9%99%A4%EF%BC%9Axargs,4%20find%E8%B0%83%E7%94%A8-delete%E5%88%A0%E9%99%A4%205%20ls%E5%92%8Cxargs%E7%BB%84%E5%90%88%E5%88%A0%E9%99%A4%206%20rsync%20delete%E5%88%A0%E9%99%A4) 比较快的方法是：
 
+```shell
+find . -type f|xargs rm -rf
+```
+
+## 多线程压缩
+
+使用 `pigz`:
+
+```python
+tar -cvf - /var/log | pigz -k -p 20 > logs.tar.gz
+##解压
+unpigz -d logs.tar.gz
+tar -I pigz -xvf model_data.tar.gz
+```
+
+## 用 Latex 画神经网络示意图
+
+```latex
+\documentclass{article}
+
+\usepackage{tikz}
+\begin{document}
+\pagestyle{empty}
+
+\def\layersep{2.5cm}
+
+\begin{tikzpicture}[shorten >=1pt,->,draw=black!50, node distance=\layersep]
+    \tikzstyle{every pin edge}=[<-,shorten <=3pt]
+    \tikzstyle{neuron}=[circle,fill=black!25,minimum size=25pt,inner sep=0pt]
+    \tikzstyle{input neuron}=[neuron, fill=green!50];
+    \tikzstyle{output neuron}=[neuron, fill=red!50];
+    \tikzstyle{hidden neuron}=[neuron, fill=blue!50];
+    \tikzstyle{annot} = [text width=4em, text centered]
+
+    % Draw the input layer nodes
+    \foreach \name / \y in {1,...,5}
+    % This is the same as writing \foreach \name / \y in {1/1,2/2,3/3,4/4}
+        \node[input neuron] (I-\name) at (0,-\y) {};
+
+    % Draw the hidden layer nodes
+    \foreach \name / \y in {1,...,3}
+        \path[yshift=-1cm]
+            node[hidden neuron] (H-\name) at (\layersep,-\y cm) {};
+
+    % Draw the output layer node
+    \node[output neuron, right of=H-2] (O) {};
+
+    % Connect every node in the input layer with every node in the
+    % hidden layer.
+    \foreach \source in {1,...,5}
+        \foreach \dest in {1,...,3}
+            \path (I-\source) edge (H-\dest);
+
+    % Connect every node in the hidden layer with the output layer
+    \foreach \source in {1,...,3}
+        \path (H-\source) edge (O);
+
+  
+\end{tikzpicture}
+% End of code
+\end{document}
+```
+
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220926145100102.png)
