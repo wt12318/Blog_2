@@ -265,7 +265,7 @@ ada_clf.fit(X_train, y_train)
 
 Gradient Boosting 和 AdaBoost 类似，也是通过逐步加入新的预测器，每一个预测器对前一个进行矫正使结果变好，但是和 AdaBoost 不同的是 Gradient Boosting 并不是通过更新实例的权重而是通过**拟合前一个预测器的残差（residual errors）**。
 
-下面以一个回归的任务为例，使用决策树作为基预测器（这样的模型叫做**Gradient Tree Boosting** 或 **Gradient Boosted Regression Trees (GBRT)**），首先对训练数据应用决策树回归，然后计算残差，接着再对残差应用第二个决策树回归，计算第二个模型的残差，再用第三个决策树回归：
+下面以一个回归的任务为例，使用决策树作为基预测器（这样的模型叫做**Gradient Tree Boosting** 或 **Gradient Boosted Regression Trees (GBRT)**，XGBoost 也是这种模型），首先对训练数据应用决策树回归，然后计算残差，接着再对残差应用第二个决策树回归，计算第二个模型的残差，再用第三个决策树回归：
 
 ``` python
 ##创建数据
@@ -532,8 +532,7 @@ print("Validation MSE:", val_error)
 
 ![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210823105022753.png)
 
-通常是使用一个 **hold-out set** 的方法来训练
-blender：首先将训练集分成两个子集，第一个子集用来训练上面那个图中第一层的预测器，如下图：
+通常是使用一个 **hold-out set** 的方法来训练 blender：首先将训练集分成两个子集，第一个子集用来训练上面那个图中第一层的预测器，如下图：
 
 ![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/image-20210823183715857.png)
 

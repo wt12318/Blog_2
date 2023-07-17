@@ -56,7 +56,7 @@ plt.axis("off")
 plt.show()
 ```
 
-![](/img/hands_on_ML_ch3_files/figure-markdown_github/unnamed-chunk-3-1.png)
+![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/unnamed-chunk-3-1.png)
 
 ``` python
 y[0]

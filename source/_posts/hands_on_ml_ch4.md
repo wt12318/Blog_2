@@ -48,7 +48,7 @@ plt.axis([0, 2, 0, 15])
 plt.show()
 ```
 
-<img src="/img/hands_on_ml_ch4_files/figure-markdown_github/unnamed-chunk-1-1.png" width="672" />
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/unnamed-chunk-1-1.png" width="672" />
 
 计算*θ*的Normal equation:
 
@@ -84,7 +84,7 @@ plt.axis([0,2,0,15])
 plt.show()
 ```
 
-<img src="/img/hands_on_ml_ch4_files/figure-markdown_github/unnamed-chunk-4-1.png" width="672" />
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/unnamed-chunk-4-1.png" width="672" />
 
 在Scikit-Learn中可以使用`LinearRegression`来方便的进行线性回归的计算：
 
@@ -220,7 +220,7 @@ plt.axis([-3, 3, 0, 10])
 plt.show()
 ```
 
-<img src="/img/hands_on_ml_ch4_files/figure-markdown_github/unnamed-chunk-7-1.png" width="672" />
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/unnamed-chunk-7-1.png" width="672" />
 
 使用`PolynomialFeatures`类将特征加上平方后作为新的特征：
 
@@ -266,7 +266,7 @@ plt.axis([-3, 3, 0, 10])
 plt.show()
 ```
 
-<img src="/img/hands_on_ml_ch4_files/figure-markdown_github/unnamed-chunk-10-1.png" width="672" />
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/unnamed-chunk-10-1.png" width="672" />
 
 需要注意的是：`PolynomialFeatures(degree=d)`会将原来的n个特征变成$\\frac{(n+d)!}{d!n!}$个特征；比如有两个特征a,b,经过自由度为3的PolynomialFeatures转化后就有10个特征(包括1),要注意特征爆炸的问题
 
@@ -308,7 +308,7 @@ plt.axis([0, 80, 0, 3])
 plt.show()        
 ```
 
-<img src="/img/hands_on_ml_ch4_files/figure-markdown_github/unnamed-chunk-11-1.png" width="672" />
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/unnamed-chunk-11-1.png" width="672" />
 
 当只有一两个训练数据的时候，模型拟合的非常好，同时由于训练集较少，泛化能力较弱所以在验证集中表现不好；当训练集逐渐增大，一方面由于数据的噪音，另一方面因为模型是线性的，而数据不是线性的，所以模型在训练集上的误差上升，但是由于训练集增多，泛化能力会一定程度的上升，所以在验证集上的误差降低，最终两者都到达一个平台。
 
@@ -330,7 +330,7 @@ plt.axis([0, 80, 0, 3])
 plt.show()           
 ```
 
-<img src="/img/hands_on_ml_ch4_files/figure-markdown_github/unnamed-chunk-12-1.png" width="672" />
+<img src="https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/img/unnamed-chunk-12-1.png" width="672" />
 
 这个学习曲线也有两个特征：
 

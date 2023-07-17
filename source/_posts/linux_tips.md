@@ -1697,3 +1697,97 @@ tar -I pigz -xvf model_data.tar.gz
 ```
 
 ![](https://picgo-wutao.oss-cn-shanghai.aliyuncs.com/image-20220926145100102.png)
+
+## 解压如何丢弃目录层级
+
+加上 --strip-components :
+
+```shell
+ tar -xvf eg.tar --strip-components 1
+```
+
+后面接的数字表示去掉几个层级的目录（也就是去掉几个 /）
+
+## Centos 升级，切换 GCC 版本
+
+```shell
+###gcc 版本不够，升级到10
+##切换源
+mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup
+cd /etc/yum.repos.d/
+wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo
+##在后面加上 https://forums.centos.org/viewtopic.php?t=76778
+[ol7_software_collections]
+name=Software Collection packages for Oracle Linux 7 ($basearch)
+baseurl=http://yum.oracle.com/repo/OracleLinux/OL7/SoftwareCollections/$basearch/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
+gpgcheck=1
+enabled=1
+
+yum makecache 
+yum clean all
+yum makecache
+yum -y update
+##添加个Key https://logic.edchen.org/how-to-resolve-gpg-key-retrieval-failed-errno-14-curl-37-couldnt-open-file-etc-pki-rpm-gpg-rpm-gpg-key-oracle/
+sudo wget http://public-yum.oracle.com/RPM-GPG-KEY-oracle-ol7 -O /etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
+
+sudo yum install devtoolset-9
+scl enable devtoolset-9 bash ##没有用
+##https://serverfault.com/questions/1002266/scl-enable-devtoolset-7-dosnt-do-anything
+source /opt/rh/devtoolset-9/enable
+```
+
+## 编译时出现 undefined reference to `__strtof128_nan@GLIBC_PRIVATE'
+
+```shell
+/lib/../lib64/libm.so: undefined reference to `__strtof128_nan@GLIBC_PRIVATE'
+```
+
+参考 [/lib/x86_64-linux-gnu/libm.so.6: undefined reference to `__strtof128_nan@GLIBC_PRIVATE‘_CDL_03的博客-CSDN博客](https://blog.csdn.net/qq_34440148/article/details/120139850) 可能是由于 libm 和 libc 版本不一致：
+
+```shell
+(base) [wt@localhost lib]$ ls -lh /lib/../lib64/libc.so.6 
+lrwxrwxrwx 1 root root 12 Jan  7 04:20 /lib/../lib64/libc.so.6 -> libc-2.17.so
+(base) [wt@localhost lib]$ ls -lh /lib/../lib64/libm.so.6 
+lrwxrwxrwx 1 root root 12 Jan 18 06:30 /lib/../lib64/libm.so.6 -> libm-2.29.so
+
+sudo ln -s -f /lib/../lib64/libm-2.17.so /lib/../lib64/libm.so.6
+
+(base) [wt@localhost lib]$ ls -lh /lib/../lib64/libc.so.6 
+lrwxrwxrwx 1 root root 12 Jan  7 04:20 /lib/../lib64/libc.so.6 -> libc-2.17.so
+(base) [wt@localhost lib]$  ls -lh /lib/../lib64/libm.so.6 
+lrwxrwxrwx 1 root root 26 Feb  3 21:39 /lib/../lib64/libm.so.6 -> /lib/../lib64/libm-2.17.so
+```
+
+## 清理 SWAP 内存
+
+[手动清除或刷新Linux的Swap分区 - EasonJim - 博客园 (cnblogs.com)](https://www.cnblogs.com/EasonJim/p/8357973.html)
+
+```shell
+swapoff -a && swapon -a
+```
+
+改变内存进入 SWAP 的频率：[内存还剩余很多，却使用 swap 分区 - 腾讯云开发者社区-腾讯云 (tencent.com)](https://cloud.tencent.com/developer/article/1649056)
+
+> swappiness=0的时候表示最大限度使用物理内存，然后才是 swap空间，swappiness＝100的时候表示积极的使用swap分区，并且把内存上的数据及时的搬运到swap空间里面。
+
+```shell
+sudo echo "vm.swappiness=10" >> /etc/sysctl.conf 
+sudo sysctl -p
+```
+
+## 每一行加上相同的字符
+
+```shell
+sed -e 's/$/string after each line/' -i filename
+```
+
+## 列出某个时间之后产生的文件
+
+```shell
+find . -maxdepth 1 -newermt "2023-04-25 16:00" | grep "_feat.txt" | wc -l
+-mmin 5 过去5min产生的文件
+-mtime -1 过去 24小时产生的文件
+```
+
+[How to get only files created after a date with ls? - Unix & Linux Stack Exchange](https://unix.stackexchange.com/questions/10041/how-to-get-only-files-created-after-a-date-with-ls)

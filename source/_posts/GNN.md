@@ -146,7 +146,7 @@ categories:
 **节点中心性**（centrality）考虑了图中节点的重要性，有一些方法可以用来表示“重要性”：
 
 * 特征向量中心性（Engienvector centrality）
-* 介数中心性（Betweenness centrality）<br />
+* 介数中心性（Betweenness centrality）
 * 临接中心性（Closeness centrality）
 
 **特征向量中心性**的思想是如果一个节点的邻居节点是重要的，那么这个节点也比较重要；一个节点的中心性可以表示为其邻居节点中心性的和，这个迭代的形式可以写成矩阵，进一步可以用特征向量来表示一个节点的邻居节点的中心性：
